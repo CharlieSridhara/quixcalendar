@@ -27,21 +27,15 @@ body.light-mode{
   --border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);
   --text:#111318;--muted:#6b7280;--muted2:#9ca3af;
 }
-/* Theme toggle */
 .theme-toggle{width:36px;height:20px;background:var(--bg4);border:1px solid var(--border2);border-radius:10px;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0}
 .theme-toggle::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:var(--muted);transition:transform .2s,background .2s}
 body.light-mode .theme-toggle{background:var(--accent-dim)}
 body.light-mode .theme-toggle::after{transform:translateX(16px);background:var(--accent2)}
-/* Icon utility */
 .icon{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;zoom:1.05}
 @media(max-width:768px){body{zoom:1}}
-
-/* FOX LOGO SVG embedded as background pattern */
 .fox-watermark{position:fixed;bottom:20px;right:20px;opacity:.04;pointer-events:none;z-index:0}
-
-/* AUTH */
 #auth-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(29,106,229,0.1),transparent 70%)}
 .auth-card{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:48px 40px;width:100%;max-width:420px;position:relative}
 .auth-logo{display:flex;align-items:center;gap:12px;margin-bottom:8px}
@@ -60,8 +54,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .btn-primary:hover{opacity:.88}
 .btn-primary:disabled{opacity:.5;cursor:not-allowed}
 .auth-error{background:var(--red-dim);border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:10px 13px;font-size:13px;color:var(--red);margin-bottom:14px;display:none}
-
-/* APP SHELL */
 #app-screen{display:none;height:100vh;flex-direction:column}
 #app-screen.visible{display:flex}
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:54px;border-bottom:1px solid var(--border);background:var(--bg2);flex-shrink:0;gap:12px}
@@ -91,13 +83,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .dropdown.open{display:block}
 .dropdown-item{padding:9px 13px;font-size:13px;color:var(--muted);cursor:pointer;transition:background .15s}
 .dropdown-item:hover{background:var(--bg4);color:var(--text)}
-
-/* PAGES */
 .page{display:none;flex:1;overflow:hidden}
 .page.active{display:flex}
 .main-layout{display:flex;flex:1;overflow:hidden}
-
-/* SIDEBAR */
 .sidebar{width:220px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto}
 .sidebar-section{padding:12px 14px}
 .sidebar-label{font-size:10px;font-weight:700;color:var(--muted2);letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px;padding:0 4px}
@@ -131,8 +119,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .mini-day.selected{border:1px solid var(--accent2);color:var(--accent2)}
 .mini-day.other-month{opacity:.35}
 .mini-day.has-event::after{content:'';display:block;width:3px;height:3px;background:var(--accent2);border-radius:50%;margin:1px auto 0}
-
-/* CAL AREA */
 .cal-area{flex:1;display:flex;flex-direction:column;overflow:hidden}
 .cal-header-bar{display:flex;align-items:center;gap:10px;padding:8px 18px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--bg2)}
 .cal-header-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
@@ -155,8 +141,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .event-pill.completed{opacity:.45;text-decoration:line-through}
 .event-pill-dot{width:4px;height:4px;border-radius:50%;flex-shrink:0}
 .more-events{font-size:9px;color:var(--muted2);padding:1px 6px;cursor:pointer}
-
-/* WEEK VIEW - unified scroll container */
 .week-container{display:flex;flex:1;overflow:hidden;position:relative}
 .week-scroll{flex:1;overflow-y:auto;overflow-x:hidden}
 .week-inner{display:flex;min-height:1440px}
@@ -186,8 +170,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .week-now-line{position:absolute;left:0;right:0;height:2px;background:var(--red);z-index:5;pointer-events:none}
 .week-now-line::before{content:'';position:absolute;left:-3px;top:-3px;width:8px;height:8px;border-radius:50%;background:var(--red)}
 .time-gutter-line{position:absolute;left:0;right:0;border-top:1px solid var(--border);pointer-events:none;width:100%}
-
-/* HOME */
 .home-page{flex:1;overflow-y:auto;padding:28px 32px}
 .home-greeting{font-size:24px;font-weight:700;margin-bottom:3px}
 .home-sub{color:var(--muted);font-size:13px;margin-bottom:24px}
@@ -213,16 +195,12 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .upcoming-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
 .upcoming-title{font-size:12px;font-weight:500;color:var(--text)}
 .upcoming-meta{font-size:10px;color:var(--muted);margin-top:1px}
-
-/* PROFILE */
 .profile-page{flex:1;overflow-y:auto;padding:28px 32px;max-width:580px}
 .profile-avatar-section{display:flex;align-items:center;gap:18px;margin-bottom:24px;padding:20px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg)}
 .profile-avatar-big{width:64px;height:64px;border-radius:50%;background:var(--accent-dim);border:2px solid var(--accent-border);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:var(--accent2);overflow:hidden;cursor:pointer;position:relative;flex-shrink:0}
 .profile-avatar-big img{width:100%;height:100%;object-fit:cover}
 .profile-name{font-size:18px;font-weight:700}
 .profile-email-sm{font-size:12px;color:var(--muted);margin-top:2px}
-
-/* ADMIN */
 .admin-page{flex:1;overflow-y:auto;padding:28px 32px}
 .admin-header{font-size:22px;font-weight:700;margin-bottom:4px}
 .admin-sub{color:var(--muted);font-size:13px;margin-bottom:24px}
@@ -233,8 +211,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .admin-member-row{display:flex;align-items:center;gap:8px;padding:9px 11px;background:var(--bg3);border-radius:8px;margin-bottom:5px}
 .admin-badge{font-size:9px;font-weight:700;padding:2px 6px;border-radius:8px;background:rgba(245,158,11,.15);color:var(--amber);letter-spacing:.4px;text-transform:uppercase}
 .subsection-tag{font-size:9px;font-weight:600;padding:1px 6px;border-radius:8px;background:var(--accent-dim);color:var(--accent2);letter-spacing:.3px}
-
-/* MODAL */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:300;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px)}
 .modal-overlay.open{display:flex}
 .modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:26px 28px;width:100%;max-width:520px;position:relative;max-height:92vh;overflow-y:auto}
@@ -310,8 +286,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .spin{width:30px;height:30px;border:2px solid var(--border);border-top-color:var(--accent2);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 textarea.form-input{resize:vertical;min-height:68px}
-
-/* ── MOBILE RESPONSIVE ── */
 @media(max-width:768px){
   .topbar{padding:0 12px;height:50px;gap:8px}
   .topbar-logo-text{font-size:14px}
@@ -588,7 +562,6 @@ textarea.form-input{resize:vertical;min-height:68px}
     <!-- MEETING -->
     <div id="ev-meeting-section">
       <div class="section-divider"></div>
-      <!-- Week schedule presets -->
       <div class="form-group" id="ev-week-schedule-wrap">
         <label class="form-label">Quick schedule</label>
         <div style="display:flex;gap:7px;flex-wrap:wrap">
@@ -757,7 +730,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// ── State ──────────────────────────────────────────────────────
+// ── State ──────────────────────────────────────────────────────────────────
 let cu=null, events=[], calendars=[], sharedCalendars=[];
 let currentDate=new Date(), miniDate=new Date();
 let selColor='#2979ff', editEvId=null, viewingEv=null;
@@ -773,7 +746,7 @@ const COLORS=[
 ];
 const REPEAT_LABELS={none:'Does not repeat',daily:'Daily',weekly:'Weekly',monthly:'Monthly'};
 
-// ── Loading timeout ───────────────────────────────────────────
+// ── Loading timeout ────────────────────────────────────────────────────────
 const _lt=setTimeout(()=>{
   const ls=document.getElementById('loading-screen');
   if(ls&&ls.style.display!=='none')ls.innerHTML=`<div style="text-align:center;padding:24px;max-width:440px"><div style="font-size:24px;margin-bottom:10px;color:var(--red);font-weight:700">!</div><div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px">Firebase not connecting</div><div style="color:var(--muted);font-size:12px;line-height:1.8">Add domain: <strong style="color:var(--text)">Authentication → Settings → Authorized domains</strong><br>Add <code style="color:var(--accent2)">charliesridhara.github.io</code> or <code style="color:var(--accent2)">quixcalendar.org</code><br>Also fix Firestore rules: <code style="color:var(--accent2)">allow read, write: if request.auth != null;</code></div><button onclick="location.reload()" style="margin-top:16px;padding:9px 22px;background:var(--accent2);color:#fff;border:none;border-radius:8px;font-family:var(--font);font-size:12px;cursor:pointer">Refresh</button></div>`;
@@ -799,7 +772,6 @@ async function initUserData(user){
   } else {
     userPfpUrl=snap.data().pfpUrl||null;
   }
-  // Ensure all owned calendars have admins field and Charlie is always admin
   try {
     const calSnap = await getDocs(query(collection(db,'calendars'),where('uid','==',user.uid)));
     for (const calDoc of calSnap.docs) {
@@ -826,16 +798,12 @@ function subscribeData(uid){
 
   unsubEv=onSnapshot(query(collection(db,'events'),where('uid','==',uid)),snap=>{
     const own=snap.docs.map(d=>({id:d.id,...d.data()}));
-    // Keep _invited events, replace own events
     events=[...own,...events.filter(e=>e._invited||e.isShared)];
     renderAll();if(currentPage==='home')renderHomePage();
   },err=>console.error(err));
 
-  // Subscribe to invited events: events in any calendar this user has joined
-  // These show on the user's calendar even though uid != theirs
   subscribeInvitedEvents(uid);
 
-  // Poll for invite notifications every 30s
   setInterval(()=>{
     const myInviteEvents=events.filter(e=>{
       const ppl=e.type==='task'?e.assignees:e.invitees;
@@ -849,16 +817,11 @@ function subscribeData(uid){
 
 const _invitedUnsubs=[];
 function subscribeInvitedEvents(uid){
-  // Unsubscribe previous listeners
   _invitedUnsubs.forEach(u=>u()); _invitedUnsubs.length=0;
-
-  // Query ALL events where this user's uid is in the inviteeUids flat array
-  // This works regardless of which calendar the event is in
   const unsub = onSnapshot(
     query(collection(db,'events'), where('inviteeUids','array-contains',uid)),
     snap => {
       const invited = snap.docs.map(d=>({id:d.id,...d.data(),_invited:true}));
-      // Replace previous invited events
       events = events.filter(e=>!e._invited);
       events = [...events, ...invited];
       checkForNewInvites(invited);
@@ -870,7 +833,7 @@ function subscribeInvitedEvents(uid){
   _invitedUnsubs.push(unsub);
 }
 
-// ── Auth ──────────────────────────────────────────────────────
+// ── Auth ───────────────────────────────────────────────────────────────────
 window.handleSignIn=async()=>{
   const email=document.getElementById('si-email').value.trim(),pwd=document.getElementById('si-password').value;
   setAuthError('');document.getElementById('btn-signin').disabled=true;
@@ -887,7 +850,7 @@ window.handleSignUp=async()=>{
 window.signOut=async()=>{if(unsubEv)unsubEv();if(unsubCals)unsubCals();await fbSignOut(auth);};
 function friendlyErr(c){return({'auth/user-not-found':'No account with that email.','auth/wrong-password':'Incorrect password.','auth/email-already-in-use':'Email already in use.','auth/weak-password':'Password needs 6+ chars.','auth/invalid-email':'Invalid email.','auth/invalid-credential':'Incorrect email or password.'})[c]||'Something went wrong.';}
 
-// ── Page nav ──────────────────────────────────────────────────
+// ── Page nav ───────────────────────────────────────────────────────────────
 window.showPage=(page)=>{
   currentPage=page;
   ['home','calendar','profile','admin'].forEach(p=>{
@@ -920,7 +883,7 @@ function isAdmin(calId){
   return (cal.admins||[]).includes(cu?.uid);
 }
 
-// ── Render all ────────────────────────────────────────────────
+// ── Render all ─────────────────────────────────────────────────────────────
 function renderAll(){
   if(currentView==='month')renderCalendar();else renderWeekView();
   renderMiniCal();updateTopbar();updateCalHeader();
@@ -951,7 +914,7 @@ function updateCalHeader(){
   updateAdminUI();
 }
 
-// ── Sidebar ───────────────────────────────────────────────────
+// ── Sidebar ────────────────────────────────────────────────────────────────
 function renderSidebar(){
   const list=document.getElementById('cal-list');list.innerHTML='';
   calendars.forEach(cal=>{
@@ -968,7 +931,6 @@ function renderSidebar(){
       const cnt=events.filter(e=>e.sharedCalId===cal.id).length;
       const isAct=activeCalId===cal.id;
       const div=document.createElement('div');div.className=`calendar-item${isAct?' active':''}`;
-      // No owner name shown — just calendar name and dot
       div.innerHTML=`<div class="cal-dot" style="background:${cal.color}"></div><div class="cal-name">${cal.name}</div>${cnt?`<div class="cal-badge">${cnt}</div>`:''}<button class="cal-action-btn" title="Leave" onclick="leaveCalendar('${cal.id}')">✕</button>`;
       div.addEventListener('click',e=>{if(e.target.classList.contains('cal-action-btn'))return;activeCalId=cal.id;renderSidebar();renderAll();});
       list.appendChild(div);
@@ -976,7 +938,7 @@ function renderSidebar(){
   }
 }
 
-// ── Month render ──────────────────────────────────────────────
+// ── Month render ───────────────────────────────────────────────────────────
 function renderCalendar(){
   const grid=document.getElementById('cal-grid');grid.innerHTML='';
   const y=currentDate.getFullYear(),m=currentDate.getMonth(),today=new Date();
@@ -993,9 +955,7 @@ function renderCalendar(){
     const cev=exp.filter(e=>{
       if(e.date!==ds)return false;
       if(isShCal)return e.sharedCalId===activeCalId;
-      // Show own events for this calendar, shared calendar events, and invited events
       if(e.calendarId===activeCalId&&!e.isShared)return true;
-      // Show invited events from this calendar even if owned by someone else
       if(e._invited&&e.calendarId===activeCalId)return true;
       return false;
     }).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
@@ -1036,19 +996,18 @@ function expandRec(evList,rs,re){
   return res;
 }
 
-// ── Week view (unified scroll - fixes auto-scroll bug) ────────
+// ── Week view ──────────────────────────────────────────────────────────────
 function weekStart(d){const s=new Date(d);s.setDate(s.getDate()-s.getDay());s.setHours(0,0,0,0);return s;}
 
 function renderWeekView(){
   const ws=weekStart(currentDate),today=new Date();
   const days=Array.from({length:7},(_,i)=>{const d=new Date(ws);d.setDate(d.getDate()+i);return d;});
-  const H=60; // px per hour
+  const H=60;
   const re=new Date(ws);re.setDate(re.getDate()+6);
   const exp=expandRec(events,ws,re);
   const isShCal=sharedCalendars.find(c=>c.id===activeCalId);
   const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
-  // Sticky header
   const hdr=document.getElementById('week-sticky-header');
   hdr.innerHTML='<div class="week-time-gutter-hdr"></div>';
   days.forEach(d=>{
@@ -1058,7 +1017,6 @@ function renderWeekView(){
     hdr.appendChild(div);
   });
 
-  // All-day strip
   const als=document.getElementById('week-allday-strip');
   als.innerHTML='<div class="week-allday-gutter">all-day</div>';
   days.forEach(d=>{
@@ -1075,7 +1033,6 @@ function renderWeekView(){
     als.appendChild(cell);
   });
 
-  // Time gutter
   const tg=document.getElementById('week-time-gutter');tg.innerHTML='';
   tg.style.borderRight='1px solid var(--border)';
   for(let h=0;h<24;h++){
@@ -1085,23 +1042,19 @@ function renderWeekView(){
     lbl.style.height=`${H}px`;tg.appendChild(lbl);
   }
 
-  // Day columns
   const wd=document.getElementById('week-days');wd.innerHTML='';
   wd.style.gridTemplateColumns=`repeat(7,1fr)`;
   days.forEach(d=>{
     const ds=d.toISOString().split('T')[0];
     const col=document.createElement('div');col.className='week-body-col';
-    // Hour lines
     for(let h=0;h<24;h++){
       const hl=document.createElement('div');hl.className='week-hour-line';hl.style.top=`${h*H}px`;col.appendChild(hl);
       const half=document.createElement('div');half.className='week-half-line';half.style.top=`${h*H+30}px`;col.appendChild(half);
     }
-    // Now line
     if(d.toDateString()===today.toDateString()){
       const nl=document.createElement('div');nl.className='week-now-line';
       nl.style.top=`${((today.getHours()*60+today.getMinutes())/60)*H}px`;col.appendChild(nl);
     }
-    // Click to create
     col.addEventListener('click',e=>{
       if(e.target!==col)return;
       const rect=col.getBoundingClientRect(),y=e.clientY-rect.top;
@@ -1109,7 +1062,6 @@ function renderWeekView(){
       const hh=Math.floor(mins/60).toString().padStart(2,'0'),mm=(mins%60).toString().padStart(2,'0');
       openEventModal(null,ds);setTimeout(()=>{document.getElementById('ev-time').value=`${hh}:${mm}`;},50);
     });
-    // Events
     exp.filter(e=>e.date===ds&&!e.allDay&&e.time&&(isShCal?e.sharedCalId===activeCalId:((e.calendarId===activeCalId&&!e.isShared)||(e._invited&&e.calendarId===activeCalId)))).forEach(ev=>{
       const cal=calendars.find(c=>c.id===ev.calendarId)||sharedCalendars.find(c=>c.id===ev.sharedCalId);
       const color=ev.color||cal?.color||'#2979ff';
@@ -1124,7 +1076,6 @@ function renderWeekView(){
     wd.appendChild(col);
   });
 
-  // Scroll to 8am (only on first render)
   const scroll=document.getElementById('week-scroll');
   if(scroll&&scroll.dataset.scrolled!=='1'){scroll.scrollTop=8*H-20;scroll.dataset.scrolled='1';}
 }
@@ -1150,14 +1101,14 @@ function renderMiniCal(){
   }
 }
 
-// ── Navigation ────────────────────────────────────────────────
+// ── Navigation ─────────────────────────────────────────────────────────────
 window.navPrev=()=>{if(currentView==='month')currentDate=new Date(currentDate.getFullYear(),currentDate.getMonth()-1,1);else currentDate=new Date(currentDate.getFullYear(),currentDate.getMonth(),currentDate.getDate()-7);miniDate=new Date(currentDate);renderAll();};
 window.navNext=()=>{if(currentView==='month')currentDate=new Date(currentDate.getFullYear(),currentDate.getMonth()+1,1);else currentDate=new Date(currentDate.getFullYear(),currentDate.getMonth(),currentDate.getDate()+7);miniDate=new Date(currentDate);renderAll();};
 window.miniNavMonth=(d)=>{miniDate=new Date(miniDate.getFullYear(),miniDate.getMonth()+d,1);renderMiniCal();};
 window.goToday=()=>{currentDate=new Date();miniDate=new Date();renderAll();};
 window.setView=(v)=>{currentView=v;document.getElementById('month-view').style.display=v==='month'?'flex':'none';document.getElementById('week-view').style.display=v==='week'?'flex':'none';document.getElementById('view-month-btn').classList.toggle('active',v==='month');document.getElementById('view-week-btn').classList.toggle('active',v==='week');renderAll();};
 
-// ── Home ──────────────────────────────────────────────────────
+// ── Home ───────────────────────────────────────────────────────────────────
 function daysUntil(ds){return(new Date(ds+'T12:00:00')-new Date())/(864e5);}
 
 function renderHomePage(){
@@ -1210,7 +1161,7 @@ async function loadAbsenceCount(){
   if(ac)ac.textContent=cnt;
 }
 
-// ── RSVP ─────────────────────────────────────────────────────
+// ── RSVP ──────────────────────────────────────────────────────────────────
 window.rsvpEvent=async(evId,action)=>{
   const ev=events.find(e=>e.id===evId);if(!ev)return;
   if(daysUntil(ev.date)<3){toast('Cannot change RSVP within 3 days — contact your lead directly');return;}
@@ -1230,7 +1181,7 @@ window.submitDecline=async()=>{
   toast('Declined');closeModal('decline-modal');renderHomePage();
 };
 
-// ── View modal ────────────────────────────────────────────────
+// ── View modal ─────────────────────────────────────────────────────────────
 window.setViewTab=(tab)=>{
   viewTab=tab;
   ['all','accepted','declined','pending'].forEach(t=>{const b=document.getElementById(`vtab-${t}`);if(b)b.className='rsvp-tab'+(t===tab?` active-${t}`:'');});
@@ -1253,20 +1204,16 @@ function openViewEvent(ev){
   else document.getElementById('view-repeat-row').style.display='none';
   if(ev.description){document.getElementById('view-desc').textContent=ev.description;document.getElementById('view-desc').style.display='block';}
   else document.getElementById('view-desc').style.display='none';
-  // Manager
   const mgrRow=document.getElementById('view-manager-row');
   if(ev.type==='task'&&ev.taskManagerUid){
-    // look up manager name from assignees or calMembers
     const mgr=(ev.assignees||[]).find(a=>a.uid===ev.taskManagerUid)||(ev.invitees||[]).find(a=>a.uid===ev.taskManagerUid);
     document.getElementById('view-manager').textContent='Manager: '+(mgr?.name||ev.taskManagerUid);
     mgrRow.style.display='flex';
   } else mgrRow.style.display='none';
-  // People tabs
   const ppl=ev.type==='task'?ev.assignees:ev.invitees;
   const tabsCon=document.getElementById('view-people-tabs');
   if(ppl&&ppl.length>0){tabsCon.style.display='block';viewTab='all';setViewTab('all');}
   else tabsCon.style.display='none';
-  // Buttons
   const isOwn=ev.uid===cu?.uid;
   const isAdm=isAdmin(ev.calendarId);
   const isMgr=ev.type==='task'&&ev.taskManagerUid===cu?.uid;
@@ -1320,7 +1267,7 @@ window.markTaskComplete=async()=>{
   toast('Task marked complete');closeModal('view-modal');viewingEv=null;
 };
 
-// ── Unexcused ─────────────────────────────────────────────────
+// ── Unexcused ──────────────────────────────────────────────────────────────
 window.openUnexcused=(evId,uid,name,action)=>{
   unexcusedTarget={evId,uid,action};
   const modal=document.getElementById('unexcused-modal');
@@ -1350,7 +1297,7 @@ window.submitUnexcused=async()=>{
   closeModal('unexcused-modal');renderViewPeople();if(currentPage==='admin')renderAdminPage();
 };
 
-// ── Event modal ───────────────────────────────────────────────
+// ── Event modal ────────────────────────────────────────────────────────────
 window.openNewEvent=(type='meeting')=>openEventModal(null,null,type);
 window.openNewEventOnDate=(date)=>openEventModal(null,date,'meeting');
 
@@ -1396,7 +1343,7 @@ window.switchType=(type)=>{
   document.getElementById('ev-task-section').style.display=type==='task'?'block':'none';
 };
 
-// ── Calendar members ──────────────────────────────────────────
+// ── Calendar members ───────────────────────────────────────────────────────
 async function loadCalMembers(calId){
   calMembers=[];
   if(!calId){renderChecklists();return;}
@@ -1406,7 +1353,6 @@ async function loadCalMembers(calId){
     snap.docs.forEach(d=>{if(d.id!==cu.uid)calMembers.push({uid:d.id,displayName:d.data().displayName||d.data().email?.split('@')[0]||'User',email:d.data().email||'',subsection:d.data()[`subsection_${calId}`]||''});});
   }catch(e){console.error(e);}
   renderChecklists();
-  // Populate task manager dropdown
   const ms=document.getElementById('ev-task-manager');
   if(ms){ms.innerHTML='<option value="">— Select manager —</option>';calMembers.forEach(m=>{const o=document.createElement('option');o.value=m.uid;o.textContent=m.displayName+(m.email?` (${m.email})`:'');if(m.uid===taskManagerUid)o.selected=true;ms.appendChild(o);});}
 }
@@ -1418,10 +1364,8 @@ function getCalSubsections(calId){
 function renderChecklists(){
   const calId=document.getElementById('ev-calendar')?.value;
   const subs=getCalSubsections(calId);
-  // Group filter buttons for meetings
   const gf=document.getElementById('ev-group-filter');
   if(gf){gf.innerHTML='';if(subs.length>0){const allBtn=document.createElement('button');allBtn.style.cssText='padding:3px 9px;font-size:10px;font-weight:600;border-radius:5px;border:1px solid var(--accent-border);background:var(--accent-dim);color:var(--accent2);cursor:pointer;font-family:var(--font)';allBtn.textContent='All';allBtn.onclick=()=>{invitees=calMembers.filter(m=>m.uid!==cu.uid).map(m=>({...m,attendance:'mandatory'}));renderChecklists();};gf.appendChild(allBtn);subs.forEach(s=>{const b=document.createElement('button');b.style.cssText='padding:3px 9px;font-size:10px;font-weight:600;border-radius:5px;border:1px solid var(--border2);background:transparent;color:var(--muted);cursor:pointer;font-family:var(--font)';b.textContent=s;b.onclick=()=>{const grp=calMembers.filter(m=>m.subsection===s&&m.uid!==cu.uid);grp.forEach(m=>{if(!invitees.find(i=>i.uid===m.uid))invitees.push({...m,attendance:'mandatory'});});renderChecklists();};gf.appendChild(b);});}}
-  // Same for tasks
   const gft=document.getElementById('ev-group-filter-task');
   if(gft){gft.innerHTML='';if(subs.length>0){const allBtn=document.createElement('button');allBtn.style.cssText='padding:3px 9px;font-size:10px;font-weight:600;border-radius:5px;border:1px solid var(--accent-border);background:var(--accent-dim);color:var(--accent2);cursor:pointer;font-family:var(--font)';allBtn.textContent='All';allBtn.onclick=()=>{assignees=calMembers.filter(m=>m.uid!==cu.uid).map(m=>({...m,attendance:'mandatory'}));renderChecklists();};gft.appendChild(allBtn);subs.forEach(s=>{const b=document.createElement('button');b.style.cssText='padding:3px 9px;font-size:10px;font-weight:600;border-radius:5px;border:1px solid var(--border2);background:transparent;color:var(--muted);cursor:pointer;font-family:var(--font)';b.textContent=s;b.onclick=()=>{const grp=calMembers.filter(m=>m.subsection===s&&m.uid!==cu.uid);grp.forEach(m=>{if(!assignees.find(a=>a.uid===m.uid))assignees.push({...m,attendance:'mandatory'});});renderChecklists();};gft.appendChild(b);});}}
 
@@ -1457,8 +1401,6 @@ window.saveEvent=async()=>{
   const allDay=document.getElementById('ev-allday').checked;
   const repeat=document.getElementById('ev-repeat').value;
   const mgr=document.getElementById('ev-task-manager')?.value||null;
-  // Color: meetings auto-color based on whether any invitee is mandatory
-  // Tasks use amber. If editing and no invitees, keep original color or use calendar color.
   let autoColor;
   if(currentType==='meeting'){
     const hasMandatory=invitees.some(i=>i.attendance==='mandatory');
@@ -1473,7 +1415,7 @@ window.saveEvent=async()=>{
 };
 window.deleteCurrentEvent=async()=>{if(!editEvId)return;if(!confirm('Delete?'))return;await deleteDoc(doc(db,'events',editEvId));toast('Deleted');closeModal('event-modal');};
 
-// ── Calendar CRUD ─────────────────────────────────────────────
+// ── Calendar CRUD ──────────────────────────────────────────────────────────
 window.confirmDeleteCalendar=(e,calId,calName)=>{
   e.stopPropagation();
   const cnt=events.filter(x=>x.calendarId===calId&&!x.isShared).length;
@@ -1507,7 +1449,7 @@ window.saveNewCalendar=async()=>{
   try{const code=Math.random().toString(36).substring(2,8).toUpperCase();await addDoc(collection(db,'calendars'),{uid:cu.uid,name,color:_newCalColor,inviteCode:code,admins:[cu.uid],subsections:[],createdAt:serverTimestamp()});toast(`"${name}" created`);closeModal('newcal-modal');}catch(e){toast('Error');}
 };
 
-// ── Share & Join ──────────────────────────────────────────────
+// ── Share & Join ───────────────────────────────────────────────────────────
 window.openShareModal=async()=>{
   const cal=calendars.find(c=>c.id===activeCalId);
   if(cal){if(!cal.inviteCode){const code=Math.random().toString(36).substring(2,8).toUpperCase();await updateDoc(doc(db,'calendars',activeCalId),{inviteCode:code});cal.inviteCode=code;}
@@ -1515,6 +1457,8 @@ window.openShareModal=async()=>{
   await loadJoinedCalendars();document.getElementById('share-modal').classList.add('open');
 };
 window.copyCode=()=>{const cal=calendars.find(c=>c.id===activeCalId);navigator.clipboard.writeText(cal?.inviteCode||'').then(()=>toast('Copied!')).catch(()=>{});};
+
+// ── FIX: joinCalendar now calls renderSidebar() immediately after subscribing ──
 window.joinCalendar=async()=>{
   const code=document.getElementById('join-code-input').value.trim().toUpperCase();if(code.length<4){toast('Enter a valid code');return;}
   const cSnap=await getDocs(query(collection(db,'calendars'),where('inviteCode','==',code)));if(cSnap.empty){toast('No calendar found');return;}
@@ -1527,21 +1471,33 @@ window.joinCalendar=async()=>{
   const oName=oSnap.data()?.displayName||'Someone';
   subscribeSharedCal(calId,cData.name,oName,cData.color||'#2979ff');
   subscribeInvitedEvents(cu.uid);
-  toast(`Joined "${cData.name}"!`);document.getElementById('join-code-input').value='';await loadJoinedCalendars();
+  renderSidebar(); // ← FIX: sidebar now updates immediately on join
+  toast(`Joined "${cData.name}"!`);
+  document.getElementById('join-code-input').value='';
+  await loadJoinedCalendars();
 };
+
+// ── FIX: loadJoinedCalendars now calls renderSidebar() after loading all shared cals ──
 async function loadJoinedCalendars(){
   const usnap=await getDoc(doc(db,'users',cu.uid));const joined=usnap.data().joinedCalendars||[];
   const listEl=document.getElementById('joined-list');
-  if(!joined.length){listEl.innerHTML='<div style="font-size:12px;color:var(--muted2)">No shared calendars yet</div>';return;}
+  if(!joined.length){
+    listEl.innerHTML='<div style="font-size:12px;color:var(--muted2)">No shared calendars yet</div>';
+    renderSidebar(); // ← FIX: ensure sidebar reflects empty shared state too
+    return;
+  }
   listEl.innerHTML='<div style="font-size:10px;font-weight:700;color:var(--muted2);letter-spacing:.6px;text-transform:uppercase;margin-bottom:8px">Joined</div>';
   for(const calId of joined){
     const cDoc=await getDoc(doc(db,'calendars',calId));if(!cDoc.exists())continue;
     const cData=cDoc.data();const oDoc=await getDoc(doc(db,'users',cData.uid));const oName=oDoc.data()?.displayName||'Unknown';
     const div=document.createElement('div');div.style.cssText='display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);margin-bottom:7px';
     div.innerHTML=`<div style="width:7px;height:7px;border-radius:50%;background:${cData.color||'#2979ff'};flex-shrink:0"></div><span style="flex:1">${cData.name} <span style="color:var(--muted2);font-size:10px">by ${oName}</span></span><button onclick="leaveCalendar('${calId}')" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:11px">Leave</button>`;
-    listEl.appendChild(div);subscribeSharedCal(calId,cData.name,oName,cData.color||'#2979ff');
+    listEl.appendChild(div);
+    subscribeSharedCal(calId,cData.name,oName,cData.color||'#2979ff');
   }
+  renderSidebar(); // ← FIX: sidebar now updates after all shared cals are loaded
 }
+
 function subscribeSharedCal(calId,calName,ownerName,calColor){
   if(!sharedCalendars.find(c=>c.id===calId))sharedCalendars.push({id:calId,name:calName,color:calColor,ownerName,admins:[]});
   onSnapshot(query(collection(db,'events'),where('calendarId','==',calId)),snap=>{
@@ -1549,6 +1505,7 @@ function subscribeSharedCal(calId,calName,ownerName,calColor){
     events=events.filter(e=>!(e.isShared&&e.sharedCalId===calId));events=[...events,...shared];renderAll();if(currentPage==='home')renderHomePage();
   });
 }
+
 window.leaveCalendar=async(calId)=>{
   const uref=doc(db,'users',cu.uid),usnap=await getDoc(uref);
   const joined=(usnap.data().joinedCalendars||[]).filter(id=>id!==calId);await updateDoc(uref,{joinedCalendars:joined});
@@ -1557,9 +1514,8 @@ window.leaveCalendar=async(calId)=>{
   renderSidebar();renderAll();await loadJoinedCalendars();toast('Left calendar');
 };
 
-// ── Admin page ────────────────────────────────────────────────
+// ── Admin page ─────────────────────────────────────────────────────────────
 async function renderAdminPage(){
-  // Populate calendar selector with only owned calendars
   const sel=document.getElementById('admin-cal-select');sel.innerHTML='';
   const ownedCals=calendars.filter(c=>(c.admins||[]).includes(cu?.uid));
   if(!ownedCals.length){document.getElementById('admin-members-list').innerHTML='<div style="font-size:12px;color:var(--muted2)">You are not an admin of any calendar.</div>';return;}
@@ -1567,7 +1523,6 @@ async function renderAdminPage(){
   const adminCal=calendars.find(c=>c.id===sel.value)||ownedCals[0];if(!adminCal)return;
   const isOwner=adminCal.uid===cu?.uid;
 
-  // Members
   const ml=document.getElementById('admin-members-list');ml.innerHTML='<div style="font-size:11px;color:var(--muted2)">Loading…</div>';
   const snap=await getDocs(query(collection(db,'users'),where('joinedCalendars','array-contains',adminCal.id)));
   const members=[{uid:cu.uid,displayName:cu.displayName||'Me',email:cu.email,subsection:(await getDoc(doc(db,'users',cu.uid))).data()?.[`subsection_${adminCal.id}`]||'',isOwner:true}];
@@ -1578,7 +1533,6 @@ async function renderAdminPage(){
     const isAdm=admins.includes(m.uid);
     const row=document.createElement('div');row.className='admin-member-row';
     row.innerHTML=`<div style="width:30px;height:30px;border-radius:50%;background:var(--accent-dim);border:1px solid var(--accent-border);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--accent2);font-size:12px;flex-shrink:0">${(m.displayName||'?').charAt(0).toUpperCase()}</div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:600;color:var(--text)">${m.displayName} ${isAdm?'<span class="admin-badge">ADMIN</span>':''}${m.subsection?`<span class="subsection-tag">${m.subsection}</span>`:''}</div><div style="font-size:10px;color:var(--muted)">${m.email}</div></div><div style="display:flex;gap:5px;flex-shrink:0;flex-wrap:wrap">`;
-    // Subsection selector for ALL members including owner
     const subSel=document.createElement('select');subSel.style.cssText='padding:3px 6px;font-size:10px;background:var(--bg3);border:1px solid var(--border2);border-radius:5px;color:var(--text);font-family:var(--font)';
     const emptyOpt=document.createElement('option');emptyOpt.value='';emptyOpt.textContent='No subsection';subSel.appendChild(emptyOpt);
     subs.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;if(m.subsection===s)o.selected=true;subSel.appendChild(o);});
@@ -1589,7 +1543,6 @@ async function renderAdminPage(){
         admBtn.textContent=isAdm?'Remove Admin':'Make Admin';
         admBtn.onclick=async()=>{let a=[...admins];if(isAdm)a=a.filter(x=>x!==m.uid);else a.push(m.uid);await updateDoc(doc(db,'calendars',adminCal.id),{admins:a});toast(isAdm?'Admin removed':'Admin added');renderAdminPage();};
         row.querySelector('div:last-child').appendChild(admBtn);
-        // Kick button
         const kickBtn=document.createElement('button');kickBtn.style.cssText='padding:3px 8px;font-size:10px;font-weight:600;border-radius:5px;border:1px solid rgba(239,68,68,.3);background:var(--red-dim);color:var(--red);cursor:pointer;font-family:var(--font)';
         kickBtn.textContent='Kick';
         kickBtn.onclick=async()=>{if(!confirm(`Remove ${m.displayName} from this calendar?`))return;const us=await getDoc(doc(db,'users',m.uid));const jc=(us.data().joinedCalendars||[]).filter(id=>id!==adminCal.id);await updateDoc(doc(db,'users',m.uid),{joinedCalendars:jc});toast(`${m.displayName} removed`);renderAdminPage();};
@@ -1598,7 +1551,6 @@ async function renderAdminPage(){
     ml.appendChild(row);
   });
 
-  // Subsections
   const sl=document.getElementById('admin-subsections-list');sl.innerHTML='';
   if(subs.length===0)sl.innerHTML='<div style="font-size:11px;color:var(--muted2)">No subsections yet</div>';
   subs.forEach(s=>{
@@ -1608,13 +1560,11 @@ async function renderAdminPage(){
   });
   document.getElementById('new-subsection-input').dataset.calId=adminCal.id;
 
-  // Absences
   const al=document.getElementById('admin-absences-list');al.innerHTML='';
   const calEvents=events.filter(e=>e.calendarId===adminCal.id);let hasAny=false;
   calEvents.forEach(ev=>{const ppl=ev.type==='task'?ev.assignees:ev.invitees;if(!ppl)return;ppl.forEach(p=>{const rsvp=(ev.rsvp||{})[p.uid];if(rsvp!=='declined')return;hasAny=true;const ux=(ev.unexcusedAbsences||{})[p.uid];const reason=(ev.declineReasons||{})[p.uid];const row=document.createElement('div');row.style.cssText='display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg3);border-radius:7px;margin-bottom:5px;font-size:12px;flex-wrap:wrap';row.innerHTML=`<div style="flex:1"><span style="color:var(--text);font-weight:600">${p.name}</span><span style="color:var(--muted);font-size:10px;margin-left:7px">declined "${ev.title}"</span>${reason?`<div style="font-size:10px;color:var(--muted2);margin-top:1px">Reason: ${reason}</div>`:''}</div>${ux?`<span style="font-size:9px;padding:2px 8px;border-radius:8px;background:rgba(239,68,68,.25);color:var(--red);font-weight:700">UNEXCUSED</span><button onclick="openUnexcused('${ev.id}','${p.uid}','${p.name.replace(/'/g,"\\'")}','reverse')" style="padding:2px 7px;font-size:9px;font-weight:600;border-radius:5px;border:1px solid rgba(34,197,94,.3);background:var(--green-dim);color:var(--green);cursor:pointer;font-family:var(--font)">Reverse</button>`:`<button onclick="openUnexcused('${ev.id}','${p.uid}','${p.name.replace(/'/g,"\\'")}','mark')" style="padding:2px 7px;font-size:9px;font-weight:600;border-radius:5px;border:1px solid rgba(239,68,68,.3);background:var(--red-dim);color:var(--red);cursor:pointer;font-family:var(--font)">Mark Unexcused</button>`}`;al.appendChild(row);});});
   if(!hasAny)al.innerHTML='<div style="font-size:12px;color:var(--muted2)">No declined events yet</div>';
 
-  // Transfer ownership
   const tr=document.getElementById('admin-transfer-section');tr.innerHTML='';
   if(adminCal.uid===cu?.uid){
     const otherMembers=members.filter(m=>!m.isOwner);
@@ -1643,7 +1593,7 @@ window.deleteSubsection=async(calId,name)=>{
   const subs=(cal.subsections||[]).filter(s=>s!==name);await updateDoc(doc(db,'calendars',calId),{subsections:subs});toast(`"${name}" removed`);renderAdminPage();
 };
 
-// ── Profile ───────────────────────────────────────────────────
+// ── Profile ────────────────────────────────────────────────────────────────
 function renderProfilePage(){
   const name=cu?.displayName||'';const email=cu?.email||'';
   document.getElementById('profile-name-display').textContent=name;
@@ -1654,7 +1604,6 @@ function renderProfilePage(){
   const bigEl=document.getElementById('profile-avatar-big');const char=(name||email||'?').charAt(0).toUpperCase();
   if(userPfpUrl)bigEl.innerHTML=`<img src="${userPfpUrl}" alt="pfp"/><input type="file" id="pfp-input" accept="image/*" style="display:none" onchange="handlePfpChange(event)"/>`;
   else bigEl.innerHTML=`<span id="profile-avatar-char">${char}</span><input type="file" id="pfp-input" accept="image/*" style="display:none" onchange="handlePfpChange(event)"/>`;
-  // Notification status
   const ns=document.getElementById('notif-status');
   if(ns){
     if(!('Notification' in window))ns.textContent='Not supported on this browser';
@@ -1662,7 +1611,6 @@ function renderProfilePage(){
     else if(Notification.permission==='denied')ns.textContent='Blocked — enable in browser settings';
     else ns.textContent='Not enabled yet';
   }
-  // Admin tools
   getDoc(doc(db,'users',cu.uid)).then(snap=>{
     const cnt=snap.data()?.unexcusedCount||0;
     const toolsEl=document.getElementById('profile-admin-tools');
@@ -1685,7 +1633,7 @@ window.saveProfile=async()=>{
   catch(e){msgEl.style.color='var(--red)';msgEl.textContent=e.message||'Error';}
 };
 
-// ── Utilities ─────────────────────────────────────────────────
+// ── Utilities ──────────────────────────────────────────────────────────────
 function renderSwatches(id,cur,onChange){
   const row=document.getElementById(id);if(!row)return;row.innerHTML='';
   COLORS.forEach(c=>{const sw=document.createElement('div');sw.className=`color-swatch${cur===c.v?' selected':''}`;sw.style.background=c.v;sw.onclick=()=>{onChange(c.v);row.querySelectorAll('.color-swatch').forEach(s=>s.classList.remove('selected'));sw.classList.add('selected');};row.appendChild(sw);});
@@ -1703,20 +1651,19 @@ document.addEventListener('click',e=>{
 document.addEventListener('keydown',e=>{if(e.key==='Escape')['event-modal','view-modal','share-modal','newcal-modal','rename-cal-modal','confirm-delete-cal-modal','decline-modal','unexcused-modal'].forEach(closeModal);});
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2800);}
 
-// ── Theme ──────────────────────────────────────────────────────
+// ── Theme ──────────────────────────────────────────────────────────────────
 window.toggleTheme=()=>{
   const isLight=document.body.classList.toggle('light-mode');
   localStorage.setItem('theme',isLight?'light':'dark');
   const lbl=document.getElementById('theme-label');
   if(lbl)lbl.textContent=isLight?'Light mode':'Dark mode';
 };
-// Apply saved theme on load
 if(localStorage.getItem('theme')==='light'){
   document.body.classList.add('light-mode');
   const lbl=document.getElementById('theme-label');if(lbl)lbl.textContent='Light mode';
 }
 
-// ── Push Notifications ────────────────────────────────────────
+// ── Push Notifications ─────────────────────────────────────────────────────
 window.requestNotificationPermission=async()=>{
   if(!('Notification' in window)){toast('Notifications not supported on this browser');return;}
   if(Notification.permission==='denied'){
@@ -1745,7 +1692,6 @@ function sendNotification(title,body){
   }
 }
 
-// Check for new invitations and notify
 function checkForNewInvites(newEvents){
   const myUid=cu?.uid;
   newEvents.forEach(ev=>{
@@ -1754,7 +1700,7 @@ function checkForNewInvites(newEvents){
     const me=ppl.find(p=>p.uid===myUid);
     if(!me)return;
     const rsvp=(ev.rsvp||{})[myUid];
-    if(rsvp)return; // already responded
+    if(rsvp)return;
     const seenKey=`seen_invite_${ev.id}`;
     if(localStorage.getItem(seenKey))return;
     localStorage.setItem(seenKey,'1');
@@ -1766,7 +1712,7 @@ function checkForNewInvites(newEvents){
   });
 }
 
-// ── Week schedule presets ─────────────────────────────────────
+// ── Week schedule presets ──────────────────────────────────────────────────
 window.applyWeekSchedule=async(mode)=>{
   const title=document.getElementById('ev-title').value.trim();
   if(!title){toast('Enter a meeting title first');return;}
@@ -1774,7 +1720,6 @@ window.applyWeekSchedule=async(mode)=>{
   if(!calendarId){toast('Select a calendar first');return;}
   const baseDate=new Date(document.getElementById('ev-date').value+'T12:00:00');
   const ws=weekStart(baseDate);
-  // Normal week: Tue(2), Thu(4), Fri(5) — Crunch week: Mon–Fri
   const dayOffsets=mode==='crunch'?[1,2,3,4,5]:[2,4,5];
   const hasMandatory=invitees.some(i=>i.attendance==='mandatory');
   const color=invitees.length>0?(hasMandatory?'#ef4444':'#22c55e'):'#00b4ff';
@@ -1783,7 +1728,6 @@ window.applyWeekSchedule=async(mode)=>{
   for(const offset of dayOffsets){
     const d=new Date(ws);d.setDate(d.getDate()+offset);
     const dateStr=d.toISOString().split('T')[0];
-    // Full meeting object — same as saveEvent, so view modal works identically
     await addDoc(collection(db,'events'),{
       uid:cu.uid, title, type:'meeting', date:dateStr,
       time:'15:30', timeEnd:'18:00', allDay:false,

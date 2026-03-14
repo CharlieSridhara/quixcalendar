@@ -314,7 +314,7 @@
 <!-- Auth Screen -->
 <div id="auth-screen" style="display:none">
   <div class="auth-card">
-    <div class="auth-logo">Quix<span>calendar</span></div>
+    <div class="auth-logo"><span style="color:var(--text)">Quix</span><span>calendar</span></div>
     <div class="auth-subtitle">Your personal calendar, always in sync.</div>
     <div id="auth-error" class="auth-error"></div>
     <div class="auth-tabs">
@@ -354,7 +354,7 @@
 <div id="app-screen">
   <!-- Topbar -->
   <div class="topbar">
-    <div class="topbar-logo">Quix<span>calendar</span></div>
+    <div class="topbar-logo"><span style="color:var(--text)">Quix</span><span style="color:var(--accent)">calendar</span></div>
     <div class="topbar-center">
       <button class="topbar-nav-btn" onclick="navMonth(-1)">‹</button>
       <div class="topbar-month" id="month-label"></div>
@@ -381,7 +381,10 @@
         <button class="btn-new" onclick="openNewEvent()">＋ New event</button>
       </div>
       <div class="sidebar-section">
-        <div class="sidebar-label">My Calendars</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div class="sidebar-label" style="margin-bottom:0">My Calendars</div>
+          <button onclick="openNewCalendarModal()" title="New calendar" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;padding:0 4px;line-height:1;transition:color 0.15s" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">＋</button>
+        </div>
         <div class="calendar-list" id="cal-list"></div>
       </div>
       <div class="sidebar-section" style="margin-top:auto;padding-top:16px">
@@ -464,6 +467,35 @@
       <button class="btn-danger" onclick="deleteViewedEvent()">Delete</button>
       <button class="btn-secondary" onclick="editViewedEvent()">Edit</button>
       <button class="btn-secondary" onclick="closeModal('view-modal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- New Calendar Modal -->
+<div class="modal-overlay" id="newcal-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('newcal-modal')">✕</button>
+    <div class="modal-title">New Calendar</div>
+    <div class="form-group">
+      <label class="form-label">Calendar name</label>
+      <input class="form-input" id="newcal-name" type="text" placeholder="e.g. Work, Family, Gym…"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Color</label>
+      <div class="color-row" id="newcal-color-row"></div>
+    </div>
+    <div class="form-group" style="margin-top:4px">
+      <label class="form-checkbox">
+        <input type="checkbox" id="newcal-shared"/>
+        <span>Shared calendar — others can join with your invite code</span>
+      </label>
+    </div>
+    <div id="newcal-share-info" style="display:none;margin-top:12px;background:var(--bg3);border-radius:8px;padding:12px 14px;font-size:13px;color:var(--muted);line-height:1.6">
+      🔗 After creating, share your invite code (found in the <strong style="color:var(--text)">⇄ Share</strong> button) so others can join this calendar and see its events.
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('newcal-modal')">Cancel</button>
+      <button class="btn-primary-sm" onclick="saveNewCalendar()">Create</button>
     </div>
   </div>
 </div>
@@ -955,8 +987,47 @@ document.addEventListener('click', (e) => {
   if (e.target === document.querySelector('#event-modal.open')) closeModal('event-modal');
   if (e.target === document.querySelector('#view-modal.open')) closeModal('view-modal');
   if (e.target === document.querySelector('#share-modal.open')) closeModal('share-modal');
+  if (e.target === document.querySelector('#newcal-modal.open')) closeModal('newcal-modal');
 });
-document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal('event-modal'); closeModal('view-modal'); closeModal('share-modal'); } });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal('event-modal'); closeModal('view-modal'); closeModal('share-modal'); closeModal('newcal-modal'); } });
+
+// ── New Calendar ───────────────────────────────────────────────
+let newCalColor = '#6c8fff';
+
+window.openNewCalendarModal = () => {
+  newCalColor = '#6c8fff';
+  document.getElementById('newcal-name').value = '';
+  document.getElementById('newcal-shared').checked = false;
+  document.getElementById('newcal-share-info').style.display = 'none';
+  const row = document.getElementById('newcal-color-row');
+  row.innerHTML = '';
+  EVENT_COLORS.forEach(c => {
+    const sw = document.createElement('div');
+    sw.className = `color-swatch${newCalColor === c.val ? ' selected' : ''}`;
+    sw.style.background = c.val;
+    sw.onclick = () => { newCalColor = c.val; row.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected')); sw.classList.add('selected'); };
+    row.appendChild(sw);
+  });
+  document.getElementById('newcal-shared').onchange = (e) => {
+    document.getElementById('newcal-share-info').style.display = e.target.checked ? 'block' : 'none';
+  };
+  document.getElementById('newcal-modal').classList.add('open');
+  document.getElementById('newcal-name').focus();
+};
+
+window.saveNewCalendar = async () => {
+  const name = document.getElementById('newcal-name').value.trim();
+  if (!name) { toast('Please enter a calendar name'); return; }
+  try {
+    await addDoc(collection(db, 'calendars'), {
+      uid: currentUser.uid, name, color: newCalColor,
+      isShared: document.getElementById('newcal-shared').checked,
+      isDefault: false, createdAt: serverTimestamp()
+    });
+    toast(`"${name}" calendar created!`);
+    closeModal('newcal-modal');
+  } catch(e) { toast('Error creating calendar'); console.error(e); }
+};
 
 function toast(msg) {
   const t = document.getElementById('toast');

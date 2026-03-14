@@ -234,7 +234,11 @@
   .event-meta-icon{font-size:14px}
   .event-desc{font-size:14px;color:var(--muted);margin-top:16px;line-height:1.6;background:var(--bg3);border-radius:8px;padding:12px 14px}
   .view-invitees{margin-top:14px}
-  .view-invitee-row{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--bg3);border-radius:8px;margin-bottom:5px;font-size:13px;flex-wrap:wrap}
+  .view-invitee-row{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--bg3);border-radius:8px;margin-bottom:5px;font-size:13px;flex-wrap:wrap;cursor:default}
+  .view-invitee-row.has-decline{cursor:pointer}
+  .view-invitee-row.has-decline:hover{background:var(--bg4)}
+  .decline-reason-box{width:100%;margin-top:6px;padding:8px 10px;background:var(--red-dim);border:1px solid rgba(255,107,107,.2);border-radius:6px;font-size:12px;color:var(--muted);line-height:1.5;display:none}
+  .decline-reason-box.open{display:block}
   .share-code{font-family:var(--mono);font-size:18px;font-weight:500;color:var(--accent);background:var(--bg3);border:1px solid var(--accent-border);border-radius:var(--radius);padding:14px 20px;text-align:center;letter-spacing:4px;margin:16px 0;cursor:pointer;transition:background .15s}
   .share-code:hover{background:var(--accent-dim)}
   .share-hint{font-size:12px;color:var(--muted2);text-align:center}
@@ -1335,10 +1339,38 @@ function openViewEvent(ev){
     label.textContent=ev.type==='task'?'Assignees':'Invitees';
     invEl.appendChild(label);
     people.forEach(p=>{
-      const row=document.createElement('div');row.className='view-invitee-row';
+      const rsvp=(ev.rsvp||{})[p.uid];
+      const declineReason=(ev.declineReasons||{})[p.uid];
       const isMand=p.attendance==='mandatory';
-      const badge=`<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:${isMand?'var(--red-dim)':'var(--green-dim)'};color:${isMand?'var(--red)':'var(--green)'};margin-left:auto">${isMand?(ev.type==='task'?'Must complete':'Mandatory'):(ev.type==='task'?'Optional':'Optional')}</span>`;
-      row.innerHTML=`<span style="color:var(--text);font-weight:500">${p.name}</span><span style="color:var(--muted);font-size:11px">${p.email}</span>${badge}`;
+      const hasDecline=rsvp==='declined'&&declineReason;
+
+      const row=document.createElement('div');
+      row.className=`view-invitee-row${hasDecline?' has-decline':''}`;
+      if(hasDecline) row.title='Click to see decline reason';
+
+      // Attendance badge
+      const attBadge=`<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:${isMand?'var(--red-dim)':'var(--green-dim)'};color:${isMand?'var(--red)':'var(--green)'}">${isMand?(ev.type==='task'?'Must complete':'Mandatory'):'Optional'}</span>`;
+
+      // RSVP badge
+      let rsvpBadge='';
+      if(rsvp==='accepted') rsvpBadge=`<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:var(--green-dim);color:var(--green);margin-left:auto">✓ Accepted</span>`;
+      else if(rsvp==='declined') rsvpBadge=`<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:var(--red-dim);color:var(--red);margin-left:auto">✗ Declined${hasDecline?' 💬':''}</span>`;
+      else rsvpBadge=`<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:var(--bg4);color:var(--muted2);margin-left:auto">Pending</span>`;
+
+      row.innerHTML=`
+        <span style="color:var(--text);font-weight:500;min-width:80px">${p.name}</span>
+        <span style="color:var(--muted);font-size:11px;flex:1">${p.email||''}</span>
+        ${attBadge}
+        ${rsvpBadge}
+        ${hasDecline?`<div class="decline-reason-box"><strong style="color:var(--red)">Decline reason:</strong> ${declineReason}</div>`:''}`;
+
+      // Click to toggle decline reason
+      if(hasDecline){
+        row.onclick=()=>{
+          const box=row.querySelector('.decline-reason-box');
+          box.classList.toggle('open');
+        };
+      }
       invEl.appendChild(row);
     });
   }

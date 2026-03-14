@@ -829,6 +829,17 @@ function subscribeData(uid){
     checkForNewInvites(own);
     renderAll();if(currentPage==='home')renderHomePage();
   },err=>console.error(err));
+
+  // Also listen for events where this user is an invitee/assignee (for notifications)
+  onSnapshot(query(collection(db,'events'),where('invitees','array-contains',{uid,attendance:'mandatory'})),()=>{});
+  // Simpler approach: poll home page periodically for invite notifications
+  setInterval(()=>{
+    const myInviteEvents=events.filter(e=>{
+      const ppl=e.type==='task'?e.assignees:e.invitees;
+      return ppl&&ppl.some(p=>p.uid===cu?.uid);
+    });
+    checkForNewInvites(myInviteEvents);
+  },30000); // check every 30s
   loadJoinedCalendars();
 }
 
@@ -1673,19 +1684,27 @@ if(localStorage.getItem('theme')==='light'){
 }
 
 // ── Push Notifications ────────────────────────────────────────
-async function requestNotificationPermission(){
+window.requestNotificationPermission=async()=>{
   if(!('Notification' in window)){toast('Notifications not supported on this browser');return;}
+  if(Notification.permission==='denied'){
+    toast('Notifications are blocked. Go to browser Settings → Site Settings → Notifications and allow this site.');
+    const ns=document.getElementById('notif-status');
+    if(ns)ns.textContent='Blocked — allow in browser/site settings then refresh';
+    return;
+  }
   const perm=await Notification.requestPermission();
+  const ns=document.getElementById('notif-status');
   if(perm==='granted'){
     localStorage.setItem('notificationsEnabled','true');
+    if(ns)ns.textContent='Enabled';
     toast('Notifications enabled!');
-    // Show a test notification
-    new Notification('Quixilver Calendar',{body:'Notifications are now enabled.',icon:'https://quixilver8404.org/logo_old5.png'});
+    new Notification('Quixilver Calendar',{body:'You will now be notified of new invitations.',icon:'https://quixilver8404.org/logo_old5.png'});
   } else {
     localStorage.setItem('notificationsEnabled','false');
-    toast('Notifications blocked — check browser settings');
+    if(ns)ns.textContent='Permission denied — check browser settings';
+    toast('Notifications blocked');
   }
-}
+};
 
 function sendNotification(title,body){
   if(Notification.permission==='granted'&&localStorage.getItem('notificationsEnabled')==='true'){
@@ -1720,37 +1739,34 @@ window.applyWeekSchedule=async(mode)=>{
   if(!title){toast('Enter a meeting title first');return;}
   const calendarId=document.getElementById('ev-calendar').value;
   if(!calendarId){toast('Select a calendar first');return;}
-  // Find the week of the selected date
   const baseDate=new Date(document.getElementById('ev-date').value+'T12:00:00');
   const ws=weekStart(baseDate);
-  // Normal week: Tue(2), Thu(4), Fri(5)
-  // Crunch week: Mon(1), Tue(2), Wed(3), Thu(4), Fri(5)
+  // Normal week: Tue(2), Thu(4), Fri(5) — Crunch week: Mon–Fri
   const dayOffsets=mode==='crunch'?[1,2,3,4,5]:[2,4,5];
-  const color=getInviteColor(); // uses mandatory/optional from invitees
+  const hasMandatory=invitees.some(i=>i.attendance==='mandatory');
+  const color=invitees.length>0?(hasMandatory?'#ef4444':'#22c55e'):'#00b4ff';
+  const desc=document.getElementById('ev-desc').value.trim()||null;
   let created=0;
   for(const offset of dayOffsets){
     const d=new Date(ws);d.setDate(d.getDate()+offset);
     const dateStr=d.toISOString().split('T')[0];
+    // Full meeting object — same as saveEvent, so view modal works identically
     await addDoc(collection(db,'events'),{
-      uid:cu.uid,title,type:'meeting',date:dateStr,
-      time:'15:30',timeEnd:'18:00',allDay:false,
-      repeat:'none',repeatEnd:null,
-      invitees,assignees:[],taskManagerUid:null,
-      calendarId,color,
-      description:document.getElementById('ev-desc').value.trim()||null,
-      completed:false,createdAt:serverTimestamp(),updatedAt:serverTimestamp()
+      uid:cu.uid, title, type:'meeting', date:dateStr,
+      time:'15:30', timeEnd:'18:00', allDay:false,
+      repeat:'none', repeatEnd:null,
+      invitees: JSON.parse(JSON.stringify(invitees)), // deep copy per event
+      assignees:[], taskManagerUid:null,
+      calendarId, color, description:desc,
+      completed:false,
+      rsvp:{}, declineReasons:{}, unexcusedAbsences:{},
+      createdAt:serverTimestamp(), updatedAt:serverTimestamp()
     });
     created++;
   }
-  toast(`Created ${created} meetings (${mode==='crunch'?'Crunch':'Normal'} week, 3:30–6pm)`);
+  toast(`Created ${created} meetings — ${mode==='crunch'?'Crunch (Mon–Fri)':'Normal (T/Th/F)'}, 3:30–6pm`);
   closeModal('event-modal');
 };
-
-function getInviteColor(){
-  // Color is determined by whether mandatory invitees exist
-  const hasMandatory=invitees.some(i=>i.attendance==='mandatory');
-  return hasMandatory?'#ef4444':'#22c55e';
-}
 </script>
 </body>
 </html>

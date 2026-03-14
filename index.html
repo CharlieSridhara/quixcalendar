@@ -823,24 +823,53 @@ function subscribeData(uid){
     if(activeCalId&&!calendars.find(c=>c.id===activeCalId)&&!sharedCalendars.find(c=>c.id===activeCalId)&&calendars.length>0)activeCalId=calendars[0].id;
     renderSidebar();renderAll();updateAdminUI();
   },err=>{console.error(err);showFSError();});
+
   unsubEv=onSnapshot(query(collection(db,'events'),where('uid','==',uid)),snap=>{
     const own=snap.docs.map(d=>({id:d.id,...d.data()}));
-    events=[...own,...events.filter(e=>e.isShared)];
+    // Keep shared/invited events, replace own events
+    events=[...own,...events.filter(e=>e.isShared||e._invited)];
     checkForNewInvites(own);
     renderAll();if(currentPage==='home')renderHomePage();
   },err=>console.error(err));
 
-  // Also listen for events where this user is an invitee/assignee (for notifications)
-  onSnapshot(query(collection(db,'events'),where('invitees','array-contains',{uid,attendance:'mandatory'})),()=>{});
-  // Simpler approach: poll home page periodically for invite notifications
+  // Subscribe to invited events: events in any calendar this user has joined
+  // These show on the user's calendar even though uid != theirs
+  subscribeInvitedEvents(uid);
+
+  // Poll for invite notifications every 30s
   setInterval(()=>{
     const myInviteEvents=events.filter(e=>{
       const ppl=e.type==='task'?e.assignees:e.invitees;
       return ppl&&ppl.some(p=>p.uid===cu?.uid);
     });
     checkForNewInvites(myInviteEvents);
-  },30000); // check every 30s
+  },30000);
+
   loadJoinedCalendars();
+}
+
+const _invitedUnsubs=[];
+async function subscribeInvitedEvents(uid){
+  // Unsubscribe previous
+  _invitedUnsubs.forEach(u=>u());_invitedUnsubs.length=0;
+
+  // Get all calendars this user has joined
+  const usnap=await getDoc(doc(db,'users',uid));
+  const joinedCalIds=usnap.data()?.joinedCalendars||[];
+
+  // For each joined calendar, subscribe to its events
+  joinedCalIds.forEach(calId=>{
+    const unsub=onSnapshot(query(collection(db,'events'),where('calendarId','==',calId)),snap=>{
+      const calEvs=snap.docs.map(d=>({id:d.id,...d.data(),_invited:true,_fromCalId:calId}));
+      // Remove old events from this calendar, re-add fresh
+      events=events.filter(e=>e._fromCalId!==calId);
+      events=[...events,...calEvs];
+      // Notify for any new invitations
+      checkForNewInvites(calEvs);
+      renderAll();if(currentPage==='home')renderHomePage();
+    });
+    _invitedUnsubs.push(unsub);
+  });
 }
 
 // ── Auth ──────────────────────────────────────────────────────
@@ -966,7 +995,11 @@ function renderCalendar(){
     const cev=exp.filter(e=>{
       if(e.date!==ds)return false;
       if(isShCal)return e.sharedCalId===activeCalId;
-      return e.calendarId===activeCalId&&!e.isShared;
+      // Show own events for this calendar, shared calendar events, and invited events
+      if(e.calendarId===activeCalId&&!e.isShared)return true;
+      // Show invited events from this calendar even if owned by someone else
+      if(e._invited&&e.calendarId===activeCalId)return true;
+      return false;
     }).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
     const cell=document.createElement('div');
     cell.className=`cal-cell${!isCur?' other-month':''}${isToday?' today':''}`;
@@ -1033,7 +1066,7 @@ function renderWeekView(){
   days.forEach(d=>{
     const ds=d.toISOString().split('T')[0];
     const cell=document.createElement('div');cell.className='week-allday-cell';
-    exp.filter(e=>e.date===ds&&e.allDay&&(isShCal?e.sharedCalId===activeCalId:(e.calendarId===activeCalId&&!e.isShared))).forEach(ev=>{
+    exp.filter(e=>e.date===ds&&e.allDay&&(isShCal?e.sharedCalId===activeCalId:((e.calendarId===activeCalId&&!e.isShared)||(e._invited&&e.calendarId===activeCalId)))).forEach(ev=>{
       const cal=calendars.find(c=>c.id===ev.calendarId)||sharedCalendars.find(c=>c.id===ev.sharedCalId);
       const color=ev.color||cal?.color||'#2979ff';
       const p=document.createElement('div');p.className='week-allday-pill';
@@ -1079,7 +1112,7 @@ function renderWeekView(){
       openEventModal(null,ds);setTimeout(()=>{document.getElementById('ev-time').value=`${hh}:${mm}`;},50);
     });
     // Events
-    exp.filter(e=>e.date===ds&&!e.allDay&&e.time&&(isShCal?e.sharedCalId===activeCalId:(e.calendarId===activeCalId&&!e.isShared))).forEach(ev=>{
+    exp.filter(e=>e.date===ds&&!e.allDay&&e.time&&(isShCal?e.sharedCalId===activeCalId:((e.calendarId===activeCalId&&!e.isShared)||(e._invited&&e.calendarId===activeCalId)))).forEach(ev=>{
       const cal=calendars.find(c=>c.id===ev.calendarId)||sharedCalendars.find(c=>c.id===ev.sharedCalId);
       const color=ev.color||cal?.color||'#2979ff';
       const[sh,sm]=ev.time.split(':').map(Number);let sm0=sh*60+sm,em0=sm0+60;
@@ -1494,6 +1527,7 @@ window.joinCalendar=async()=>{
   const oSnap=await getDoc(doc(db,'users',cData.uid));
   const oName=oSnap.data()?.displayName||'Someone';
   subscribeSharedCal(calId,cData.name,oName,cData.color||'#2979ff');
+  subscribeInvitedEvents(cu.uid);
   toast(`Joined "${cData.name}"!`);document.getElementById('join-code-input').value='';await loadJoinedCalendars();
 };
 async function loadJoinedCalendars(){

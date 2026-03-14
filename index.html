@@ -702,6 +702,7 @@ onAuthStateChanged(auth,async user=>{
 function showFSError(){document.body.innerHTML+=`<div style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--bg);z-index:9999;padding:24px"><div style="background:var(--bg2);border:1px solid rgba(239,68,68,.3);border-radius:14px;padding:28px;max-width:440px;text-align:center"><div style="font-size:18px;font-weight:700;margin-bottom:8px">Firestore Rules Blocking App</div><div style="color:var(--muted);font-size:12px;line-height:1.8;margin-bottom:14px">Firebase console → Firestore → Rules → paste: <code style="color:var(--accent2)">allow read, write: if request.auth != null;</code> → Publish</div><button onclick="location.reload()" style="padding:9px 22px;background:var(--accent2);color:#fff;border:none;border-radius:7px;font-family:var(--font);font-size:12px;cursor:pointer">Refresh</button></div></div>`;}
 
 async function initUserData(user){
+  const CHARLIE_UID = 'FFCcwj3440ZXFcDZVAZzXmGuRQw2';
   const uref=doc(db,'users',user.uid);
   const snap=await getDoc(uref);
   if(!snap.exists()){
@@ -711,6 +712,19 @@ async function initUserData(user){
   } else {
     userPfpUrl=snap.data().pfpUrl||null;
   }
+  // Ensure all owned calendars have admins field and Charlie is always admin
+  try {
+    const calSnap = await getDocs(query(collection(db,'calendars'),where('uid','==',user.uid)));
+    for (const calDoc of calSnap.docs) {
+      const data = calDoc.data();
+      const admins = data.admins || [];
+      const needsPatch = !data.admins || !admins.includes(user.uid) || (user.uid === CHARLIE_UID && !admins.includes(CHARLIE_UID));
+      if (needsPatch) {
+        const newAdmins = [...new Set([...admins, user.uid])];
+        await updateDoc(doc(db,'calendars',calDoc.id), {admins: newAdmins, subsections: data.subsections||[]});
+      }
+    }
+  } catch(e) { console.error('Admin patch error:', e); }
   updateAvatarDisplay();
 }
 

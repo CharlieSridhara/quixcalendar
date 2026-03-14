@@ -4,13 +4,14 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Quixilver 8404 Calendar</title>
+<link rel="icon" type="image/png" href="https://quixilver8404.org/logo_old5.png"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
 :root{
   --bg:#080a0e;--bg2:#0e1117;--bg3:#141820;--bg4:#1c2230;
   --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.12);
   --text:#e8eaf0;--muted:#6b7280;--muted2:#4b5563;
-  --accent:#1d6ae5;--accent2:#2979ff;--accent-dim:rgba(29,106,229,0.15);--accent-border:rgba(29,106,229,0.35);
+  --accent:#0099e6;--accent2:#00b4ff;--accent-dim:rgba(0,180,255,0.13);--accent-border:rgba(0,180,255,0.32);
   --red:#ef4444;--red-dim:rgba(239,68,68,0.12);
   --green:#22c55e;--green-dim:rgba(34,197,94,0.12);
   --amber:#f59e0b;--amber-dim:rgba(245,158,11,0.12);
@@ -18,8 +19,20 @@
   --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
   --radius:10px;--radius-lg:16px;
 }
+body.light-mode{
+  --bg:#f0f2f5;--bg2:#ffffff;--bg3:#e8eaed;--bg4:#dde1e7;
+  --border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);
+  --text:#111318;--muted:#6b7280;--muted2:#9ca3af;
+}
+/* Theme toggle */
+.theme-toggle{width:36px;height:20px;background:var(--bg4);border:1px solid var(--border2);border-radius:10px;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0}
+.theme-toggle::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:var(--muted);transition:transform .2s,background .2s}
+body.light-mode .theme-toggle{background:var(--accent-dim)}
+body.light-mode .theme-toggle::after{transform:translateX(16px);background:var(--accent2)}
+/* Icon utility */
+.icon{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;zoom:1.1}
 
 /* FOX LOGO SVG embedded as background pattern */
 .fox-watermark{position:fixed;bottom:20px;right:20px;opacity:.04;pointer-events:none;z-index:0}
@@ -352,12 +365,16 @@ textarea.form-input{resize:vertical;min-height:68px}
     </div>
     <div class="topbar-right">
       <div class="nav-pill">
-        <button class="nav-pill-btn active" id="nav-home" onclick="showPage('home')">🏠 Home</button>
-        <button class="nav-pill-btn" id="nav-cal" onclick="showPage('calendar')">📅 Calendar</button>
-        <button class="nav-pill-btn" id="nav-admin" onclick="showPage('admin')" style="display:none">⚙️ Admin</button>
-        <button class="nav-pill-btn" id="nav-profile" onclick="showPage('profile')">👤 Profile</button>
+        <button class="nav-pill-btn active" id="nav-home" onclick="showPage('home')">Home</button>
+        <button class="nav-pill-btn" id="nav-cal" onclick="showPage('calendar')">Calendar</button>
+        <button class="nav-pill-btn" id="nav-admin" onclick="showPage('admin')" style="display:none">Admin</button>
+        <button class="nav-pill-btn" id="nav-profile" onclick="showPage('profile')">Profile</button>
       </div>
-      <button class="btn-icon" onclick="openShareModal()">⇄ Share</button>
+      <button class="btn-icon" onclick="openShareModal()" title="Share calendar">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        Share
+      </button>
+      <button class="theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle light/dark mode"></button>
       <div class="user-pill" id="user-pill" onclick="toggleUserMenu()">
         <div class="user-avatar" id="user-avatar-el"><span id="user-avatar-char">?</span></div>
         <span id="user-display-name">…</span>
@@ -372,13 +389,13 @@ textarea.form-input{resize:vertical;min-height:68px}
   <!-- HOME -->
   <div class="page active" id="page-home">
     <div class="home-page">
-      <div id="home-probation-banner" class="probation-banner">⚠️ You are on <strong>probation</strong> — you have 3 or more unexcused absences.</div>
+      <div id="home-probation-banner" class="probation-banner">You are on <strong>probation</strong> — you have 3 or more unexcused absences.</div>
       <div class="home-greeting" id="home-greeting">Welcome back!</div>
       <div style="color:var(--muted);font-size:13px;margin-bottom:6px" id="home-absence-row" style="display:none">Unexcused absences: <span id="home-absence-count" class="absence-pill"></span></div>
       <div class="home-sub">Here's what's on your plate.</div>
       <div class="home-grid">
-        <div class="home-card"><div class="home-card-title">📬 My Invitations</div><div id="home-invites"></div></div>
-        <div class="home-card"><div class="home-card-title">📅 Upcoming (14 days)</div><div id="home-upcoming"></div></div>
+        <div class="home-card"><div class="home-card-title">Invitations</div><div id="home-invites"></div></div>
+        <div class="home-card"><div class="home-card-title">Upcoming (14 days)</div><div id="home-upcoming"></div></div>
       </div>
     </div>
   </div>
@@ -389,8 +406,8 @@ textarea.form-input{resize:vertical;min-height:68px}
       <div class="sidebar">
         <div class="sidebar-section">
           <div class="btn-new-group" id="create-btns">
-            <button class="btn-new-meeting" onclick="openNewEvent('meeting')">📅 Meeting</button>
-            <button class="btn-new-task" onclick="openNewEvent('task')">✅ Task</button>
+            <button class="btn-new-meeting" onclick="openNewEvent('meeting')">Meeting</button>
+            <button class="btn-new-task" onclick="openNewEvent('task')">Task</button>
           </div>
         </div>
         <div class="sidebar-section">
@@ -476,17 +493,17 @@ textarea.form-input{resize:vertical;min-height:68px}
   <!-- ADMIN -->
   <div class="page" id="page-admin">
     <div class="admin-page">
-      <div class="admin-header">⚙️ Admin Panel</div>
+      <div class="admin-header">Admin Panel</div>
       <div class="admin-sub">Manage your calendars — members, roles, subsections, absences.</div>
       <div style="margin-bottom:16px">
         <label class="form-label">Managing calendar</label>
         <select class="form-select" id="admin-cal-select" onchange="renderAdminPage()" style="max-width:300px"></select>
       </div>
       <div class="admin-grid">
-        <div class="admin-card"><div class="admin-card-title">👥 Members & Roles</div><div id="admin-members-list"></div></div>
-        <div class="admin-card"><div class="admin-card-title">🏷️ Subsections</div><div style="font-size:11px;color:var(--muted2);margin-bottom:10px">Group members into teams (e.g. Mechanical, Programming, Outreach)</div><div id="admin-subsections-list"></div><div style="display:flex;gap:7px;margin-top:10px"><input class="form-input" id="new-subsection-input" type="text" placeholder="New subsection name" style="flex:1"/><button class="btn-primary-sm" onclick="addSubsection()">Add</button></div></div>
-        <div class="admin-card"><div class="admin-card-title">⚠️ Absences</div><div style="font-size:11px;color:var(--muted2);margin-bottom:10px">Mark or reverse unexcused absences.</div><div id="admin-absences-list"></div></div>
-        <div class="admin-card"><div class="admin-card-title">🔁 Transfer Ownership</div><div style="font-size:11px;color:var(--muted2);margin-bottom:10px">Transfer full admin rights to another member. You will become a regular member.</div><div id="admin-transfer-section"></div></div>
+        <div class="admin-card"><div class="admin-card-title">Members &amp; Roles</div><div id="admin-members-list"></div></div>
+        <div class="admin-card"><div class="admin-card-title">Subsections</div><div style="font-size:11px;color:var(--muted2);margin-bottom:10px">Group members into teams (e.g. Mechanical, Programming, Outreach)</div><div id="admin-subsections-list"></div><div style="display:flex;gap:7px;margin-top:10px"><input class="form-input" id="new-subsection-input" type="text" placeholder="New subsection name" style="flex:1"/><button class="btn-primary-sm" onclick="addSubsection()">Add</button></div></div>
+        <div class="admin-card"><div class="admin-card-title">Absences</div><div style="font-size:11px;color:var(--muted2);margin-bottom:10px">Mark or reverse unexcused absences.</div><div id="admin-absences-list"></div></div>
+        <div class="admin-card"><div class="admin-card-title">Transfer Ownership</div><div style="font-size:11px;color:var(--muted2);margin-bottom:10px">Transfer full admin rights to another member. You will become a regular member.</div><div id="admin-transfer-section"></div></div>
       </div>
     </div>
   </div>
@@ -497,8 +514,8 @@ textarea.form-input{resize:vertical;min-height:68px}
   <div class="modal">
     <button class="modal-close" onclick="closeModal('event-modal')">✕</button>
     <div class="type-toggle">
-      <button class="type-btn active-meeting" id="type-meeting-btn" onclick="switchType('meeting')">📅 Meeting</button>
-      <button class="type-btn" id="type-task-btn" onclick="switchType('task')">✅ Task</button>
+      <button class="type-btn active-meeting" id="type-meeting-btn" onclick="switchType('meeting')">Meeting</button>
+      <button class="type-btn" id="type-task-btn" onclick="switchType('task')">Task</button>
     </div>
     <div class="form-group"><label class="form-label" id="ev-title-label">Title</label><input class="form-input" id="ev-title" type="text" placeholder="Add title"/></div>
     <div class="modal-row">
@@ -525,8 +542,8 @@ textarea.form-input{resize:vertical;min-height:68px}
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px">
           <label class="form-label" style="margin-bottom:0">Invite people</label>
           <div style="display:flex;gap:5px">
-            <button class="bulk-att-btn" onclick="setBulkAttendance('mandatory')" style="color:var(--red);border-color:rgba(239,68,68,.3)">🔴 All Mand.</button>
-            <button class="bulk-att-btn" onclick="setBulkAttendance('optional')" style="color:var(--green);border-color:rgba(34,197,94,.3)">🟢 All Opt.</button>
+            <button class="bulk-att-btn" onclick="setBulkAttendance('mandatory')" style="color:var(--red);border-color:rgba(239,68,68,.3)">All Mandatory</button>
+            <button class="bulk-att-btn" onclick="setBulkAttendance('optional')" style="color:var(--green);border-color:rgba(34,197,94,.3)">All Optional</button>
           </div>
         </div>
         <div id="ev-group-filter" style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:7px"></div>
@@ -563,11 +580,11 @@ textarea.form-input{resize:vertical;min-height:68px}
   <div class="modal">
     <button class="modal-close" onclick="closeModal('view-modal')">✕</button>
     <div class="event-view-title" id="view-title"></div>
-    <div class="event-meta"><span class="event-meta-icon">📅</span><span id="view-date"></span></div>
-    <div class="event-meta" id="view-time-row" style="display:none"><span class="event-meta-icon">🕐</span><span id="view-time"></span></div>
-    <div class="event-meta"><span class="event-meta-icon">📁</span><span id="view-cal"></span></div>
-    <div class="event-meta" id="view-repeat-row" style="display:none"><span class="event-meta-icon">🔁</span><span id="view-repeat"></span></div>
-    <div class="event-meta" id="view-manager-row" style="display:none"><span class="event-meta-icon">👤</span><span id="view-manager"></span></div>
+    <div class="event-meta"><span class="event-meta-icon"></span><span id="view-date"></span></div>
+    <div class="event-meta" id="view-time-row" style="display:none"><span class="event-meta-icon"></span><span id="view-time"></span></div>
+    <div class="event-meta"><span class="event-meta-icon"></span><span id="view-cal"></span></div>
+    <div class="event-meta" id="view-repeat-row" style="display:none"><span class="event-meta-icon"></span><span id="view-repeat"></span></div>
+    <div class="event-meta" id="view-manager-row" style="display:none"><span class="event-meta-icon"></span><span id="view-manager"></span></div>
     <div class="event-desc" id="view-desc" style="display:none"></div>
     <div id="view-people-tabs" style="display:none;margin-top:12px">
       <div class="rsvp-tabs">
@@ -581,7 +598,7 @@ textarea.form-input{resize:vertical;min-height:68px}
     <div class="modal-actions" id="view-actions">
       <button class="btn-danger" id="view-delete-btn" onclick="deleteViewedEvent()" style="display:none">Delete</button>
       <button class="btn-secondary" id="view-edit-btn" onclick="editViewedEvent()" style="display:none">Edit</button>
-      <button class="complete-btn" id="view-complete-btn" onclick="markTaskComplete()" style="display:none">✓ Mark Complete</button>
+      <button class="complete-btn" id="view-complete-btn" onclick="markTaskComplete()" style="display:none">Mark Complete</button>
       <button class="btn-secondary" onclick="closeModal('view-modal')">Close</button>
     </div>
   </div>
@@ -687,14 +704,14 @@ let declineTargetEvId=null, unexcusedTarget=null;
 let viewTab='all', currentPage='home';
 
 const COLORS=[
-  {v:'#2979ff'},{v:'#22c55e'},{v:'#ef4444'},{v:'#f59e0b'},{v:'#a855f7'},{v:'#06b6d4'}
+  {v:'#00b4ff'},{v:'#22c55e'},{v:'#ef4444'},{v:'#f59e0b'},{v:'#a855f7'},{v:'#06b6d4'}
 ];
 const REPEAT_LABELS={none:'Does not repeat',daily:'Daily',weekly:'Weekly',monthly:'Monthly'};
 
 // ── Loading timeout ───────────────────────────────────────────
 const _lt=setTimeout(()=>{
   const ls=document.getElementById('loading-screen');
-  if(ls&&ls.style.display!=='none')ls.innerHTML=`<div style="text-align:center;padding:24px;max-width:440px"><div style="font-size:24px;margin-bottom:10px">⚠️</div><div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px">Firebase not connecting</div><div style="color:var(--muted);font-size:12px;line-height:1.8">Add domain: <strong style="color:var(--text)">Authentication → Settings → Authorized domains</strong><br>Add <code style="color:var(--accent2)">charliesridhara.github.io</code> or <code style="color:var(--accent2)">quixcalendar.org</code><br>Also fix Firestore rules: <code style="color:var(--accent2)">allow read, write: if request.auth != null;</code></div><button onclick="location.reload()" style="margin-top:16px;padding:9px 22px;background:var(--accent2);color:#fff;border:none;border-radius:8px;font-family:var(--font);font-size:12px;cursor:pointer">Refresh</button></div>`;
+  if(ls&&ls.style.display!=='none')ls.innerHTML=`<div style="text-align:center;padding:24px;max-width:440px"><div style="font-size:24px;margin-bottom:10px;color:var(--red);font-weight:700">!</div><div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px">Firebase not connecting</div><div style="color:var(--muted);font-size:12px;line-height:1.8">Add domain: <strong style="color:var(--text)">Authentication → Settings → Authorized domains</strong><br>Add <code style="color:var(--accent2)">charliesridhara.github.io</code> or <code style="color:var(--accent2)">quixcalendar.org</code><br>Also fix Firestore rules: <code style="color:var(--accent2)">allow read, write: if request.auth != null;</code></div><button onclick="location.reload()" style="margin-top:16px;padding:9px 22px;background:var(--accent2);color:#fff;border:none;border-radius:8px;font-family:var(--font);font-size:12px;cursor:pointer">Refresh</button></div>`;
 },10000);
 
 onAuthStateChanged(auth,async user=>{
@@ -713,7 +730,7 @@ async function initUserData(user){
   if(!snap.exists()){
     await setDoc(uref,{displayName:user.displayName||'User',email:user.email,joinedCalendars:[],pfpUrl:null,unexcusedCount:0});
     const code=Math.random().toString(36).substring(2,8).toUpperCase();
-    await addDoc(collection(db,'calendars'),{uid:user.uid,name:'General',color:'#2979ff',inviteCode:code,admins:[user.uid],subsections:[],createdAt:serverTimestamp()});
+    await addDoc(collection(db,'calendars'),{uid:user.uid,name:'General',color:'#00b4ff',inviteCode:code,admins:[user.uid],subsections:[],createdAt:serverTimestamp()});
   } else {
     userPfpUrl=snap.data().pfpUrl||null;
   }
@@ -882,7 +899,7 @@ function renderCalendar(){
       const color=ev.color||cal?.color||'#2979ff';
       const pill=document.createElement('div');pill.className=`event-pill${ev.completed?' completed':''}`;
       pill.style.background=color+'22';pill.style.color=color;
-      pill.innerHTML=`<div class="event-pill-dot" style="background:${color}"></div>${ev.type==='task'?'✅ ':''}${ev.allDay?'':(ev.time?ev.time+' · ':'')}${ev.title}`;
+      pill.innerHTML=`<div class="event-pill-dot" style="background:${color}"></div>${ev.type==='task'?'[T] ':''}${ev.allDay?'':(ev.time?ev.time+' · ':'')}${ev.title}`;
       pill.onclick=e=>{e.stopPropagation();openViewEvent(ev);};evd.appendChild(pill);
     });
     if(cev.length>3){const mo=document.createElement('div');mo.className='more-events';mo.textContent=`+${cev.length-3} more`;evd.appendChild(mo);}
@@ -942,7 +959,7 @@ function renderWeekView(){
       const color=ev.color||cal?.color||'#2979ff';
       const p=document.createElement('div');p.className='week-allday-pill';
       p.style.background=color+'22';p.style.color=color;
-      p.textContent=(ev.type==='task'?'✅ ':'')+ev.title;
+      p.textContent=(ev.type==='task'?'[T] ':'')+ev.title;
       p.onclick=()=>openViewEvent(ev);cell.appendChild(p);
     });
     als.appendChild(cell);
@@ -991,7 +1008,7 @@ function renderWeekView(){
       const blk=document.createElement('div');blk.className=`week-event-block${ev.completed?' completed':''}`;
       blk.style.top=`${(sm0/60)*H}px`;blk.style.height=`${Math.max(((em0-sm0)/60)*H,18)}px`;
       blk.style.background=color+'22';blk.style.color=color;blk.style.borderLeftColor=color;
-      blk.innerHTML=`<div class="week-event-title">${ev.type==='task'?'✅ ':''}${ev.title}</div><div class="week-event-time">${ev.time}${ev.timeEnd?'–'+ev.timeEnd:''}</div>`;
+      blk.innerHTML=`<div class="week-event-title">${ev.type==='task'?'[T] ':''}${ev.title}</div><div class="week-event-time">${ev.time}${ev.timeEnd?'–'+ev.timeEnd:''}</div>`;
       blk.onclick=e=>{e.stopPropagation();openViewEvent(ev);};col.appendChild(blk);
     });
     wd.appendChild(col);
@@ -1046,7 +1063,7 @@ function renderHomePage(){
     const color=ev.color||cal?.color||'#2979ff';
     const d=new Date(ev.date+'T12:00:00');
     const row=document.createElement('div');row.className='upcoming-row';
-    row.innerHTML=`<div class="upcoming-dot" style="background:${color}"></div><div><div class="upcoming-title">${ev.type==='task'?'✅ ':'📅 '}${ev.title}</div><div class="upcoming-meta">${d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}${ev.time?' · '+ev.time:''}</div></div>`;
+    row.innerHTML=`<div class="upcoming-dot" style="background:${color}"></div><div><div class="upcoming-title">${ev.type==='task'?'Task: ':'Mtg: '}${ev.title}</div><div class="upcoming-meta">${d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}${ev.time?' · '+ev.time:''}</div></div>`;
     row.onclick=()=>openViewEvent(ev);upEl.appendChild(row);
   });
   const invEl=document.getElementById('home-invites');invEl.innerHTML='';
@@ -1063,10 +1080,10 @@ function renderHomePage(){
     const card=document.createElement('div');card.className=`invite-card${ev.type==='task'?' task-invite':''}`;card.style.borderLeftColor=color;
     const days3=daysUntil(ev.date)>=3;
     let statusHtml='';
-    if(rsvp==='accepted')statusHtml=`<div class="invite-actions"><span class="invite-status accepted">✓ Accepted</span>${days3?`<button class="btn-decline" style="font-size:10px;padding:3px 9px" onclick="rsvpEvent('${ev.id}','decline')">Change</button>`:''}</div>`;
-    else if(rsvp==='declined')statusHtml=`<div class="invite-actions"><span class="invite-status declined">✗ Declined</span>${days3?`<button class="btn-accept" style="font-size:10px;padding:3px 9px" onclick="rsvpEvent('${ev.id}','accept')">Change</button>`:''}</div>`;
-    else statusHtml=`<div class="invite-actions"><button class="btn-accept" onclick="rsvpEvent('${ev.id}','accept')">✓ Accept</button><button class="btn-decline" onclick="rsvpEvent('${ev.id}','decline')">✗ Decline</button></div>`;
-    card.innerHTML=`<div class="invite-card-title">${ev.type==='task'?'✅':'📅'} ${ev.title}</div><div class="invite-card-meta">${d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}${ev.time?' · '+ev.time:''}<br>${cal?.name||'Calendar'}${me&&ev.type==='meeting'?` · <span style="color:${me.attendance==='mandatory'?'var(--red)':'var(--green)'}">${me.attendance==='mandatory'?'🔴 Mandatory':'🟢 Optional'}</span>`:''}</div>${statusHtml}`;
+    if(rsvp==='accepted')statusHtml=`<div class="invite-actions"><span class="invite-status accepted">Accepted</span>${days3?`<button class="btn-decline" style="font-size:10px;padding:3px 9px" onclick="rsvpEvent('${ev.id}','decline')">Change</button>`:''}</div>`;
+    else if(rsvp==='declined')statusHtml=`<div class="invite-actions"><span class="invite-status declined">Declined</span>${days3?`<button class="btn-accept" style="font-size:10px;padding:3px 9px" onclick="rsvpEvent('${ev.id}','accept')">Change</button>`:''}</div>`;
+    else statusHtml=`<div class="invite-actions"><button class="btn-accept" onclick="rsvpEvent('${ev.id}','accept')">Accept</button><button class="btn-decline" onclick="rsvpEvent('${ev.id}','decline')">Decline</button></div>`;
+    card.innerHTML=`<div class="invite-card-title">${ev.type==='task'?'Task':'Mtg'} ${ev.title}</div><div class="invite-card-meta">${d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}${ev.time?' · '+ev.time:''}<br>${cal?.name||'Calendar'}${me&&ev.type==='meeting'?` · <span style="color:${me.attendance==='mandatory'?'var(--red)':'var(--green)'}">${me.attendance==='mandatory'?'Mandatory':'Optional'}</span>`:''}</div>${statusHtml}`;
     invEl.appendChild(card);
   });
 }
@@ -1086,14 +1103,14 @@ async function loadAbsenceCount(){
 // ── RSVP ─────────────────────────────────────────────────────
 window.rsvpEvent=async(evId,action)=>{
   const ev=events.find(e=>e.id===evId);if(!ev)return;
-  if(daysUntil(ev.date)<3){toast('⛔ Cannot change RSVP within 3 days — contact your lead directly');return;}
+  if(daysUntil(ev.date)<3){toast('Cannot change RSVP within 3 days — contact your lead directly');return;}
   if(action==='decline'){
     declineTargetEvId=evId;
     document.getElementById('decline-reason').value=(ev.declineReasons||{})[cu.uid]||'';
     document.getElementById('decline-modal').classList.add('open');
   } else {
     await updateDoc(doc(db,'events',evId),{[`rsvp.${cu.uid}`]:'accepted',[`declineReasons.${cu.uid}`]:null});
-    toast('✓ Accepted!');renderHomePage();
+    toast('Accepted!');renderHomePage();
   }
 };
 window.submitDecline=async()=>{
@@ -1169,8 +1186,8 @@ function renderViewPeople(){
     const row=document.createElement('div');row.className=`view-invitee-row${hasDr?' has-decline':''}`;
     const attB=`<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:${isMand?'var(--red-dim)':'var(--green-dim)'};color:${isMand?'var(--red)':'var(--green)'}">${isMand?(ev.type==='task'?'Must complete':'Mandatory'):'Optional'}</span>`;
     let rsvpB='<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:var(--bg4);color:var(--muted2)">Pending</span>';
-    if(rsvp==='accepted')rsvpB=`<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:var(--green-dim);color:var(--green)">✓ Accepted</span>`;
-    else if(rsvp==='declined')rsvpB=`<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:var(--red-dim);color:var(--red)">✗ Declined${hasDr?' 💬':''}</span>`;
+    if(rsvp==='accepted')rsvpB=`<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:var(--green-dim);color:var(--green)">Accepted</span>`;
+    else if(rsvp==='declined')rsvpB=`<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:var(--red-dim);color:var(--red)">Declined${hasDr?' ·':''}</span>`;
     const uxB=ux?`<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(239,68,68,.25);color:var(--red);font-weight:700">UNEXCUSED</span>`:'';
     let adminBtn='';
     if(isAdm&&rsvp==='declined'){
@@ -1190,7 +1207,7 @@ window.markTaskComplete=async()=>{
   if(!viewingEv||viewingEv.type!=='task')return;
   if(!confirm('Mark this task as complete? It will be removed from the calendar.'))return;
   await updateDoc(doc(db,'events',viewingEv.id),{completed:true,completedAt:serverTimestamp()});
-  toast('✓ Task marked complete');closeModal('view-modal');viewingEv=null;
+  toast('Task marked complete');closeModal('view-modal');viewingEv=null;
 };
 
 // ── Unexcused ─────────────────────────────────────────────────
@@ -1311,7 +1328,7 @@ function renderChecklists(){
       const existing=arr.find(x=>x.uid===m.uid);
       const isChk=!!existing;const att=existing?.attendance||'mandatory';
       const row=document.createElement('div');row.className='member-check-row';
-      row.innerHTML=`<input type="checkbox" id="chk-${container.id}-${m.uid}" ${isChk?'checked':''} onchange="${toggleFn}('${m.uid}')"/><div style="flex:1"><div class="member-check-name">${m.displayName}${m.subsection?` <span style="font-size:9px;color:var(--accent2);background:var(--accent-dim);border-radius:4px;padding:1px 5px">${m.subsection}</span>`:''}</div>${m.email?`<div class="member-check-email">${m.email}</div>`:''}</div>${isChk?`<button class="member-check-att ${att}" onclick="${attFn}('${m.uid}');event.stopPropagation()">${att==='mandatory'?'🔴 Mand.':'🟢 Opt.'}</button>`:''}`;
+      row.innerHTML=`<input type="checkbox" id="chk-${container.id}-${m.uid}" ${isChk?'checked':''} onchange="${toggleFn}('${m.uid}')"/><div style="flex:1"><div class="member-check-name">${m.displayName}${m.subsection?` <span style="font-size:9px;color:var(--accent2);background:var(--accent-dim);border-radius:4px;padding:1px 5px">${m.subsection}</span>`:''}</div>${m.email?`<div class="member-check-email">${m.email}</div>`:''}</div>${isChk?`<button class="member-check-att ${att}" onclick="${attFn}('${m.uid}');event.stopPropagation()">${att==='mandatory'?'Mand.':'Opt.'}</button>`:''}`;
       row.onclick=e=>{if(e.target.tagName==='BUTTON')return;document.getElementById(`chk-${container.id}-${m.uid}`).click();};
       container.appendChild(row);
     });
@@ -1343,7 +1360,7 @@ window.confirmDeleteCalendar=(e,calId,calName)=>{
   e.stopPropagation();
   const cnt=events.filter(x=>x.calendarId===calId&&!x.isShared).length;
   document.getElementById('confirm-delete-cal-text').textContent=`Delete "${calName}"?`;
-  document.getElementById('confirm-delete-cal-warning').textContent=cnt>0?`⚠️ This will permanently delete ${cnt} event${cnt!==1?'s':''}.`:'No events in this calendar.';
+  document.getElementById('confirm-delete-cal-warning').textContent=cnt>0?`This will permanently delete ${cnt} event${cnt!==1?'s':''}.`:'No events in this calendar.';
   document.getElementById('confirm-delete-cal-btn').onclick=()=>execDeleteCal(calId,calName);
   document.getElementById('confirm-delete-cal-modal').classList.add('open');
 };
@@ -1363,7 +1380,7 @@ window.saveRenameCalendar=async()=>{
   try{await updateDoc(doc(db,'calendars',activeCalId),{name});toast('Renamed');closeModal('rename-cal-modal');}catch(e){toast('Error');}
 };
 window.openNewCalendarModal=()=>{
-  _newCalColor='#2979ff';document.getElementById('newcal-name').value='';
+  _newCalColor='#00b4ff';document.getElementById('newcal-name').value='';
   renderSwatches('newcal-color-row',_newCalColor,v=>{_newCalColor=v;});
   document.getElementById('newcal-modal').classList.add('open');document.getElementById('newcal-name').focus();
 };
@@ -1537,7 +1554,7 @@ window.handlePfpChange=(e)=>{const f=e.target.files[0];if(!f)return;const r=new 
 window.saveProfile=async()=>{
   const name=document.getElementById('profile-name-input').value.trim(),email=document.getElementById('profile-email-input').value.trim(),pwd=document.getElementById('profile-password-input').value;
   const msgEl=document.getElementById('profile-save-msg');msgEl.style.display='block';msgEl.style.color='var(--muted)';msgEl.textContent='Saving…';
-  try{if(name&&name!==cu.displayName)await updateProfile(cu,{displayName:name});if(email&&email!==cu.email)await updateEmail(cu,email);if(pwd)await updatePassword(cu,pwd);await updateDoc(doc(db,'users',cu.uid),{displayName:name,email:email||cu.email});msgEl.style.color='var(--green)';msgEl.textContent='✓ Saved!';updateTopbar();renderProfilePage();setTimeout(()=>{msgEl.style.display='none';},2500);}
+  try{if(name&&name!==cu.displayName)await updateProfile(cu,{displayName:name});if(email&&email!==cu.email)await updateEmail(cu,email);if(pwd)await updatePassword(cu,pwd);await updateDoc(doc(db,'users',cu.uid),{displayName:name,email:email||cu.email});msgEl.style.color='var(--green)';msgEl.textContent='Saved!';updateTopbar();renderProfilePage();setTimeout(()=>{msgEl.style.display='none';},2500);}
   catch(e){msgEl.style.color='var(--red)';msgEl.textContent=e.message||'Error';}
 };
 
@@ -1558,6 +1575,14 @@ document.addEventListener('click',e=>{
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape')['event-modal','view-modal','share-modal','newcal-modal','rename-cal-modal','confirm-delete-cal-modal','decline-modal','unexcused-modal'].forEach(closeModal);});
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2800);}
+
+// ── Theme ──────────────────────────────────────────────────────
+window.toggleTheme=()=>{
+  const isLight=document.body.classList.toggle('light-mode');
+  localStorage.setItem('theme',isLight?'light':'dark');
+};
+// Apply saved theme on load
+if(localStorage.getItem('theme')==='light')document.body.classList.add('light-mode');
 </script>
 </body>
 </html>

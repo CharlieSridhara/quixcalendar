@@ -569,6 +569,27 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// ── Loading timeout — if onAuthStateChanged never fires, show error ──
+const _loadTimeout = setTimeout(() => {
+  const ls = document.getElementById('loading-screen');
+  if (ls && ls.style.display !== 'none') {
+    ls.innerHTML = `
+      <div style="text-align:center;padding:32px;max-width:480px">
+        <div style="font-size:28px;margin-bottom:12px">⚠️</div>
+        <div style="font-size:18px;font-weight:600;color:var(--text);margin-bottom:10px">Firebase not connecting</div>
+        <div style="color:var(--muted);font-size:13px;line-height:1.8;margin-bottom:20px">
+          Most likely fix — add your domain to Firebase Auth:<br><br>
+          <strong style="color:var(--text)">Firebase Console → Authentication → Settings → Authorized domains</strong><br>
+          → Add domain: <code style="background:var(--bg3);padding:2px 8px;border-radius:4px;color:var(--accent)">charliesridhara.github.io</code>
+          <br><br>Also check:<br>
+          • Firestore rules allow <code style="color:var(--accent)">request.auth != null</code><br>
+          • Authentication → Email/Password is enabled
+        </div>
+        <button onclick="location.reload()" style="padding:10px 24px;background:var(--accent);color:#0d0d0f;border:none;border-radius:8px;font-family:var(--font);font-size:13px;font-weight:500;cursor:pointer">Refresh</button>
+      </div>`;
+  }
+}, 10000);
+
 // ── State ──────────────────────────────────────────────────────
 let currentUser = null, events = [], calendars = [];
 let currentDate = new Date(), miniDate = new Date();
@@ -590,6 +611,7 @@ const REPEAT_LABELS = {none:'Does not repeat',daily:'Daily',weekly:'Weekly',mont
 
 // ── Auth ───────────────────────────────────────────────────────
 onAuthStateChanged(auth, async user => {
+  clearTimeout(_loadTimeout);
   document.getElementById('loading-screen').style.display = 'none';
   if (user) {
     currentUser = user;
@@ -1009,7 +1031,6 @@ window.toggleAllDay=()=>{
 
 // ── Calendar members cache ─────────────────────────────────────
 // calendarMembers: [{uid, displayName, email}] — people in the currently selected calendar
-let calendarMembers = [];
 
 async function loadCalendarMembers(calendarId) {
   calendarMembers = [];

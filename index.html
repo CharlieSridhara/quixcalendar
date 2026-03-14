@@ -251,7 +251,17 @@
   textarea.form-input{resize:vertical;min-height:72px}
   .form-checkbox{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);cursor:pointer}
   .form-checkbox input{width:16px;height:16px;accent-color:var(--accent);cursor:pointer}
-  .section-divider{height:1px;background:var(--border);margin:16px 0}
+  .member-checklist{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);overflow:hidden;max-height:220px;overflow-y:auto}
+  .member-check-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
+  .member-check-row:last-child{border-bottom:none}
+  .member-check-row:hover{background:var(--bg4)}
+  .member-check-row input[type=checkbox]{width:15px;height:15px;accent-color:var(--accent);cursor:pointer;flex-shrink:0}
+  .member-check-name{flex:1;font-size:13px;color:var(--text)}
+  .member-check-email{font-size:11px;color:var(--muted)}
+  .member-check-att{padding:3px 8px;font-size:11px;font-weight:500;border-radius:6px;border:none;cursor:pointer;font-family:var(--font);transition:all .15s;flex-shrink:0}
+  .member-check-att.mandatory{background:var(--red-dim);color:var(--red)}
+  .member-check-att.optional{background:var(--green-dim);color:var(--green)}
+  .member-check-empty{padding:12px;font-size:13px;color:var(--muted2);text-align:center}
   .nav-pill{display:flex;gap:4px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:3px}
   .nav-pill-btn{padding:5px 14px;font-size:12px;font-weight:500;border-radius:7px;border:none;background:transparent;color:var(--muted);cursor:pointer;font-family:var(--font);transition:all .15s}
   .nav-pill-btn.active{background:var(--bg4);color:var(--text)}
@@ -448,17 +458,14 @@
     <div id="ev-meeting-section">
       <div class="section-divider"></div>
       <div class="form-group">
-        <label class="form-label">Invite people</label>
-        <div style="display:flex;gap:8px;margin-bottom:8px">
-          <select class="form-select" id="ev-invite-select" style="flex:1"><option value="">— Select member —</option></select>
-          <button class="btn-primary-sm" onclick="addInvitee()">Add</button>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <label class="form-label" style="margin-bottom:0">Invite people</label>
+          <div style="display:flex;gap:6px">
+            <button class="bulk-att-btn" onclick="setBulkAttendance('mandatory')" style="color:var(--red);border-color:rgba(255,107,107,.3)">🔴 All Mandatory</button>
+            <button class="bulk-att-btn" onclick="setBulkAttendance('optional')" style="color:var(--green);border-color:rgba(94,220,140,.3)">🟢 All Optional</button>
+          </div>
         </div>
-        <div class="bulk-att-row">
-          <span style="font-size:11px;color:var(--muted2);margin-right:4px">Set all:</span>
-          <button class="bulk-att-btn" onclick="setBulkAttendance('mandatory')" style="color:var(--red);border-color:rgba(255,107,107,.3)">🔴 All Mandatory</button>
-          <button class="bulk-att-btn" onclick="setBulkAttendance('optional')" style="color:var(--green);border-color:rgba(94,220,140,.3)">🟢 All Optional</button>
-        </div>
-        <div id="ev-invitees-list"></div>
+        <div class="member-checklist" id="ev-invite-checklist"><div class="member-check-empty">Loading members…</div></div>
       </div>
     </div>
 
@@ -466,12 +473,8 @@
     <div id="ev-task-section" style="display:none">
       <div class="section-divider"></div>
       <div class="form-group">
-        <label class="form-label">Assign to</label>
-        <div style="display:flex;gap:8px;margin-bottom:8px">
-          <select class="form-select" id="ev-assign-select" style="flex:1"><option value="">— Select member —</option></select>
-          <button class="btn-primary-sm" onclick="addAssignee()">Add</button>
-        </div>
-        <div id="ev-assignees-list"></div>
+        <label class="form-label" style="margin-bottom:8px">Assign to</label>
+        <div class="member-checklist" id="ev-assign-checklist"><div class="member-check-empty">Loading members…</div></div>
       </div>
     </div>
 
@@ -1137,7 +1140,7 @@ function openEventModal(event=null,defaultDate=null,defaultType='meeting'){
   else if(activeCalId&&calendars.find(c=>c.id===activeCalId))sel.value=activeCalId;
   selectedColor=event?.color||'#6c8fff';
   renderColorSwatches('ev-color-row',selectedColor,v=>{selectedColor=v;});
-  renderInviteesList();renderAssigneesList();
+  renderMemberChecklists();
   loadCalendarMembers(sel.value);
   sel.onchange=()=>loadCalendarMembers(sel.value);
   document.getElementById('event-modal').classList.add('open');
@@ -1166,74 +1169,107 @@ async function loadCalendarMembers(calendarId){
 }
 
 function populateMemberDropdowns(){
-  ['ev-invite-select','ev-assign-select'].forEach(id=>{
-    const sel=document.getElementById(id);if(!sel)return;
-    sel.innerHTML='<option value="">— Select member —</option>';
-    calendarMembers.forEach(m=>{
-      const o=document.createElement('option');o.value=m.uid;
-      o.textContent=m.displayName+(m.email?` (${m.email})`:'');
-      o.dataset.name=m.displayName;o.dataset.email=m.email;
-      const alreadyAdded=invitees.some(i=>i.uid===m.uid)||assignees.some(a=>a.uid===m.uid);
-      if(alreadyAdded)o.disabled=true;
-      sel.appendChild(o);
-    });
-  });
+  renderMemberChecklists();
+}
+
+function renderMemberChecklists(){
+  // INVITE checklist (meetings)
+  const invList = document.getElementById('ev-invite-checklist');
+  if (invList) {
+    if (calendarMembers.length === 0) {
+      invList.innerHTML = '<div class="member-check-empty">No other members in this calendar yet.<br><span style="font-size:11px">Share the calendar code so others can join.</span></div>';
+    } else {
+      invList.innerHTML = '';
+      calendarMembers.forEach(m => {
+        const existing = invitees.find(i=>i.uid===m.uid);
+        const isChecked = !!existing;
+        const att = existing?.attendance || 'mandatory';
+        const row = document.createElement('div');
+        row.className = 'member-check-row';
+        row.innerHTML = `
+          <input type="checkbox" id="inv-chk-${m.uid}" ${isChecked?'checked':''} onchange="toggleInviteeMember('${m.uid}')"/>
+          <div style="flex:1;min-width:0">
+            <div class="member-check-name">${m.displayName}</div>
+            ${m.email?`<div class="member-check-email">${m.email}</div>`:''}
+          </div>
+          ${isChecked?`<button class="member-check-att ${att}" onclick="toggleInviteeAttendance('${m.uid}');event.stopPropagation()">${att==='mandatory'?'🔴 Mandatory':'🟢 Optional'}</button>`:''}`;
+        row.onclick = (e) => {
+          if (e.target.tagName==='BUTTON') return;
+          document.getElementById(`inv-chk-${m.uid}`).click();
+        };
+        invList.appendChild(row);
+      });
+    }
+  }
+
+  // ASSIGN checklist (tasks)
+  const asList = document.getElementById('ev-assign-checklist');
+  if (asList) {
+    if (calendarMembers.length === 0) {
+      asList.innerHTML = '<div class="member-check-empty">No other members in this calendar yet.<br><span style="font-size:11px">Share the calendar code so others can join.</span></div>';
+    } else {
+      asList.innerHTML = '';
+      calendarMembers.forEach(m => {
+        const existing = assignees.find(a=>a.uid===m.uid);
+        const isChecked = !!existing;
+        const att = existing?.attendance || 'mandatory';
+        const row = document.createElement('div');
+        row.className = 'member-check-row';
+        row.innerHTML = `
+          <input type="checkbox" id="asgn-chk-${m.uid}" ${isChecked?'checked':''} onchange="toggleAssigneeMember('${m.uid}')"/>
+          <div style="flex:1;min-width:0">
+            <div class="member-check-name">${m.displayName}</div>
+            ${m.email?`<div class="member-check-email">${m.email}</div>`:''}
+          </div>
+          ${isChecked?`<button class="member-check-att ${att}" onclick="toggleAssigneeAttendance('${m.uid}');event.stopPropagation()">${att==='mandatory'?'🔴 Must complete':'🟢 Optional'}</button>`:''}`;
+        row.onclick = (e) => {
+          if (e.target.tagName==='BUTTON') return;
+          document.getElementById(`asgn-chk-${m.uid}`).click();
+        };
+        asList.appendChild(row);
+      });
+    }
+  }
 }
 
 // ── Invitees (meetings) ────────────────────────────────────────
-window.addInvitee=()=>{
-  const sel=document.getElementById('ev-invite-select');
-  const uid=sel.value;if(!uid){toast('Select a person');return;}
-  if(invitees.find(i=>i.uid===uid)){toast('Already added');return;}
-  const opt=sel.options[sel.selectedIndex];
-  invitees.push({uid,name:opt.dataset.name,email:opt.dataset.email,attendance:'mandatory'});
-  sel.value='';renderInviteesList();populateMemberDropdowns();
+window.toggleInviteeMember = (uid) => {
+  const m = calendarMembers.find(m=>m.uid===uid);
+  if (!m) return;
+  const idx = invitees.findIndex(i=>i.uid===uid);
+  if (idx >= 0) {
+    invitees.splice(idx, 1); // uncheck = remove
+  } else {
+    invitees.push({uid, name:m.displayName, email:m.email, attendance:'mandatory'});
+  }
+  renderMemberChecklists();
 };
-window.removeInvitee=(uid)=>{invitees=invitees.filter(i=>i.uid!==uid);renderInviteesList();populateMemberDropdowns();};
+window.removeInvitee=(uid)=>{invitees=invitees.filter(i=>i.uid!==uid);renderMemberChecklists();};
 window.toggleInviteeAttendance=(uid)=>{
   const inv=invitees.find(i=>i.uid===uid);
   if(inv)inv.attendance=inv.attendance==='mandatory'?'optional':'mandatory';
-  renderInviteesList();
+  renderMemberChecklists();
 };
-window.setBulkAttendance=(att)=>{invitees.forEach(i=>i.attendance=att);renderInviteesList();};
-
-function renderInviteesList(){
-  const el=document.getElementById('ev-invitees-list');el.innerHTML='';
-  if(invitees.length===0){el.innerHTML='<div style="font-size:12px;color:var(--muted2);padding:4px 0">No invitees yet</div>';return;}
-  invitees.forEach(inv=>{
-    const row=document.createElement('div');row.className='invitee-row';
-    const isMand=inv.attendance==='mandatory';
-    row.innerHTML=`<div style="flex:1;min-width:0"><div class="invitee-name">${inv.name}</div>${inv.email?`<div class="invitee-email">${inv.email}</div>`:''}</div><button class="invitee-att-btn ${isMand?'mandatory':'optional'}" onclick="toggleInviteeAttendance('${inv.uid}')">${isMand?'🔴 Mandatory':'🟢 Optional'}</button><button class="invitee-remove" onclick="removeInvitee('${inv.uid}')">✕</button>`;
-    el.appendChild(row);
-  });
-}
+window.setBulkAttendance=(att)=>{invitees.forEach(i=>i.attendance=att);renderMemberChecklists();};
 
 // ── Assignees (tasks) ──────────────────────────────────────────
-window.addAssignee=()=>{
-  const sel=document.getElementById('ev-assign-select');
-  const uid=sel.value;if(!uid){toast('Select a person');return;}
-  if(assignees.find(a=>a.uid===uid)){toast('Already added');return;}
-  const opt=sel.options[sel.selectedIndex];
-  assignees.push({uid,name:opt.dataset.name,email:opt.dataset.email,attendance:'mandatory'});
-  sel.value='';renderAssigneesList();populateMemberDropdowns();
+window.toggleAssigneeMember = (uid) => {
+  const m = calendarMembers.find(m=>m.uid===uid);
+  if (!m) return;
+  const idx = assignees.findIndex(a=>a.uid===uid);
+  if (idx >= 0) {
+    assignees.splice(idx, 1);
+  } else {
+    assignees.push({uid, name:m.displayName, email:m.email, attendance:'mandatory'});
+  }
+  renderMemberChecklists();
 };
-window.removeAssignee=(uid)=>{assignees=assignees.filter(a=>a.uid!==uid);renderAssigneesList();populateMemberDropdowns();};
+window.removeAssignee=(uid)=>{assignees=assignees.filter(a=>a.uid!==uid);renderMemberChecklists();};
 window.toggleAssigneeAttendance=(uid)=>{
   const a=assignees.find(a=>a.uid===uid);
   if(a)a.attendance=a.attendance==='mandatory'?'optional':'mandatory';
-  renderAssigneesList();
+  renderMemberChecklists();
 };
-
-function renderAssigneesList(){
-  const el=document.getElementById('ev-assignees-list');el.innerHTML='';
-  if(assignees.length===0){el.innerHTML='<div style="font-size:12px;color:var(--muted2);padding:4px 0">No assignees yet</div>';return;}
-  assignees.forEach(a=>{
-    const row=document.createElement('div');row.className='invitee-row';
-    const isMand=a.attendance==='mandatory';
-    row.innerHTML=`<div style="flex:1;min-width:0"><div class="invitee-name">${a.name}</div>${a.email?`<div class="invitee-email">${a.email}</div>`:''}</div><button class="invitee-att-btn ${isMand?'mandatory':'optional'}" onclick="toggleAssigneeAttendance('${a.uid}')">${isMand?'🔴 Must complete':'🟢 Optional'}</button><button class="invitee-remove" onclick="removeAssignee('${a.uid}')">✕</button>`;
-    el.appendChild(row);
-  });
-}
 
 // ── Save event ─────────────────────────────────────────────────
 window.saveEvent=async()=>{

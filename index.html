@@ -679,7 +679,7 @@ function subscribeData(uid) {
   unsubCals = onSnapshot(query(collection(db,'calendars'),where('uid','==',uid)), snap => {
     calendars = snap.docs.map(d=>({id:d.id,...d.data()}));
     if (!activeCalId && calendars.length>0) activeCalId = calendars[0].id;
-    if (activeCalId && !calendars.find(c=>c.id===activeCalId) && calendars.length>0) activeCalId = calendars[0].id;
+    if (activeCalId && !calendars.find(c=>c.id===activeCalId) && !sharedCalendars.find(c=>c.id===activeCalId) && calendars.length>0) activeCalId = calendars[0].id;
     renderSidebar();
     renderAll();
   }, err => { console.error('Calendars snapshot error:', err); showFirestoreError(); });
@@ -688,6 +688,9 @@ function subscribeData(uid) {
     events = [...own, ...events.filter(e=>e.isShared)];
     renderAll();
   }, err => { console.error('Events snapshot error:', err); });
+
+  // Restore shared calendars on every load
+  loadJoinedCalendars();
 }
 
 // ── Auth handlers ──────────────────────────────────────────────

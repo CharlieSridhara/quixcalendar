@@ -269,6 +269,21 @@
   .nav-pill{display:flex;gap:4px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:3px}
   .nav-pill-btn{padding:5px 14px;font-size:12px;font-weight:500;border-radius:7px;border:none;background:transparent;color:var(--muted);cursor:pointer;font-family:var(--font);transition:all .15s}
   .nav-pill-btn.active{background:var(--bg4);color:var(--text)}
+  .section-divider{height:1px;background:var(--border);margin:16px 0}
+  /* RSVP tabs in view modal */
+  .rsvp-tabs{display:flex;gap:0;border:1px solid var(--border2);border-radius:8px;overflow:hidden;margin-bottom:10px}
+  .rsvp-tab{flex:1;padding:7px;font-family:var(--font);font-size:11px;font-weight:600;background:transparent;border:none;color:var(--muted);cursor:pointer;transition:all .15s;text-align:center;text-transform:uppercase;letter-spacing:.3px}
+  .rsvp-tab.active-all{background:var(--bg4);color:var(--text)}
+  .rsvp-tab.active-accepted{background:var(--green-dim);color:var(--green)}
+  .rsvp-tab.active-declined{background:var(--red-dim);color:var(--red)}
+  .rsvp-tab.active-pending{background:var(--amber-dim);color:var(--amber)}
+  .rsvp-tab+.rsvp-tab{border-left:1px solid var(--border2)}
+  /* Admin system */
+  .admin-badge{font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;background:rgba(245,166,35,.15);color:var(--amber);letter-spacing:.3px}
+  .probation-banner{background:var(--red-dim);border:1px solid rgba(255,107,107,.35);border-radius:var(--radius);padding:14px 16px;margin-bottom:20px;font-size:14px;color:var(--red);font-weight:500;display:flex;align-items:center;gap:10px}
+  .absence-pill{background:var(--red-dim);color:var(--red);border-radius:10px;padding:2px 8px;font-size:11px;font-weight:600}
+  .admin-member-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg3);border-radius:8px;margin-bottom:6px;font-size:13px}
+  .admin-member-row .member-actions{display:flex;gap:6px;margin-left:auto}
 </style>
 </head>
 <body>
@@ -316,6 +331,7 @@
       <div class="nav-pill">
         <button class="nav-pill-btn active" id="nav-home" onclick="showPage('home')">🏠 Home</button>
         <button class="nav-pill-btn" id="nav-cal" onclick="showPage('calendar')">📅 Calendar</button>
+        <button class="nav-pill-btn" id="nav-admin" onclick="showPage('admin')" style="display:none">⚙️ Admin</button>
         <button class="nav-pill-btn" id="nav-profile" onclick="showPage('profile')">👤 Profile</button>
       </div>
       <button class="btn-icon" onclick="openShareModal()">⇄ Share</button>
@@ -333,8 +349,10 @@
   <!-- HOME PAGE -->
   <div class="page active" id="page-home">
     <div class="home-page">
+      <div id="home-probation-banner" style="display:none" class="probation-banner">⚠️ You are on <strong>probation</strong> — you have 3 or more unexcused absences.</div>
       <div class="home-greeting" id="home-greeting">Good morning!</div>
       <div class="home-sub" id="home-sub">Here's what's coming up for you.</div>
+      <div id="home-absence-row" style="display:none;margin-bottom:16px;font-size:13px;color:var(--muted)">Unexcused absences: <span id="home-absence-count" class="absence-pill">0</span></div>
       <div class="home-grid">
         <div class="home-card">
           <div class="home-card-title">📬 Invitations</div>
@@ -427,6 +445,24 @@
       </div>
     </div>
   </div>
+
+  <!-- ADMIN PAGE -->
+  <div class="page" id="page-admin">
+    <div class="profile-page" style="max-width:700px">
+      <div style="font-size:22px;font-weight:600;margin-bottom:4px">⚙️ Admin Panel</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:24px">Managing <span id="admin-cal-name" style="color:var(--text);font-weight:500"></span></div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:20px">
+        <div style="font-size:13px;font-weight:600;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:16px">Members & Roles</div>
+        <div style="font-size:12px;color:var(--muted2);margin-bottom:12px">As calendar owner you can promote members to Admin. Admins can create events and mark unexcused absences. Regular members can only view.</div>
+        <div id="admin-members-list"></div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px">
+        <div style="font-size:13px;font-weight:600;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Unexcused Absences</div>
+        <div style="font-size:12px;color:var(--muted2);margin-bottom:16px">Declined events can be marked unexcused. 3+ = probation.</div>
+        <div id="admin-absences-list"></div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- EVENT MODAL -->
@@ -501,7 +537,17 @@
     <div class="event-meta"><span class="event-meta-icon">📁</span><span id="view-cal"></span></div>
     <div class="event-meta" id="view-repeat-row" style="display:none"><span class="event-meta-icon">🔁</span><span id="view-repeat"></span></div>
     <div class="event-desc" id="view-desc" style="display:none"></div>
-    <div class="view-invitees" id="view-invitees"></div>
+    <div class="view-invitees" id="view-invitees-container">
+      <div id="view-people-tabs" style="display:none;margin-top:14px">
+        <div class="rsvp-tabs">
+          <button class="rsvp-tab active-all" id="vtab-all" onclick="setViewTab('all')">All</button>
+          <button class="rsvp-tab" id="vtab-accepted" onclick="setViewTab('accepted')">Accepted</button>
+          <button class="rsvp-tab" id="vtab-declined" onclick="setViewTab('declined')">Declined</button>
+          <button class="rsvp-tab" id="vtab-pending" onclick="setViewTab('pending')">Pending</button>
+        </div>
+        <div id="view-invitees"></div>
+      </div>
+    </div>
     <div id="view-rsvp-section" style="display:none;margin-top:16px"></div>
     <div class="modal-actions">
       <button class="btn-danger" id="view-delete-btn" onclick="deleteViewedEvent()">Delete</button>
@@ -587,6 +633,20 @@
       </div>
     </div>
     <div id="joined-list" style="margin-top:20px"></div>
+  </div>
+</div>
+
+<!-- UNEXCUSED ABSENCE MODAL -->
+<div class="modal-overlay" id="unexcused-modal">
+  <div class="modal" style="max-width:400px">
+    <button class="modal-close" onclick="closeModal('unexcused-modal')">✕</button>
+    <div class="modal-title" style="color:var(--red)">Mark Unexcused Absence</div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Mark <strong id="unexcused-person-name" style="color:var(--text)"></strong>'s absence as unexcused for <strong id="unexcused-event-name" style="color:var(--text)"></strong>?</p>
+    <div class="form-group"><label class="form-label">Note (optional)</label><input class="form-input" id="unexcused-note" type="text" placeholder="e.g. No prior notice given"/></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('unexcused-modal')">Cancel</button>
+      <button class="btn-danger" onclick="submitUnexcusedAbsence()">Mark Unexcused</button>
+    </div>
   </div>
 </div>
 
@@ -712,16 +772,6 @@ function friendlyError(code){
 
 // ── Page navigation ────────────────────────────────────────────
 let currentPage = 'home';
-window.showPage = (page) => {
-  currentPage = page;
-  ['home','calendar','profile'].forEach(p => {
-    document.getElementById(`page-${p}`).classList.toggle('active', p===page);
-    document.getElementById(`nav-${p==='calendar'?'cal':p}`).classList.toggle('active', p===page);
-  });
-  document.getElementById('cal-topbar-center').style.display = page==='calendar' ? 'flex' : 'none';
-  if (page==='home') renderHomePage();
-  if (page==='profile') renderProfilePage();
-};
 
 // ── Render all ─────────────────────────────────────────────────
 function renderAll() {
@@ -771,7 +821,7 @@ function renderSidebar() {
     const div = document.createElement('div');
     div.className = `calendar-item${isActive?' active':''}`;
     div.innerHTML = `<div class="cal-dot" style="background:${cal.color}"></div><div class="cal-name">${cal.name}</div>${cnt?`<div class="cal-badge">${cnt}</div>`:''}<button class="cal-delete-btn" onclick="confirmDeleteCalendar(event,'${cal.id}','${cal.name.replace(/'/g,"\\'")}')">✕</button>`;
-    div.addEventListener('click', e => { if(e.target.classList.contains('cal-delete-btn'))return; activeCalId=cal.id; renderSidebar(); renderAll(); });
+    div.addEventListener('click', e => { if(e.target.classList.contains('cal-delete-btn'))return; activeCalId=cal.id; renderSidebar(); renderAll(); updateAdminUI(); });
     list.appendChild(div);
   });
   if (sharedCalendars.length > 0) {
@@ -785,7 +835,7 @@ function renderSidebar() {
       const div = document.createElement('div');
       div.className = `calendar-item${isActive?' active':''}`;
       div.innerHTML = `<div class="cal-dot" style="background:${cal.color}"></div><div class="cal-name">${cal.name}</div>${cnt?`<div class="cal-badge">${cnt}</div>`:''}<button class="cal-delete-btn" onclick="leaveCalendar('${cal.id}')">✕</button>`;
-      div.addEventListener('click', e => { if(e.target.classList.contains('cal-delete-btn'))return; activeCalId=cal.id; renderSidebar(); renderAll(); });
+      div.addEventListener('click', e => { if(e.target.classList.contains('cal-delete-btn'))return; activeCalId=cal.id; renderSidebar(); renderAll(); updateAdminUI(); });
       list.appendChild(div);
     });
   }
@@ -1018,32 +1068,39 @@ function renderHomePage(){
     card.className=`invite-card${ev.type==='task'?' task-invite':''}`;
     card.style.borderLeftColor=color;
     let statusHtml='';
-    if(rsvp==='accepted')statusHtml=`<span class="invite-status accepted">✓ Accepted</span>`;
-    else if(rsvp==='declined')statusHtml=`<span class="invite-status declined">✗ Declined</span>`;
+    if(rsvp==='accepted') statusHtml=`<div style="display:flex;align-items:center;gap:8px"><span class="invite-status accepted">✓ Accepted</span>${daysUntil(ev.date)>=3?`<button class="btn-decline" style="font-size:11px;padding:4px 10px" onclick="rsvpEvent('${ev.id}','decline','accepted')">Change to decline</button>`:''}</div>`;
+    else if(rsvp==='declined') statusHtml=`<div style="display:flex;align-items:center;gap:8px"><span class="invite-status declined">✗ Declined</span>${daysUntil(ev.date)>=3?`<button class="btn-accept" style="font-size:11px;padding:4px 10px" onclick="rsvpEvent('${ev.id}','accept','declined')">Change to accept</button>`:''}</div>`;
     else statusHtml=`<div class="invite-actions"><button class="btn-accept" onclick="rsvpEvent('${ev.id}','accept')">✓ Accept</button><button class="btn-decline" onclick="rsvpEvent('${ev.id}','decline')">✗ Decline</button></div>`;
     card.innerHTML=`<div class="invite-card-title">${ev.type==='task'?'✅':'📅'} ${ev.title}</div><div class="invite-card-meta">${d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}${ev.time?' · '+ev.time:''}<br>Calendar: ${calName}${me&&ev.type==='meeting'?` · <span style="color:${me.attendance==='mandatory'?'var(--red)':'var(--green)'}">  ${me.attendance==='mandatory'?'🔴 Mandatory':'🟢 Optional'}</span>`:''}</div>${statusHtml}`;
     invEl.appendChild(card);
   });
+  loadMyAbsenceCount();
+  updateAdminUI();
 }
 
 // ── RSVP ──────────────────────────────────────────────────────
-window.rsvpEvent = async (evId, action) => {
+function daysUntil(dateStr) {
+  return (new Date(dateStr+'T12:00:00') - new Date()) / (1000*60*60*24);
+}
+
+window.rsvpEvent = async (evId, action, currentStatus=null) => {
   const ev = events.find(e=>e.id===evId);
   if (!ev) return;
+  const days = daysUntil(ev.date);
+  if (days < 3) {
+    toast('⛔ Cannot change RSVP within 3 days — personally contact your lead');
+    return;
+  }
   if (action === 'decline') {
-    // Check if within 3 days
-    const evDate = new Date(ev.date+'T12:00:00');
-    const diffDays = (evDate - new Date()) / (1000*60*60*24);
-    if (diffDays < 3) {
-      toast('⛔ Cannot decline within 3 days — personally contact your lead');
-      return;
-    }
     declineTargetEventId = evId;
     declineTargetUid = currentUser.uid;
-    document.getElementById('decline-reason').value = '';
+    document.getElementById('decline-reason').value = (ev.declineReasons?.[currentUser.uid]) || '';
     document.getElementById('decline-modal').classList.add('open');
   } else {
-    await updateDoc(doc(db,'events',evId), {[`rsvp.${currentUser.uid}`]: 'accepted'});
+    await updateDoc(doc(db,'events',evId), {
+      [`rsvp.${currentUser.uid}`]: 'accepted',
+      [`declineReasons.${currentUser.uid}`]: null
+    });
     toast('✓ Accepted!'); renderHomePage();
   }
 };
@@ -1057,6 +1114,247 @@ window.submitDecline = async () => {
   });
   toast('Declined'); closeModal('decline-modal'); renderHomePage();
 };
+
+// ── View modal RSVP tabs ───────────────────────────────────────
+let viewTab = 'all';
+window.setViewTab = (tab) => {
+  viewTab = tab;
+  ['all','accepted','declined','pending'].forEach(t => {
+    const btn = document.getElementById(`vtab-${t}`);
+    btn.className = 'rsvp-tab' + (t===tab ? ` active-${t}` : '');
+  });
+  renderViewPeople();
+};
+
+function renderViewPeople() {
+  if (!viewingEvent) return;
+  const ev = viewingEvent;
+  const people = ev.type==='task' ? ev.assignees : ev.invitees;
+  const invEl = document.getElementById('view-invitees');
+  if (!invEl) return;
+  invEl.innerHTML = '';
+  if (!people || people.length === 0) {
+    document.getElementById('view-people-tabs').style.display = 'none';
+    return;
+  }
+  document.getElementById('view-people-tabs').style.display = 'block';
+
+  const filtered = viewTab === 'all' ? people : people.filter(p => {
+    const rsvp = (ev.rsvp||{})[p.uid];
+    if (viewTab === 'accepted') return rsvp === 'accepted';
+    if (viewTab === 'declined') return rsvp === 'declined';
+    if (viewTab === 'pending') return !rsvp;
+    return true;
+  });
+
+  if (filtered.length === 0) {
+    invEl.innerHTML = `<div style="font-size:13px;color:var(--muted2);padding:8px 4px">No ${viewTab} responses yet</div>`;
+    return;
+  }
+
+  const isAdmin = isCalendarAdmin(ev.calendarId);
+
+  filtered.forEach(p => {
+    const rsvp = (ev.rsvp||{})[p.uid];
+    const declineReason = (ev.declineReasons||{})[p.uid];
+    const unexcused = (ev.unexcusedAbsences||{})[p.uid];
+    const isMand = p.attendance === 'mandatory';
+
+    const row = document.createElement('div');
+    row.className = 'view-invitee-row' + (declineReason ? ' has-decline' : '');
+
+    const attBadge = `<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:${isMand?'var(--red-dim)':'var(--green-dim)'};color:${isMand?'var(--red)':'var(--green)'}">${isMand?(ev.type==='task'?'Must complete':'Mandatory'):'Optional'}</span>`;
+
+    let rsvpBadge = '';
+    if (rsvp==='accepted') rsvpBadge = `<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:var(--green-dim);color:var(--green)">✓ Accepted</span>`;
+    else if (rsvp==='declined') rsvpBadge = `<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:var(--red-dim);color:var(--red)">✗ Declined${declineReason?' 💬':''}</span>`;
+    else rsvpBadge = `<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:var(--bg4);color:var(--muted2)">Pending</span>`;
+
+    let unexcusedBadge = unexcused ? `<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:rgba(255,107,107,.3);color:var(--red);font-weight:700">UNEXCUSED</span>` : '';
+
+    // Admin can mark unexcused if person declined
+    let adminBtn = '';
+    if (isAdmin && rsvp==='declined' && !unexcused) {
+      adminBtn = `<button onclick="openUnexcusedModal('${ev.id}','${p.uid}','${p.name.replace(/'/g,"\\'")}','${ev.title.replace(/'/g,"\\'")}');event.stopPropagation()" style="padding:3px 8px;font-size:10px;font-weight:500;border-radius:6px;border:1px solid rgba(255,107,107,.3);background:var(--red-dim);color:var(--red);cursor:pointer;font-family:var(--font)">Mark Unexcused</button>`;
+    }
+
+    row.innerHTML = `
+      <span style="color:var(--text);font-weight:500;min-width:80px">${p.name}</span>
+      <span style="color:var(--muted);font-size:11px;flex:1">${p.email||''}</span>
+      ${attBadge} ${rsvpBadge} ${unexcusedBadge} ${adminBtn}
+      ${declineReason ? `<div class="decline-reason-box"><strong style="color:var(--red)">Reason:</strong> ${declineReason}</div>` : ''}`;
+
+    if (declineReason) {
+      row.onclick = () => row.querySelector('.decline-reason-box').classList.toggle('open');
+    }
+    invEl.appendChild(row);
+  });
+}
+
+// ── Admin system ───────────────────────────────────────────────
+function isCalendarAdmin(calId) {
+  const cal = calendars.find(c=>c.id===calId);
+  if (!cal) return false;
+  // Owner is always admin
+  if (cal.uid === currentUser?.uid) return true;
+  // Check admins array
+  return (cal.admins||[]).includes(currentUser?.uid);
+}
+
+function isCalendarOwner(calId) {
+  return calendars.find(c=>c.id===calId)?.uid === currentUser?.uid;
+}
+
+// Show/hide admin nav + create buttons based on role
+function updateAdminUI() {
+  const isAdmin = isCalendarAdmin(activeCalId);
+  const isOwner = isCalendarOwner(activeCalId);
+  // Show admin nav if user is owner of any calendar
+  const ownsAny = calendars.some(c=>c.uid===currentUser?.uid);
+  document.getElementById('nav-admin').style.display = ownsAny ? 'block' : 'none';
+  // Show/hide create buttons
+  document.querySelectorAll('.btn-new-meeting,.btn-new-task').forEach(btn => {
+    btn.style.display = isAdmin ? 'flex' : 'none';
+  });
+}
+
+window.showPage = (page) => {
+  currentPage = page;
+  ['home','calendar','profile','admin'].forEach(p => {
+    const pageEl = document.getElementById(`page-${p}`);
+    const navId = p==='calendar'?'nav-cal':p==='admin'?'nav-admin':`nav-${p}`;
+    if (pageEl) pageEl.classList.toggle('active', p===page);
+    const navEl = document.getElementById(navId);
+    if (navEl) navEl.classList.toggle('active', p===page);
+  });
+  document.getElementById('cal-topbar-center').style.display = page==='calendar' ? 'flex' : 'none';
+  if (page==='home') renderHomePage();
+  if (page==='profile') renderProfilePage();
+  if (page==='admin') renderAdminPage();
+};
+
+async function renderAdminPage() {
+  const cal = calendars.find(c=>c.id===activeCalId);
+  if (!cal || cal.uid !== currentUser?.uid) {
+    // Not owner — try to find a calendar they own
+    const owned = calendars.find(c=>c.uid===currentUser?.uid);
+    if (!owned) { document.getElementById('admin-members-list').innerHTML='<div style="color:var(--muted2);font-size:13px">You do not own any calendars.</div>'; return; }
+  }
+  const adminCal = calendars.find(c=>c.uid===currentUser?.uid&&c.id===activeCalId) || calendars.find(c=>c.uid===currentUser?.uid);
+  document.getElementById('admin-cal-name').textContent = adminCal?.name || '';
+
+  // Load all members
+  const membersEl = document.getElementById('admin-members-list');
+  membersEl.innerHTML = '<div style="font-size:12px;color:var(--muted2)">Loading…</div>';
+
+  const snap = await getDocs(query(collection(db,'users'),where('joinedCalendars','array-contains',adminCal.id)));
+  const members = [{uid:currentUser.uid, displayName:currentUser.displayName||'Me', email:currentUser.email, isOwner:true}];
+  snap.docs.forEach(d=>{ if(d.id!==currentUser.uid) members.push({uid:d.id,...d.data(),isOwner:false}); });
+
+  membersEl.innerHTML = '';
+  const admins = adminCal.admins || [];
+  members.forEach(m => {
+    const isAdmin = m.isOwner || admins.includes(m.uid);
+    const row = document.createElement('div');
+    row.className = 'admin-member-row';
+    row.innerHTML = `
+      <div style="width:32px;height:32px;border-radius:50%;background:var(--accent-dim);display:flex;align-items:center;justify-content:center;font-weight:600;color:var(--accent);font-size:13px;flex-shrink:0">${(m.displayName||'?').charAt(0).toUpperCase()}</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:500;color:var(--text)">${m.displayName} ${m.isOwner?'<span class="admin-badge">OWNER</span>':(isAdmin?'<span class="admin-badge">ADMIN</span>':'')}</div>
+        <div style="font-size:11px;color:var(--muted)">${m.email||''}</div>
+      </div>
+      <div class="member-actions">
+        ${!m.isOwner ? `<button onclick="toggleAdminRole('${adminCal.id}','${m.uid}',${isAdmin})" style="padding:5px 12px;font-size:11px;font-weight:500;border-radius:6px;border:1px solid ${isAdmin?'rgba(255,107,107,.3)':'rgba(108,143,255,.3)'};background:${isAdmin?'var(--red-dim)':'var(--accent-dim)'};color:${isAdmin?'var(--red)':'var(--accent)'};cursor:pointer;font-family:var(--font)">${isAdmin?'Remove Admin':'Make Admin'}</button>` : ''}
+      </div>`;
+    membersEl.appendChild(row);
+  });
+
+  // Absences list — show all declined events with ability to mark unexcused
+  const absEl = document.getElementById('admin-absences-list');
+  absEl.innerHTML = '';
+  const calEvents = events.filter(e=>e.calendarId===adminCal.id);
+  let hasAny = false;
+  calEvents.forEach(ev => {
+    const people = ev.type==='task'?ev.assignees:ev.invitees;
+    if (!people) return;
+    people.forEach(p => {
+      const rsvp = (ev.rsvp||{})[p.uid];
+      if (rsvp !== 'declined') return;
+      hasAny = true;
+      const unexcused = (ev.unexcusedAbsences||{})[p.uid];
+      const reason = (ev.declineReasons||{})[p.uid];
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg3);border-radius:8px;margin-bottom:6px;font-size:13px;flex-wrap:wrap';
+      row.innerHTML = `
+        <div style="flex:1">
+          <span style="color:var(--text);font-weight:500">${p.name}</span>
+          <span style="color:var(--muted);font-size:11px;margin-left:8px">declined "${ev.title}"</span>
+          ${reason?`<div style="font-size:11px;color:var(--muted2);margin-top:2px">Reason: ${reason}</div>`:''}
+        </div>
+        ${unexcused
+          ? `<span style="font-size:10px;padding:3px 10px;border-radius:10px;background:rgba(255,107,107,.3);color:var(--red);font-weight:700">UNEXCUSED</span>`
+          : `<button onclick="openUnexcusedModal('${ev.id}','${p.uid}','${p.name.replace(/'/g,"\\'")}','${ev.title.replace(/'/g,"\\'")}');event.stopPropagation()" style="padding:5px 12px;font-size:11px;font-weight:500;border-radius:6px;border:1px solid rgba(255,107,107,.3);background:var(--red-dim);color:var(--red);cursor:pointer;font-family:var(--font)">Mark Unexcused</button>`
+        }`;
+      absEl.appendChild(row);
+    });
+  });
+  if (!hasAny) absEl.innerHTML = '<div style="font-size:13px;color:var(--muted2)">No declined events yet</div>';
+}
+
+window.toggleAdminRole = async (calId, uid, isCurrentlyAdmin) => {
+  const cal = calendars.find(c=>c.id===calId);
+  if (!cal) return;
+  let admins = [...(cal.admins||[])];
+  if (isCurrentlyAdmin) admins = admins.filter(a=>a!==uid);
+  else admins.push(uid);
+  await updateDoc(doc(db,'calendars',calId), {admins});
+  toast(isCurrentlyAdmin ? 'Admin removed' : 'Admin added');
+  renderAdminPage();
+};
+
+// Unexcused absence
+let unexcusedTarget = null;
+window.openUnexcusedModal = (evId, uid, name, evTitle) => {
+  unexcusedTarget = {evId, uid};
+  document.getElementById('unexcused-person-name').textContent = name;
+  document.getElementById('unexcused-event-name').textContent = evTitle;
+  document.getElementById('unexcused-note').value = '';
+  document.getElementById('unexcused-modal').classList.add('open');
+};
+
+window.submitUnexcusedAbsence = async () => {
+  if (!unexcusedTarget) return;
+  const note = document.getElementById('unexcused-note').value.trim();
+  await updateDoc(doc(db,'events',unexcusedTarget.evId), {
+    [`unexcusedAbsences.${unexcusedTarget.uid}`]: true,
+    [`unexcusedNotes.${unexcusedTarget.uid}`]: note || null
+  });
+
+  // Increment unexcused count on user doc
+  const uref = doc(db,'users',unexcusedTarget.uid);
+  const usnap = await getDoc(uref);
+  const prev = usnap.data()?.unexcusedCount || 0;
+  await updateDoc(uref, {unexcusedCount: prev + 1});
+
+  toast('Marked unexcused'); closeModal('unexcused-modal');
+  renderAdminPage(); renderViewPeople();
+};
+
+// Show unexcused count on home
+async function loadMyAbsenceCount() {
+  if (!currentUser) return;
+  const usnap = await getDoc(doc(db,'users',currentUser.uid));
+  const count = usnap.data()?.unexcusedCount || 0;
+  const absRow = document.getElementById('home-absence-row');
+  const probBanner = document.getElementById('home-probation-banner');
+  if (count > 0) {
+    absRow.style.display = 'block';
+    document.getElementById('home-absence-count').textContent = count;
+  } else {
+    absRow.style.display = 'none';
+  }
+  probBanner.style.display = count >= 3 ? 'flex' : 'none';
+}
 
 // ── Profile page ───────────────────────────────────────────────
 function renderProfilePage(){
@@ -1330,49 +1628,19 @@ function openViewEvent(ev){
   if(ev.description){document.getElementById('view-desc').textContent=ev.description;document.getElementById('view-desc').style.display='block';}
   else document.getElementById('view-desc').style.display='none';
 
-  // People section
-  const invEl=document.getElementById('view-invitees');invEl.innerHTML='';
-  const people=ev.type==='task'?ev.assignees:ev.invitees;
-  if(people&&people.length>0){
-    const label=document.createElement('div');
-    label.style.cssText='font-size:11px;font-weight:600;color:var(--muted2);letter-spacing:.6px;text-transform:uppercase;margin-bottom:8px;margin-top:4px';
-    label.textContent=ev.type==='task'?'Assignees':'Invitees';
-    invEl.appendChild(label);
-    people.forEach(p=>{
-      const rsvp=(ev.rsvp||{})[p.uid];
-      const declineReason=(ev.declineReasons||{})[p.uid];
-      const isMand=p.attendance==='mandatory';
-      const hasDecline=rsvp==='declined'&&declineReason;
-
-      const row=document.createElement('div');
-      row.className=`view-invitee-row${hasDecline?' has-decline':''}`;
-      if(hasDecline) row.title='Click to see decline reason';
-
-      // Attendance badge
-      const attBadge=`<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:${isMand?'var(--red-dim)':'var(--green-dim)'};color:${isMand?'var(--red)':'var(--green)'}">${isMand?(ev.type==='task'?'Must complete':'Mandatory'):'Optional'}</span>`;
-
-      // RSVP badge
-      let rsvpBadge='';
-      if(rsvp==='accepted') rsvpBadge=`<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:var(--green-dim);color:var(--green);margin-left:auto">✓ Accepted</span>`;
-      else if(rsvp==='declined') rsvpBadge=`<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:var(--red-dim);color:var(--red);margin-left:auto">✗ Declined${hasDecline?' 💬':''}</span>`;
-      else rsvpBadge=`<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:var(--bg4);color:var(--muted2);margin-left:auto">Pending</span>`;
-
-      row.innerHTML=`
-        <span style="color:var(--text);font-weight:500;min-width:80px">${p.name}</span>
-        <span style="color:var(--muted);font-size:11px;flex:1">${p.email||''}</span>
-        ${attBadge}
-        ${rsvpBadge}
-        ${hasDecline?`<div class="decline-reason-box"><strong style="color:var(--red)">Decline reason:</strong> ${declineReason}</div>`:''}`;
-
-      // Click to toggle decline reason
-      if(hasDecline){
-        row.onclick=()=>{
-          const box=row.querySelector('.decline-reason-box');
-          box.classList.toggle('open');
-        };
-      }
-      invEl.appendChild(row);
+  // People section — use tabbed view
+  viewTab = 'all';
+  const tabContainer = document.getElementById('view-people-tabs');
+  const people = ev.type==='task' ? ev.assignees : ev.invitees;
+  if (people && people.length > 0) {
+    tabContainer.style.display = 'block';
+    ['all','accepted','declined','pending'].forEach(t => {
+      const btn = document.getElementById(`vtab-${t}`);
+      if (btn) btn.className = 'rsvp-tab' + (t==='all' ? ' active-all' : '');
     });
+    renderViewPeople();
+  } else {
+    tabContainer.style.display = 'none';
   }
 
   // Show edit/delete only for own events

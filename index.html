@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Quixilver 8404</title>
+<title>Quixilver 8404 Calendar</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
 :root{
@@ -297,10 +297,7 @@ textarea.form-input{resize:vertical;min-height:68px}
 </head>
 <body>
 <div id="loading-screen" class="loader">
-  <svg width="48" height="48" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="opacity:.6">
-    <path d="M50 10 L80 30 L80 70 L50 90 L20 70 L20 30 Z" fill="#1d6ae5" opacity=".3"/>
-    <path d="M35 45 L50 25 L65 45 L55 45 L55 75 L45 75 L45 45 Z" fill="#2979ff"/>
-  </svg>
+  <img src="https://quixilver8404.org/logo_old5.png" alt="Quixilver" style="width:56px;height:56px;object-fit:contain;opacity:.8"/>
   <div class="spin"></div>
 </div>
 
@@ -308,7 +305,7 @@ textarea.form-input{resize:vertical;min-height:68px}
 <div id="auth-screen" style="display:none">
   <div class="auth-card">
     <div class="auth-logo">
-      <svg width="32" height="32" viewBox="0 0 100 100" fill="none"><path d="M50 8 L82 28 L82 72 L50 92 L18 72 L18 28 Z" fill="#1d6ae5" opacity=".25"/><path d="M34 44 L50 22 L66 44 L56 44 L56 78 L44 78 L44 44 Z" fill="#2979ff"/></svg>
+      <img src="https://quixilver8404.org/logo_old5.png" alt="Quixilver Logo" style="width:32px;height:32px;object-fit:contain"/>
       <div>
         <div class="auth-logo-text">Quixil<span>ver</span></div>
         <div class="auth-team">FTC Team #8404</div>
@@ -337,7 +334,7 @@ textarea.form-input{resize:vertical;min-height:68px}
 <div id="app-screen">
   <div class="topbar">
     <div class="topbar-logo" onclick="showPage('home')">
-      <svg width="26" height="26" viewBox="0 0 100 100" fill="none"><path d="M50 8 L82 28 L82 72 L50 92 L18 72 L18 28 Z" fill="#1d6ae5" opacity=".3"/><path d="M34 44 L50 22 L66 44 L56 44 L56 78 L44 78 L44 44 Z" fill="#2979ff"/></svg>
+      <img src="https://quixilver8404.org/logo_old5.png" alt="Quixilver" style="width:26px;height:26px;object-fit:contain"/>
       <div>
         <div class="topbar-logo-text">Quixil<span>ver</span></div>
       </div>
@@ -464,6 +461,14 @@ textarea.form-input{resize:vertical;min-height:68px}
         <div class="form-group"><label class="form-label">New password (blank = keep current)</label><input class="form-input" id="profile-password-input" type="password" placeholder="New password"/></div>
         <div id="profile-save-msg" style="font-size:12px;margin-bottom:10px;display:none"></div>
         <button class="btn-primary-sm" onclick="saveProfile()">Save changes</button>
+      </div>
+      <div id="profile-admin-tools" style="display:none;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px">
+        <div style="font-size:14px;font-weight:600;margin-bottom:6px">Admin Tools</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:14px">Reset your own unexcused absence count if it was set incorrectly.</div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="font-size:13px;color:var(--muted)">Your unexcused count: <strong id="profile-absence-count" style="color:var(--text)">0</strong></span>
+          <button class="btn-secondary" style="font-size:11px;padding:6px 12px" onclick="resetMyAbsences()">Reset to 0</button>
+        </div>
       </div>
     </div>
   </div>
@@ -689,7 +694,7 @@ const REPEAT_LABELS={none:'Does not repeat',daily:'Daily',weekly:'Weekly',monthl
 // ── Loading timeout ───────────────────────────────────────────
 const _lt=setTimeout(()=>{
   const ls=document.getElementById('loading-screen');
-  if(ls&&ls.style.display!=='none')ls.innerHTML=`<div style="text-align:center;padding:24px;max-width:440px"><div style="font-size:24px;margin-bottom:10px">⚠️</div><div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px">Firebase not connecting</div><div style="color:var(--muted);font-size:12px;line-height:1.8">Add domain: <strong style="color:var(--text)">Authentication → Settings → Authorized domains</strong><br>Add <code style="color:var(--accent2)">charliesridhara.github.io</code><br>Also fix Firestore rules: <code style="color:var(--accent2)">allow read, write: if request.auth != null;</code></div><button onclick="location.reload()" style="margin-top:16px;padding:9px 22px;background:var(--accent2);color:#fff;border:none;border-radius:8px;font-family:var(--font);font-size:12px;cursor:pointer">Refresh</button></div>`;
+  if(ls&&ls.style.display!=='none')ls.innerHTML=`<div style="text-align:center;padding:24px;max-width:440px"><div style="font-size:24px;margin-bottom:10px">⚠️</div><div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px">Firebase not connecting</div><div style="color:var(--muted);font-size:12px;line-height:1.8">Add domain: <strong style="color:var(--text)">Authentication → Settings → Authorized domains</strong><br>Add <code style="color:var(--accent2)">charliesridhara.github.io</code> or <code style="color:var(--accent2)">quixcalendar.org</code><br>Also fix Firestore rules: <code style="color:var(--accent2)">allow read, write: if request.auth != null;</code></div><button onclick="location.reload()" style="margin-top:16px;padding:9px 22px;background:var(--accent2);color:#fff;border:none;border-radius:8px;font-family:var(--font);font-size:12px;cursor:pointer">Refresh</button></div>`;
 },10000);
 
 onAuthStateChanged(auth,async user=>{
@@ -1429,7 +1434,7 @@ async function renderAdminPage(){
   // Members
   const ml=document.getElementById('admin-members-list');ml.innerHTML='<div style="font-size:11px;color:var(--muted2)">Loading…</div>';
   const snap=await getDocs(query(collection(db,'users'),where('joinedCalendars','array-contains',adminCal.id)));
-  const members=[{uid:cu.uid,displayName:cu.displayName||'Me',email:cu.email,subsection:'',isOwner:true}];
+  const members=[{uid:cu.uid,displayName:cu.displayName||'Me',email:cu.email,subsection:(await getDoc(doc(db,'users',cu.uid))).data()?.[`subsection_${adminCal.id}`]||'',isOwner:true}];
   snap.docs.forEach(d=>{if(d.id!==cu.uid)members.push({uid:d.id,displayName:d.data().displayName||d.data().email?.split('@')[0]||'User',email:d.data().email||'',subsection:d.data()[`subsection_${adminCal.id}`]||'',isOwner:false});});
   const admins=adminCal.admins||[];const subs=adminCal.subsections||[];
   ml.innerHTML='';
@@ -1437,14 +1442,13 @@ async function renderAdminPage(){
     const isAdm=admins.includes(m.uid);
     const row=document.createElement('div');row.className='admin-member-row';
     row.innerHTML=`<div style="width:30px;height:30px;border-radius:50%;background:var(--accent-dim);border:1px solid var(--accent-border);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--accent2);font-size:12px;flex-shrink:0">${(m.displayName||'?').charAt(0).toUpperCase()}</div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:600;color:var(--text)">${m.displayName} ${isAdm?'<span class="admin-badge">ADMIN</span>':''}${m.subsection?`<span class="subsection-tag">${m.subsection}</span>`:''}</div><div style="font-size:10px;color:var(--muted)">${m.email}</div></div><div style="display:flex;gap:5px;flex-shrink:0;flex-wrap:wrap">`;
-    // Subsection selector
-    if(!m.isOwner){
-      const subSel=document.createElement('select');subSel.style.cssText='padding:3px 6px;font-size:10px;background:var(--bg3);border:1px solid var(--border2);border-radius:5px;color:var(--text);font-family:var(--font)';
-      const emptyOpt=document.createElement('option');emptyOpt.value='';emptyOpt.textContent='No subsection';subSel.appendChild(emptyOpt);
-      subs.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;if(m.subsection===s)o.selected=true;subSel.appendChild(o);});
-      subSel.onchange=async()=>{await updateDoc(doc(db,'users',m.uid),{[`subsection_${adminCal.id}`]:subSel.value||null});toast('Updated');renderAdminPage();};
-      row.querySelector('div:last-child').appendChild(subSel);
-      if(isOwner){
+    // Subsection selector for ALL members including owner
+    const subSel=document.createElement('select');subSel.style.cssText='padding:3px 6px;font-size:10px;background:var(--bg3);border:1px solid var(--border2);border-radius:5px;color:var(--text);font-family:var(--font)';
+    const emptyOpt=document.createElement('option');emptyOpt.value='';emptyOpt.textContent='No subsection';subSel.appendChild(emptyOpt);
+    subs.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;if(m.subsection===s)o.selected=true;subSel.appendChild(o);});
+    subSel.onchange=async()=>{await updateDoc(doc(db,'users',m.uid),{[`subsection_${adminCal.id}`]:subSel.value||null});toast('Updated');renderAdminPage();};
+    row.querySelector('div:last-child').appendChild(subSel);
+    if(!m.isOwner&&isOwner){
         const admBtn=document.createElement('button');admBtn.style.cssText=`padding:3px 8px;font-size:10px;font-weight:600;border-radius:5px;border:1px solid ${isAdm?'rgba(239,68,68,.3)':'rgba(41,121,255,.3)'};background:${isAdm?'var(--red-dim)':'var(--accent-dim)'};color:${isAdm?'var(--red)':'var(--accent2)'};cursor:pointer;font-family:var(--font)`;
         admBtn.textContent=isAdm?'Remove Admin':'Make Admin';
         admBtn.onclick=async()=>{let a=[...admins];if(isAdm)a=a.filter(x=>x!==m.uid);else a.push(m.uid);await updateDoc(doc(db,'calendars',adminCal.id),{admins:a});toast(isAdm?'Admin removed':'Admin added');renderAdminPage();};
@@ -1455,7 +1459,6 @@ async function renderAdminPage(){
         kickBtn.onclick=async()=>{if(!confirm(`Remove ${m.displayName} from this calendar?`))return;const us=await getDoc(doc(db,'users',m.uid));const jc=(us.data().joinedCalendars||[]).filter(id=>id!==adminCal.id);await updateDoc(doc(db,'users',m.uid),{joinedCalendars:jc});toast(`${m.displayName} removed`);renderAdminPage();};
         row.querySelector('div:last-child').appendChild(kickBtn);
       }
-    }
     ml.appendChild(row);
   });
 
@@ -1515,7 +1518,21 @@ function renderProfilePage(){
   const bigEl=document.getElementById('profile-avatar-big');const char=(name||email||'?').charAt(0).toUpperCase();
   if(userPfpUrl)bigEl.innerHTML=`<img src="${userPfpUrl}" alt="pfp"/><input type="file" id="pfp-input" accept="image/*" style="display:none" onchange="handlePfpChange(event)"/>`;
   else bigEl.innerHTML=`<span id="profile-avatar-char">${char}</span><input type="file" id="pfp-input" accept="image/*" style="display:none" onchange="handlePfpChange(event)"/>`;
+  // Load absence count and show admin tools
+  getDoc(doc(db,'users',cu.uid)).then(snap=>{
+    const cnt=snap.data()?.unexcusedCount||0;
+    const toolsEl=document.getElementById('profile-admin-tools');
+    const cntEl=document.getElementById('profile-absence-count');
+    if(toolsEl){toolsEl.style.display='block';if(cntEl)cntEl.textContent=cnt;}
+  });
 }
+
+window.resetMyAbsences=async()=>{
+  if(!confirm('Reset your unexcused absence count to 0?'))return;
+  await updateDoc(doc(db,'users',cu.uid),{unexcusedCount:0});
+  toast('Absence count reset to 0');
+  renderProfilePage();renderHomePage();
+};
 window.handlePfpChange=(e)=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=async ev=>{userPfpUrl=ev.target.result;await updateDoc(doc(db,'users',cu.uid),{pfpUrl:userPfpUrl});renderProfilePage();updateAvatarDisplay();toast('Photo updated!');};r.readAsDataURL(f);};
 window.saveProfile=async()=>{
   const name=document.getElementById('profile-name-input').value.trim(),email=document.getElementById('profile-email-input').value.trim(),pwd=document.getElementById('profile-password-input').value;

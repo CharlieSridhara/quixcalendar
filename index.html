@@ -826,9 +826,8 @@ function subscribeData(uid){
 
   unsubEv=onSnapshot(query(collection(db,'events'),where('uid','==',uid)),snap=>{
     const own=snap.docs.map(d=>({id:d.id,...d.data()}));
-    // Keep shared/invited events, replace own events
-    events=[...own,...events.filter(e=>e.isShared||e._invited)];
-    checkForNewInvites(own);
+    // Keep _invited events, replace own events
+    events=[...own,...events.filter(e=>e._invited||e.isShared)];
     renderAll();if(currentPage==='home')renderHomePage();
   },err=>console.error(err));
 
@@ -849,27 +848,26 @@ function subscribeData(uid){
 }
 
 const _invitedUnsubs=[];
-async function subscribeInvitedEvents(uid){
-  // Unsubscribe previous
-  _invitedUnsubs.forEach(u=>u());_invitedUnsubs.length=0;
+function subscribeInvitedEvents(uid){
+  // Unsubscribe previous listeners
+  _invitedUnsubs.forEach(u=>u()); _invitedUnsubs.length=0;
 
-  // Get all calendars this user has joined
-  const usnap=await getDoc(doc(db,'users',uid));
-  const joinedCalIds=usnap.data()?.joinedCalendars||[];
-
-  // For each joined calendar, subscribe to its events
-  joinedCalIds.forEach(calId=>{
-    const unsub=onSnapshot(query(collection(db,'events'),where('calendarId','==',calId)),snap=>{
-      const calEvs=snap.docs.map(d=>({id:d.id,...d.data(),_invited:true,_fromCalId:calId}));
-      // Remove old events from this calendar, re-add fresh
-      events=events.filter(e=>e._fromCalId!==calId);
-      events=[...events,...calEvs];
-      // Notify for any new invitations
-      checkForNewInvites(calEvs);
-      renderAll();if(currentPage==='home')renderHomePage();
-    });
-    _invitedUnsubs.push(unsub);
-  });
+  // Query ALL events where this user's uid is in the inviteeUids flat array
+  // This works regardless of which calendar the event is in
+  const unsub = onSnapshot(
+    query(collection(db,'events'), where('inviteeUids','array-contains',uid)),
+    snap => {
+      const invited = snap.docs.map(d=>({id:d.id,...d.data(),_invited:true}));
+      // Replace previous invited events
+      events = events.filter(e=>!e._invited);
+      events = [...events, ...invited];
+      checkForNewInvites(invited);
+      renderAll();
+      if(currentPage==='home') renderHomePage();
+    },
+    err => console.error('Invited events error:', err)
+  );
+  _invitedUnsubs.push(unsub);
 }
 
 // ── Auth ──────────────────────────────────────────────────────
@@ -1468,7 +1466,8 @@ window.saveEvent=async()=>{
   } else {
     autoColor=ev?.color||'#f59e0b';
   }
-  const data={uid:cu.uid,title,type:currentType,date:document.getElementById('ev-date').value,time:currentType==='meeting'&&!allDay?(document.getElementById('ev-time').value||null):null,timeEnd:currentType==='meeting'&&!allDay?(document.getElementById('ev-time-end').value||null):null,allDay:currentType==='meeting'?allDay:false,repeat,repeatEnd:repeat!=='none'?(document.getElementById('ev-repeat-end').value||null):null,invitees:currentType==='meeting'?invitees:[],assignees:currentType==='task'?assignees:[],taskManagerUid:currentType==='task'?(mgr||null):null,calendarId,color:autoColor,description:document.getElementById('ev-desc').value.trim()||null,completed:false,updatedAt:serverTimestamp()};
+  const inviteeUids = currentType==='meeting' ? invitees.map(i=>i.uid) : assignees.map(a=>a.uid);
+  const data={uid:cu.uid,title,type:currentType,date:document.getElementById('ev-date').value,time:currentType==='meeting'&&!allDay?(document.getElementById('ev-time').value||null):null,timeEnd:currentType==='meeting'&&!allDay?(document.getElementById('ev-time-end').value||null):null,allDay:currentType==='meeting'?allDay:false,repeat,repeatEnd:repeat!=='none'?(document.getElementById('ev-repeat-end').value||null):null,invitees:currentType==='meeting'?invitees:[],assignees:currentType==='task'?assignees:[],inviteeUids,taskManagerUid:currentType==='task'?(mgr||null):null,calendarId,color:autoColor,description:document.getElementById('ev-desc').value.trim()||null,completed:false,updatedAt:serverTimestamp()};
   try{if(editEvId){await updateDoc(doc(db,'events',editEvId),data);toast('Saved');}else{data.createdAt=serverTimestamp();await addDoc(collection(db,'events'),data);toast('Saved');}closeModal('event-modal');}
   catch(e){toast('Error saving');console.error(e);}
 };
@@ -1789,8 +1788,9 @@ window.applyWeekSchedule=async(mode)=>{
       uid:cu.uid, title, type:'meeting', date:dateStr,
       time:'15:30', timeEnd:'18:00', allDay:false,
       repeat:'none', repeatEnd:null,
-      invitees: JSON.parse(JSON.stringify(invitees)), // deep copy per event
-      assignees:[], taskManagerUid:null,
+      invitees: JSON.parse(JSON.stringify(invitees)),
+      assignees:[], inviteeUids:invitees.map(i=>i.uid),
+      taskManagerUid:null,
       calendarId, color, description:desc,
       completed:false,
       rsvp:{}, declineReasons:{}, unexcusedAbsences:{},

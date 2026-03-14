@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <title>Quixilver 8404 Calendar</title>
 <link rel="icon" type="image/png" href="https://quixilver8404.org/logo_old5.png"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
@@ -32,7 +35,8 @@ body.light-mode .theme-toggle::after{transform:translateX(16px);background:var(-
 /* Icon utility */
 .icon{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;zoom:1.1}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;zoom:1.05}
+@media(max-width:768px){body{zoom:1}}
 
 /* FOX LOGO SVG embedded as background pattern */
 .fox-watermark{position:fixed;bottom:20px;right:20px;opacity:.04;pointer-events:none;z-index:0}
@@ -306,6 +310,42 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .spin{width:30px;height:30px;border:2px solid var(--border);border-top-color:var(--accent2);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 textarea.form-input{resize:vertical;min-height:68px}
+
+/* ── MOBILE RESPONSIVE ── */
+@media(max-width:768px){
+  .topbar{padding:0 12px;height:50px;gap:8px}
+  .topbar-logo-text{font-size:14px}
+  .topbar-team-badge{display:none}
+  .nav-pill{gap:2px}
+  .nav-pill-btn{padding:4px 8px;font-size:10px}
+  .topbar-right{gap:5px}
+  .btn-icon{padding:4px 7px;font-size:12px}
+  #user-display-name{display:none}
+  .sidebar{display:none}
+  .cal-header-bar{padding:7px 12px}
+  .cal-day-header{padding:7px 4px;font-size:9px}
+  .cal-cell{min-height:70px;padding:5px 3px 3px}
+  .cell-num{font-size:11px;width:20px;height:20px}
+  .event-pill{font-size:9px;padding:1px 4px}
+  .home-page{padding:16px}
+  .home-grid{grid-template-columns:1fr;gap:12px}
+  .home-card{padding:14px}
+  .profile-page{padding:16px}
+  .admin-page{padding:16px}
+  .admin-grid{grid-template-columns:1fr}
+  .modal{padding:20px 18px;margin:8px}
+  .modal-row{grid-template-columns:1fr}
+  .week-sticky-header .week-time-gutter-hdr{width:36px}
+  .week-time-gutter{width:36px}
+  .week-time-label{font-size:8px;padding:0 4px 0 0}
+  .week-event-block{left:1px;right:1px;padding:2px 4px;font-size:9px}
+  .auth-card{padding:28px 20px}
+  #share-btn{display:none}
+}
+@media(max-width:480px){
+  .topbar-center{display:none!important}
+  .home-greeting{font-size:18px}
+}
 </style>
 </head>
 <body>
@@ -370,11 +410,14 @@ textarea.form-input{resize:vertical;min-height:68px}
         <button class="nav-pill-btn" id="nav-admin" onclick="showPage('admin')" style="display:none">Admin</button>
         <button class="nav-pill-btn" id="nav-profile" onclick="showPage('profile')">Profile</button>
       </div>
-      <button class="btn-icon" onclick="openShareModal()" title="Share calendar">
+      <button class="btn-icon" id="share-btn" onclick="openShareModal()" title="Share calendar" style="display:none">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
         Share
       </button>
-      <button class="theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle light/dark mode"></button>
+      <div style="display:flex;align-items:center;gap:6px">
+        <span id="theme-label" style="font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.3px;white-space:nowrap">Dark mode</span>
+        <button class="theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle light/dark mode"></button>
+      </div>
       <div class="user-pill" id="user-pill" onclick="toggleUserMenu()">
         <div class="user-avatar" id="user-avatar-el"><span id="user-avatar-char">?</span></div>
         <span id="user-display-name">…</span>
@@ -479,12 +522,20 @@ textarea.form-input{resize:vertical;min-height:68px}
         <div id="profile-save-msg" style="font-size:12px;margin-bottom:10px;display:none"></div>
         <button class="btn-primary-sm" onclick="saveProfile()">Save changes</button>
       </div>
-      <div id="profile-admin-tools" style="display:none;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px">
+      <div id="profile-admin-tools" style="display:none;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-bottom:16px">
         <div style="font-size:14px;font-weight:600;margin-bottom:6px">Admin Tools</div>
         <div style="font-size:11px;color:var(--muted);margin-bottom:14px">Reset your own unexcused absence count if it was set incorrectly.</div>
         <div style="display:flex;align-items:center;gap:12px">
           <span style="font-size:13px;color:var(--muted)">Your unexcused count: <strong id="profile-absence-count" style="color:var(--text)">0</strong></span>
           <button class="btn-secondary" style="font-size:11px;padding:6px 12px" onclick="resetMyAbsences()">Reset to 0</button>
+        </div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px">
+        <div style="font-size:14px;font-weight:600;margin-bottom:6px">Notifications</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:14px">Get notified when you're invited to a meeting or task. Works on desktop and most mobile browsers. For phone notifications, add this site to your home screen first.</div>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <button class="btn-primary-sm" onclick="requestNotificationPermission()">Enable notifications</button>
+          <span id="notif-status" style="font-size:11px;color:var(--muted)"></span>
         </div>
       </div>
     </div>
@@ -533,10 +584,23 @@ textarea.form-input{resize:vertical;min-height:68px}
     </div>
     <div class="form-group" id="ev-repeat-end-wrap" style="display:none"><label class="form-label">Repeat until</label><input class="form-input" id="ev-repeat-end" type="date"/></div>
     <div class="form-group"><label class="form-label">Calendar</label><select class="form-select" id="ev-calendar"></select></div>
-    <div class="form-group"><label class="form-label">Color</label><div class="color-row" id="ev-color-row"></div></div>
 
     <!-- MEETING -->
     <div id="ev-meeting-section">
+      <div class="section-divider"></div>
+      <!-- Week schedule presets -->
+      <div class="form-group" id="ev-week-schedule-wrap">
+        <label class="form-label">Quick schedule</label>
+        <div style="display:flex;gap:7px;flex-wrap:wrap">
+          <button class="btn-secondary" style="font-size:11px;padding:6px 12px" onclick="applyWeekSchedule('normal')" type="button">
+            Normal week (T/Th/F · 3:30–6pm)
+          </button>
+          <button class="btn-secondary" style="font-size:11px;padding:6px 12px;color:var(--red);border-color:rgba(239,68,68,.3)" onclick="applyWeekSchedule('crunch')" type="button">
+            Crunch week (Mon–Fri · 3:30–6pm)
+          </button>
+        </div>
+        <div style="font-size:10px;color:var(--muted2);margin-top:5px">Creates multiple meetings at once in the selected date's week</div>
+      </div>
       <div class="section-divider"></div>
       <div class="form-group">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px">
@@ -546,6 +610,7 @@ textarea.form-input{resize:vertical;min-height:68px}
             <button class="bulk-att-btn" onclick="setBulkAttendance('optional')" style="color:var(--green);border-color:rgba(34,197,94,.3)">All Optional</button>
           </div>
         </div>
+        <div style="font-size:10px;color:var(--muted2);margin-bottom:7px">Mandatory invitees = event shows red. Optional = green. Color is set automatically.</div>
         <div id="ev-group-filter" style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:7px"></div>
         <div class="member-checklist" id="ev-invite-checklist"><div class="member-check-empty">Loading…</div></div>
       </div>
@@ -761,6 +826,7 @@ function subscribeData(uid){
   unsubEv=onSnapshot(query(collection(db,'events'),where('uid','==',uid)),snap=>{
     const own=snap.docs.map(d=>({id:d.id,...d.data()}));
     events=[...own,...events.filter(e=>e.isShared)];
+    checkForNewInvites(own);
     renderAll();if(currentPage==='home')renderHomePage();
   },err=>console.error(err));
   loadJoinedCalendars();
@@ -792,6 +858,8 @@ window.showPage=(page)=>{
     const nel=document.getElementById(nid);if(nel)nel.classList.toggle('active',p===page);
   });
   document.getElementById('cal-topbar-center').style.display=page==='calendar'?'flex':'none';
+  const shareBtn=document.getElementById('share-btn');
+  if(shareBtn)shareBtn.style.display=page==='calendar'?'flex':'none';
   if(page==='home')renderHomePage();
   if(page==='profile')renderProfilePage();
   if(page==='admin')renderAdminPage();
@@ -1266,8 +1334,6 @@ function openEventModal(ev=null,defDate=null,defType='meeting'){
   calendars.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.name;sel.appendChild(o);});
   if(ev?.calendarId)sel.value=ev.calendarId;
   else if(activeCalId&&calendars.find(c=>c.id===activeCalId))sel.value=activeCalId;
-  selColor=ev?.color||'#2979ff';
-  renderSwatches('ev-color-row',selColor,v=>{selColor=v;});
   loadCalMembers(sel.value);
   sel.onchange=()=>loadCalMembers(sel.value);
   document.getElementById('event-modal').classList.add('open');
@@ -1349,7 +1415,16 @@ window.saveEvent=async()=>{
   const allDay=document.getElementById('ev-allday').checked;
   const repeat=document.getElementById('ev-repeat').value;
   const mgr=document.getElementById('ev-task-manager')?.value||null;
-  const data={uid:cu.uid,title,type:currentType,date:document.getElementById('ev-date').value,time:currentType==='meeting'&&!allDay?(document.getElementById('ev-time').value||null):null,timeEnd:currentType==='meeting'&&!allDay?(document.getElementById('ev-time-end').value||null):null,allDay:currentType==='meeting'?allDay:false,repeat,repeatEnd:repeat!=='none'?(document.getElementById('ev-repeat-end').value||null):null,invitees:currentType==='meeting'?invitees:[],assignees:currentType==='task'?assignees:[],taskManagerUid:currentType==='task'?(mgr||null):null,calendarId,color:selColor,description:document.getElementById('ev-desc').value.trim()||null,completed:false,updatedAt:serverTimestamp()};
+  // Color: meetings auto-color based on whether any invitee is mandatory
+  // Tasks use amber. If editing and no invitees, keep original color or use calendar color.
+  let autoColor;
+  if(currentType==='meeting'){
+    const hasMandatory=invitees.some(i=>i.attendance==='mandatory');
+    autoColor=invitees.length>0?(hasMandatory?'#ef4444':'#22c55e'):(ev?.color||'#00b4ff');
+  } else {
+    autoColor=ev?.color||'#f59e0b';
+  }
+  const data={uid:cu.uid,title,type:currentType,date:document.getElementById('ev-date').value,time:currentType==='meeting'&&!allDay?(document.getElementById('ev-time').value||null):null,timeEnd:currentType==='meeting'&&!allDay?(document.getElementById('ev-time-end').value||null):null,allDay:currentType==='meeting'?allDay:false,repeat,repeatEnd:repeat!=='none'?(document.getElementById('ev-repeat-end').value||null):null,invitees:currentType==='meeting'?invitees:[],assignees:currentType==='task'?assignees:[],taskManagerUid:currentType==='task'?(mgr||null):null,calendarId,color:autoColor,description:document.getElementById('ev-desc').value.trim()||null,completed:false,updatedAt:serverTimestamp()};
   try{if(editEvId){await updateDoc(doc(db,'events',editEvId),data);toast('Saved');}else{data.createdAt=serverTimestamp();await addDoc(collection(db,'events'),data);toast('Saved');}closeModal('event-modal');}
   catch(e){toast('Error saving');console.error(e);}
 };
@@ -1535,7 +1610,15 @@ function renderProfilePage(){
   const bigEl=document.getElementById('profile-avatar-big');const char=(name||email||'?').charAt(0).toUpperCase();
   if(userPfpUrl)bigEl.innerHTML=`<img src="${userPfpUrl}" alt="pfp"/><input type="file" id="pfp-input" accept="image/*" style="display:none" onchange="handlePfpChange(event)"/>`;
   else bigEl.innerHTML=`<span id="profile-avatar-char">${char}</span><input type="file" id="pfp-input" accept="image/*" style="display:none" onchange="handlePfpChange(event)"/>`;
-  // Load absence count and show admin tools
+  // Notification status
+  const ns=document.getElementById('notif-status');
+  if(ns){
+    if(!('Notification' in window))ns.textContent='Not supported on this browser';
+    else if(Notification.permission==='granted')ns.textContent='Notifications are enabled';
+    else if(Notification.permission==='denied')ns.textContent='Blocked — enable in browser settings';
+    else ns.textContent='Not enabled yet';
+  }
+  // Admin tools
   getDoc(doc(db,'users',cu.uid)).then(snap=>{
     const cnt=snap.data()?.unexcusedCount||0;
     const toolsEl=document.getElementById('profile-admin-tools');
@@ -1580,9 +1663,94 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 window.toggleTheme=()=>{
   const isLight=document.body.classList.toggle('light-mode');
   localStorage.setItem('theme',isLight?'light':'dark');
+  const lbl=document.getElementById('theme-label');
+  if(lbl)lbl.textContent=isLight?'Light mode':'Dark mode';
 };
 // Apply saved theme on load
-if(localStorage.getItem('theme')==='light')document.body.classList.add('light-mode');
+if(localStorage.getItem('theme')==='light'){
+  document.body.classList.add('light-mode');
+  const lbl=document.getElementById('theme-label');if(lbl)lbl.textContent='Light mode';
+}
+
+// ── Push Notifications ────────────────────────────────────────
+async function requestNotificationPermission(){
+  if(!('Notification' in window)){toast('Notifications not supported on this browser');return;}
+  const perm=await Notification.requestPermission();
+  if(perm==='granted'){
+    localStorage.setItem('notificationsEnabled','true');
+    toast('Notifications enabled!');
+    // Show a test notification
+    new Notification('Quixilver Calendar',{body:'Notifications are now enabled.',icon:'https://quixilver8404.org/logo_old5.png'});
+  } else {
+    localStorage.setItem('notificationsEnabled','false');
+    toast('Notifications blocked — check browser settings');
+  }
+}
+
+function sendNotification(title,body){
+  if(Notification.permission==='granted'&&localStorage.getItem('notificationsEnabled')==='true'){
+    new Notification(title,{body,icon:'https://quixilver8404.org/logo_old5.png'});
+  }
+}
+
+// Check for new invitations and notify
+function checkForNewInvites(newEvents){
+  const myUid=cu?.uid;
+  newEvents.forEach(ev=>{
+    const ppl=ev.type==='task'?ev.assignees:ev.invitees;
+    if(!ppl)return;
+    const me=ppl.find(p=>p.uid===myUid);
+    if(!me)return;
+    const rsvp=(ev.rsvp||{})[myUid];
+    if(rsvp)return; // already responded
+    const seenKey=`seen_invite_${ev.id}`;
+    if(localStorage.getItem(seenKey))return;
+    localStorage.setItem(seenKey,'1');
+    const isMand=me.attendance==='mandatory';
+    sendNotification(
+      `${isMand?'[Mandatory] ':''}${ev.type==='task'?'Task':'Meeting'}: ${ev.title}`,
+      `You've been invited. Date: ${ev.date}${ev.time?' at '+ev.time:''}`
+    );
+  });
+}
+
+// ── Week schedule presets ─────────────────────────────────────
+window.applyWeekSchedule=async(mode)=>{
+  const title=document.getElementById('ev-title').value.trim();
+  if(!title){toast('Enter a meeting title first');return;}
+  const calendarId=document.getElementById('ev-calendar').value;
+  if(!calendarId){toast('Select a calendar first');return;}
+  // Find the week of the selected date
+  const baseDate=new Date(document.getElementById('ev-date').value+'T12:00:00');
+  const ws=weekStart(baseDate);
+  // Normal week: Tue(2), Thu(4), Fri(5)
+  // Crunch week: Mon(1), Tue(2), Wed(3), Thu(4), Fri(5)
+  const dayOffsets=mode==='crunch'?[1,2,3,4,5]:[2,4,5];
+  const color=getInviteColor(); // uses mandatory/optional from invitees
+  let created=0;
+  for(const offset of dayOffsets){
+    const d=new Date(ws);d.setDate(d.getDate()+offset);
+    const dateStr=d.toISOString().split('T')[0];
+    await addDoc(collection(db,'events'),{
+      uid:cu.uid,title,type:'meeting',date:dateStr,
+      time:'15:30',timeEnd:'18:00',allDay:false,
+      repeat:'none',repeatEnd:null,
+      invitees,assignees:[],taskManagerUid:null,
+      calendarId,color,
+      description:document.getElementById('ev-desc').value.trim()||null,
+      completed:false,createdAt:serverTimestamp(),updatedAt:serverTimestamp()
+    });
+    created++;
+  }
+  toast(`Created ${created} meetings (${mode==='crunch'?'Crunch':'Normal'} week, 3:30–6pm)`);
+  closeModal('event-modal');
+};
+
+function getInviteColor(){
+  // Color is determined by whether mandatory invitees exist
+  const hasMandatory=invitees.some(i=>i.attendance==='mandatory');
+  return hasMandatory?'#ef4444':'#22c55e';
+}
 </script>
 </body>
 </html>

@@ -532,11 +532,15 @@
 <div class="modal-overlay" id="share-modal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('share-modal')">✕</button>
-    <div class="modal-title">Share & Join Calendars</div>
+    <div class="modal-title">Share Calendar</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+      <div style="width:10px;height:10px;border-radius:50%" id="share-cal-dot"></div>
+      <span style="font-size:14px;font-weight:600;color:var(--text)" id="share-cal-name"></span>
+      <span style="font-size:12px;color:var(--muted2)">— invite code</span>
+    </div>
     <div class="form-group">
-      <label class="form-label">Your invite code</label>
       <div class="share-code" id="share-code-display" onclick="copyCode()">——</div>
-      <div class="share-hint">Click to copy · Share this with others to let them follow your calendar</div>
+      <div class="share-hint">Click to copy · Anyone with this code can join this specific calendar</div>
     </div>
     <div class="join-section">
       <label class="form-label">Join someone's calendar</label>
@@ -660,14 +664,12 @@ async function initUserData(user) {
   const uref = doc(db,'users',user.uid);
   const snap = await getDoc(uref);
   if (!snap.exists()) {
+    await setDoc(uref,{displayName:user.displayName||'User',email:user.email,joinedCalendars:[]});
+    // Create default Personal calendar with its own invite code
     const code = Math.random().toString(36).substring(2,8).toUpperCase();
-    await setDoc(uref,{displayName:user.displayName||'User',email:user.email,inviteCode:code,joinedCalendars:[]});
-    userCode = code;
-    await addDoc(collection(db,'calendars'),{uid:user.uid,name:'Personal',color:'#6c8fff',createdAt:serverTimestamp()});
-  } else {
-    userCode = snap.data().inviteCode;
+    await addDoc(collection(db,'calendars'),{uid:user.uid,name:'Personal',color:'#6c8fff',inviteCode:code,createdAt:serverTimestamp()});
   }
-  document.getElementById('share-code-display').textContent = userCode;
+  // userCode is now per-calendar — loaded in updateShareModal when opened
 }
 
 function subscribeData(uid) {
@@ -1293,61 +1295,108 @@ window.openNewCalendarModal=()=>{
 window.saveNewCalendar=async()=>{
   const name=document.getElementById('newcal-name').value.trim();
   if(!name){toast('Please enter a name');return;}
-  try{await addDoc(collection(db,'calendars'),{uid:currentUser.uid,name,color:_newCalColor,createdAt:serverTimestamp()});toast(`"${name}" created`);closeModal('newcal-modal');}
-  catch(e){toast('Error');console.error(e);}
+  try{
+    const code = Math.random().toString(36).substring(2,8).toUpperCase();
+    await addDoc(collection(db,'calendars'),{uid:currentUser.uid,name,color:_newCalColor,inviteCode:code,createdAt:serverTimestamp()});
+    toast(`"${name}" created`);closeModal('newcal-modal');
+  }catch(e){toast('Error');console.error(e);}
 };
 
 // ── Share ──────────────────────────────────────────────────────
 window.openShareModal=async()=>{
-  document.getElementById('share-code-display').textContent=userCode||'——';
+  // Show the active calendar's invite code
+  const cal = calendars.find(c=>c.id===activeCalId);
+  if (cal) {
+    // If calendar has no invite code yet (old data), generate one now
+    if (!cal.inviteCode) {
+      const code = Math.random().toString(36).substring(2,8).toUpperCase();
+      await updateDoc(doc(db,'calendars',activeCalId), {inviteCode: code});
+      cal.inviteCode = code;
+    }
+    document.getElementById('share-cal-name').textContent = cal.name;
+    document.getElementById('share-cal-dot').style.background = cal.color;
+    document.getElementById('share-code-display').textContent = cal.inviteCode;
+  }
   await loadJoinedCalendars();
   document.getElementById('share-modal').classList.add('open');
 };
-window.copyCode=()=>{navigator.clipboard.writeText(userCode).then(()=>toast('Copied!')).catch(()=>{});};
+
+window.copyCode=()=>{
+  const cal = calendars.find(c=>c.id===activeCalId);
+  const code = cal?.inviteCode || '';
+  navigator.clipboard.writeText(code).then(()=>toast('Code copied!')).catch(()=>{});
+};
+
 window.joinCalendar=async()=>{
   const code=document.getElementById('join-code-input').value.trim().toUpperCase();
   if(code.length<4){toast('Enter a valid code');return;}
-  if(code===userCode){toast("That's your own code!");return;}
-  const snap=await getDocs(query(collection(db,'users'),where('inviteCode','==',code)));
-  if(snap.empty){toast('No calendar found');return;}
-  const ownerData=snap.docs[0].data(), ownerId=snap.docs[0].id;
-  if(ownerId===currentUser.uid){toast("That's your own calendar!");return;}
+
+  // Look up calendar by inviteCode
+  const calSnap=await getDocs(query(collection(db,'calendars'),where('inviteCode','==',code)));
+  if(calSnap.empty){toast('No calendar found with that code');return;}
+
+  const calDoc=calSnap.docs[0];
+  const calData=calDoc.data();
+  const calId=calDoc.id;
+
+  // Can't join your own calendar
+  if(calData.uid===currentUser.uid){toast("That's your own calendar!");return;}
+
+  // Check not already joined
   const uref=doc(db,'users',currentUser.uid), usnap=await getDoc(uref);
   const joined=usnap.data().joinedCalendars||[];
-  if(joined.includes(ownerId)){toast('Already joined');return;}
-  joined.push(ownerId); await updateDoc(uref,{joinedCalendars:joined});
-  subscribeSharedEvents(ownerId,ownerData.displayName||'Shared');
-  toast(`Joined ${ownerData.displayName||'Shared'}'s calendar!`);
+  if(joined.includes(calId)){toast('Already joined this calendar');return;}
+
+  joined.push(calId);
+  await updateDoc(uref,{joinedCalendars:joined});
+
+  // Get owner name for display
+  const ownerSnap=await getDoc(doc(db,'users',calData.uid));
+  const ownerName=ownerSnap.data()?.displayName||'Someone';
+
+  subscribeSharedCalendar(calId, calData.name, ownerName, calData.color||'#6c8fff');
+  toast(`Joined "${calData.name}"!`);
   document.getElementById('join-code-input').value='';
   await loadJoinedCalendars();
 };
+
 async function loadJoinedCalendars(){
   const usnap=await getDoc(doc(db,'users',currentUser.uid));
   const joined=usnap.data().joinedCalendars||[];
   const listEl=document.getElementById('joined-list');
-  if(!joined.length){listEl.innerHTML='<div style="font-size:13px;color:var(--muted2)">No shared calendars yet</div>';return;}
-  listEl.innerHTML='<div class="sidebar-label" style="margin-bottom:10px">Shared with you</div>';
-  for(const uid of joined){
-    const ud=await getDoc(doc(db,'users',uid));
-    const name=ud.data()?.displayName||'Unknown';
-    const div=document.createElement('div');div.style.cssText='display:flex;align-items:center;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:8px';
-    div.innerHTML=`<span>📅 ${name}</span><button onclick="leaveCalendar('${uid}')" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:12px">Leave</button>`;
+  if(!joined.length){listEl.innerHTML='<div style="font-size:13px;color:var(--muted2)">No shared calendars joined yet</div>';return;}
+  listEl.innerHTML='<div class="sidebar-label" style="margin-bottom:10px">Joined calendars</div>';
+  for(const calId of joined){
+    const calDoc=await getDoc(doc(db,'calendars',calId));
+    if(!calDoc.exists()){continue;}
+    const calData=calDoc.data();
+    const ownerDoc=await getDoc(doc(db,'users',calData.uid));
+    const ownerName=ownerDoc.data()?.displayName||'Unknown';
+    const div=document.createElement('div');
+    div.style.cssText='display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);margin-bottom:8px';
+    div.innerHTML=`
+      <div style="width:8px;height:8px;border-radius:50%;background:${calData.color||'#6c8fff'};flex-shrink:0"></div>
+      <span style="flex:1">${calData.name} <span style="color:var(--muted2);font-size:11px">by ${ownerName}</span></span>
+      <button onclick="leaveCalendar('${calId}')" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:12px">Leave</button>`;
     listEl.appendChild(div);
-    subscribeSharedEvents(uid,name);
+    subscribeSharedCalendar(calId, calData.name, ownerName, calData.color||'#6c8fff');
   }
 }
-function subscribeSharedEvents(ownerId,ownerName){
-  onSnapshot(query(collection(db,'events'),where('uid','==',ownerId)),snap=>{
-    const shared=snap.docs.map(d=>({id:d.id,...d.data(),isShared:true,sharedFrom:ownerName}));
-    events=events.filter(e=>!(e.isShared&&e.uid===ownerId));
+
+function subscribeSharedCalendar(calId, calName, ownerName, calColor){
+  // Subscribe to events in this specific calendar
+  onSnapshot(query(collection(db,'events'),where('calendarId','==',calId)), snap=>{
+    const shared=snap.docs.map(d=>({id:d.id,...d.data(),isShared:true,sharedCalId:calId,sharedFrom:ownerName,sharedCalName:calName,color:d.data().color||calColor}));
+    events=events.filter(e=>!(e.isShared&&e.sharedCalId===calId));
     events=[...events,...shared]; renderAll();
   });
 }
-window.leaveCalendar=async(uid)=>{
+
+window.leaveCalendar=async(calId)=>{
   const uref=doc(db,'users',currentUser.uid),usnap=await getDoc(uref);
-  const joined=(usnap.data().joinedCalendars||[]).filter(id=>id!==uid);
+  const joined=(usnap.data().joinedCalendars||[]).filter(id=>id!==calId);
   await updateDoc(uref,{joinedCalendars:joined});
-  events=events.filter(e=>!(e.isShared&&e.uid===uid));
+  events=events.filter(e=>!(e.isShared&&e.sharedCalId===calId));
   renderAll(); await loadJoinedCalendars(); toast('Left calendar');
 };
 

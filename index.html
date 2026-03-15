@@ -2290,8 +2290,8 @@ async function renderTeamRoster(calId){
   colsEl.innerHTML='';
   if(!members.length){colsEl.innerHTML='<div style="padding:24px;color:var(--muted2);font-size:13px">No members yet.</div>';return;}
   members.forEach(m=>{
-    const role=getPrimaryRole(calRoles,m.uid);
     const allRoles=getRolesForUid(calRoles,m.uid);
+    const role=getPrimaryRole(calRoles,m.uid);
     const sub=m[`subsection_${calId}`]||'';
     const card=document.createElement('div');card.className='member-card';
     const char=(m.displayName||'?').charAt(0).toUpperCase();
@@ -2689,7 +2689,8 @@ async function renderAdminPage(){
   const calRoles=adminCal.roles||{};
   ml.innerHTML='';
   members.forEach(m=>{
-    const mRole=calRoles[m.uid]||null;
+    const mRolesList=getRolesForUid(calRoles,m.uid);
+    const mRole=getPrimaryRole(calRoles,m.uid);
     const row=document.createElement('div');row.className='admin-member-row';
     row.innerHTML=`<div style="width:30px;height:30px;border-radius:50%;background:var(--accent-dim);border:1px solid var(--accent-border);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--accent2);font-size:12px;flex-shrink:0">${(m.displayName||'?').charAt(0).toUpperCase()}</div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:600;color:var(--text)">${m.displayName} ${mRolesList.map(r=>`<span class="role-badge ${r==='Admin'?'admin-role':''}">${r}</span>`).join(' ')}</div><div style="font-size:10px;color:var(--muted)">${m.email}${m.subsection?` · ${m.subsection}`:''}</div></div><div style="display:flex;gap:5px;flex-shrink:0;flex-wrap:wrap">`;
     // Subsection selector

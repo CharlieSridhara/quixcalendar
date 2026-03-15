@@ -1177,7 +1177,7 @@ setPersistence(auth,browserLocalPersistence).catch(e=>console.error('Persistence
 function getNow(){
   // Simple: subtract 7 hours from UTC (PDT, valid March-November)
   // new Date().getTime() is ALWAYS UTC regardless of system timezone
-  return new Date(Date.now() - 7 * 60 * 60 * 1000);
+  return new Date(Date.now() - 9 * 60 * 60 * 1000);
 }
 function getTodayStr(){
   const n=getNow();

@@ -574,28 +574,27 @@ textarea.form-input{resize:vertical;min-height:68px}
       </div>
     </div>
   </div>
-</div>
 
-<!-- DASHBOARD PAGE -->
-<div class="page" id="page-dashboard">
-  <div class="dash-page">
-    <div class="dash-header-row">
-      <div>
-        <div class="dash-title">Team Dashboard</div>
-        <div class="dash-subtitle" id="dash-week-label"></div>
+  <!-- DASHBOARD -->
+  <div class="page" id="page-dashboard">
+    <div class="dash-page">
+      <div class="dash-header-row">
+        <div>
+          <div class="dash-title">Team Dashboard</div>
+          <div class="dash-subtitle" id="dash-week-label"></div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="topbar-nav-btn" onclick="dashNav(-1)">‹</button>
+          <button class="topbar-nav-btn" onclick="dashNavToday()">This week</button>
+          <button class="topbar-nav-btn" onclick="dashNav(1)">›</button>
+          <select class="form-select" id="dash-cal-select" onchange="renderDashboard()" style="max-width:160px;font-size:12px;padding:6px 10px"></select>
+        </div>
       </div>
-      <div style="display:flex;gap:8px;align-items:center">
-        <button class="topbar-nav-btn" onclick="dashNav(-1)">‹</button>
-        <button class="topbar-nav-btn" onclick="dashNavToday()">This week</button>
-        <button class="topbar-nav-btn" onclick="dashNav(1)">›</button>
-        <select class="form-select" id="dash-cal-select" onchange="renderDashboard()" style="max-width:160px;font-size:12px;padding:6px 10px"></select>
-      </div>
+      <div class="dash-tab-bar" id="dash-tab-bar"></div>
+      <div class="dash-columns" id="dash-columns"></div>
     </div>
-    <!-- Tab bar for subsections -->
-    <div class="dash-tab-bar" id="dash-tab-bar"></div>
-    <!-- Task columns -->
-    <div class="dash-columns" id="dash-columns"></div>
   </div>
+
 </div>
 
 <!-- EVENT MODAL -->
@@ -1586,11 +1585,11 @@ function renderChecklists(){
     container.innerHTML='';
     calMembers.forEach(m=>{
       const existing=arr.find(x=>x.uid===m.uid);
-      const isChk=!!existing;const pri=existing?.priority||'important';
+      const isChk=!!existing;
       const isSelf=m.uid===cu.uid;
       const row=document.createElement('div');row.className='member-check-row';
-      row.innerHTML=`<input type="checkbox" id="chk-${container.id}-${m.uid}" ${isChk?'checked':''} onchange="toggleAsgn('${m.uid}')"/><div style="flex:1"><div class="member-check-name">${m.displayName}${isSelf?' <span style="font-size:9px;color:var(--accent2)">(you)</span>':''}</div></div>${isChk?`<button class="member-check-pri ${pri}" onclick="cycleAsgnPri('${m.uid}');event.stopPropagation()">${PRIORITY_LABELS[pri]}</button>`:''}`;
-      row.onclick=e=>{if(e.target.tagName==='BUTTON')return;document.getElementById(`chk-${container.id}-${m.uid}`)?.click();};
+      row.innerHTML=`<input type="checkbox" id="chk-${container.id}-${m.uid}" ${isChk?'checked':''} onchange="toggleAsgn('${m.uid}')"/><div style="flex:1"><div class="member-check-name">${m.displayName}${isSelf?' <span style="font-size:9px;color:var(--accent2)">(you)</span>':''}</div></div>`;
+      row.onclick=e=>{document.getElementById(`chk-${container.id}-${m.uid}`)?.click();};
       container.appendChild(row);
     });
   }
@@ -1618,12 +1617,14 @@ function renderDashboard(){
   const dcSel=document.getElementById('dash-cal-select');
   if(!dcSel)return;
   const allCals=[...calendars,...sharedCalendars];
-  if(dcSel.options.length===0){
-    allCals.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.name;dcSel.appendChild(o);});
-    if(activeCalId)dcSel.value=activeCalId;
-  }
+  // Always repopulate in case calendars loaded after first render
+  const prevVal=dcSel.value||activeCalId;
+  dcSel.innerHTML='';
+  allCals.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.name;dcSel.appendChild(o);});
+  if(prevVal&&dcSel.querySelector(`option[value="${prevVal}"]`))dcSel.value=prevVal;
   const calId=dcSel.value||allCals[0]?.id;
-  if(!calId)return;
+  if(!calId){document.getElementById('dash-columns').innerHTML='<div style="padding:32px;color:var(--muted2);font-size:13px">No calendars found. Create or join a calendar first.</div>';return;}
+  dcSel.value=calId;
   const cal=allCals.find(c=>c.id===calId);
   const subs=cal?.subsections||[];
 
@@ -1753,7 +1754,7 @@ window.setTaskPriority=(pri)=>{
 window.toggleInv=(uid)=>{const m=calMembers.find(x=>x.uid===uid);if(!m)return;const i=invitees.findIndex(x=>x.uid===uid);if(i>=0)invitees.splice(i,1);else invitees.push({...m,attendance:'mandatory'});renderChecklists();};
 window.toggleAsgn=(uid)=>{const m=calMembers.find(x=>x.uid===uid);if(!m)return;const i=assignees.findIndex(x=>x.uid===uid);if(i>=0)assignees.splice(i,1);else assignees.push({...m,priority:'important'});renderChecklists();};
 window.toggleInvAtt=(uid)=>{const i=invitees.find(x=>x.uid===uid);if(i)i.attendance=i.attendance==='mandatory'?'optional':'mandatory';renderChecklists();};
-window.cycleAsgnPri=(uid)=>{const a=assignees.find(x=>x.uid===uid);if(!a)return;const idx=PRIORITY_CYCLE.indexOf(a.priority||'important');a.priority=PRIORITY_CYCLE[(idx+1)%3];renderChecklists();};
+
 window.setBulkAttendance=(att)=>{invitees.forEach(i=>i.attendance=att);renderChecklists();};
 
 // FIX #5: task saving fixed — inviteeUids includes assignee uids so subscribeInvitedEvents works

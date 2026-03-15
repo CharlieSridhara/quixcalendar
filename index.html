@@ -1353,6 +1353,9 @@ function updateAdminUI(){
   const isAnyLeader=calendars.some(c=>isLeader(c.id))||sharedCalendars.some(c=>isLeader(c.id));
   document.getElementById('nav-admin').style.display=isAnyLeader?'block':'none';
   document.getElementById('create-btns').style.display=isAdm?'flex':'none';
+  // Also show new-cal-btn only to Captain of own cals
+  const newCalBtn=document.getElementById('new-cal-btn');
+  if(newCalBtn)newCalBtn.style.display=(calendars.some(c=>c.id===activeCalId&&isCaptain(c.id)))?'inline':'none';
   document.getElementById('new-cal-btn').style.display=isCaptain(activeCalId)?'inline':'none';
   const hn=document.getElementById('cal-header-name');
   if(hn){hn.className='cal-header-name'+(isAdm?' editable':'');hn.ondblclick=isAdm?startRenameCalendar:null;}
@@ -1948,13 +1951,16 @@ async function loadCalMembers(calId){
     // For shared calendars: also query — works the same way
     const snap=await getDocs(query(collection(db,'users'),where('joinedCalendars','array-contains',calId)));
     snap.docs.forEach(d=>{if(d.id!==cu.uid)calMembers.push({uid:d.id,displayName:d.data().displayName||d.data().email?.split('@')[0]||'User',email:d.data().email||'',subsection:d.data()[`subsection_${calId}`]||''});});
-    // Also include the owner of a shared calendar if not already in list
-    const shCal=sharedCalendars.find(c=>c.id===calId);
-    if(shCal){
-      const ownerSnap=await getDoc(doc(db,'users',shCal.uid||''));
-      if(ownerSnap.exists()&&ownerSnap.id!==cu.uid&&!calMembers.find(m=>m.uid===ownerSnap.id)){
-        calMembers.push({uid:ownerSnap.id,displayName:ownerSnap.data().displayName||'Owner',email:ownerSnap.data().email||'',subsection:''});
-      }
+    // Include the owner of any calendar (own or shared) if not already in list
+    const allCals=[...calendars,...sharedCalendars];
+    const thisCal=allCals.find(c=>c.id===calId);
+    if(thisCal?.uid&&thisCal.uid!==cu.uid&&!calMembers.find(m=>m.uid===thisCal.uid)){
+      try{
+        const ownerSnap=await getDoc(doc(db,'users',thisCal.uid));
+        if(ownerSnap.exists()){
+          calMembers.push({uid:ownerSnap.id,displayName:ownerSnap.data().displayName||'Owner',email:ownerSnap.data().email||'',subsection:ownerSnap.data()[`subsection_${calId}`]||''});
+        }
+      }catch(e){console.error(e);}
     }
   }catch(e){console.error(e);}
   renderChecklists();
@@ -2486,7 +2492,7 @@ window.joinCalendar=async()=>{
   joined.push(calId);await updateDoc(uref,{joinedCalendars:joined});
   const oSnap=await getDoc(doc(db,'users',cData.uid));
   const oName=oSnap.data()?.displayName||'Someone';
-  subscribeSharedCal(calId,cData.name,oName,cData.color||'#00b4ff',cData.roles||{});
+  subscribeSharedCal(calId,cData.uid,cData.name,oName,cData.color||'#00b4ff',cData.roles||{});
   subscribeInvitedEvents(cu.uid);
   renderSidebar();
   toast(`Joined "${cData.name}"!`);
@@ -2505,13 +2511,15 @@ async function loadJoinedCalendars(){
     const div=document.createElement('div');div.style.cssText='display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);margin-bottom:7px';
     div.innerHTML=`<div style="width:7px;height:7px;border-radius:50%;background:${cData.color||'#00b4ff'};flex-shrink:0"></div><span style="flex:1">${cData.name} <span style="color:var(--muted2);font-size:10px">by ${oName}</span></span><button onclick="leaveCalendar('${calId}')" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:11px">Leave</button>`;
     listEl.appendChild(div);
-    subscribeSharedCal(calId,cData.name,oName,cData.color||'#00b4ff',cData.roles||{});
+    subscribeSharedCal(calId,cData.uid,cData.name,oName,cData.color||'#00b4ff',cData.roles||{});
   }
   renderSidebar();
 }
 
-function subscribeSharedCal(calId,calName,ownerName,calColor,roles={}){
-  if(!sharedCalendars.find(c=>c.id===calId))sharedCalendars.push({id:calId,name:calName,color:calColor,ownerName,roles});
+function subscribeSharedCal(calId,ownerUid,calName,ownerName,calColor,roles={}){
+  if(!sharedCalendars.find(c=>c.id===calId))sharedCalendars.push({id:calId,name:calName,color:calColor,ownerName,roles,uid:ownerUid});
+  const _sc=sharedCalendars.find(c=>c.id===calId);
+  if(_sc)_sc.uid=ownerUid;
   onSnapshot(query(collection(db,'events'),where('calendarId','==',calId)),snap=>{
     const shared=snap.docs.map(d=>({id:d.id,...d.data(),isShared:true,sharedCalId:calId,sharedCalName:calName,color:d.data().color||calColor}));
     events=events.filter(e=>!(e.isShared&&e.sharedCalId===calId));events=[...events,...shared];
@@ -2521,7 +2529,7 @@ function subscribeSharedCal(calId,calName,ownerName,calColor,roles={}){
   onSnapshot(doc(db,'calendars',calId),snap=>{
     if(!snap.exists())return;
     const idx=sharedCalendars.findIndex(c=>c.id===calId);
-    if(idx>=0)sharedCalendars[idx].roles=snap.data().roles||{};
+    if(idx>=0){sharedCalendars[idx].roles=snap.data().roles||{};sharedCalendars[idx].uid=snap.data().uid||sharedCalendars[idx].uid;}
     updateAdminUI();
   });
 }

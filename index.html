@@ -293,13 +293,13 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .confirm-modal-warning{font-size:12px;color:var(--red);background:var(--red-dim);border:1px solid rgba(239,68,68,.2);border-radius:7px;padding:9px 12px;margin-top:10px}
 .complete-btn{padding:7px 14px;font-size:11px;font-weight:600;background:var(--green-dim);border:1px solid rgba(34,197,94,.3);border-radius:7px;color:var(--green);cursor:pointer;font-family:var(--font);margin-left:auto}
 @keyframes bellRing{0%,100%{transform:rotate(0)}15%{transform:rotate(18deg)}30%{transform:rotate(-16deg)}45%{transform:rotate(12deg)}60%{transform:rotate(-8deg)}75%{transform:rotate(4deg)}}
-.member-card{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg3);border-radius:9px;cursor:pointer;transition:background .15s;border:1px solid var(--border)}
+.member-card{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg3);border-radius:9px;cursor:pointer;transition:background .15s;border:1px solid var(--border);height:fit-content}
 .member-card:hover{background:var(--bg4);border-color:var(--border2)}
 .member-avatar{width:34px;height:34px;border-radius:50%;background:var(--accent-dim);border:1px solid var(--accent-border);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--accent2);flex-shrink:0;overflow:hidden}
 .member-avatar img{width:100%;height:100%;object-fit:cover}
 .member-name{font-size:13px;font-weight:600;color:var(--text)}
 .member-sub{font-size:10px;color:var(--muted);margin-top:1px}
-.roster-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;padding:20px 28px;overflow-y:auto;flex:1}
+.roster-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;padding:20px 28px;overflow-y:auto;flex:1;align-items:start;align-content:start}
 .modal-section-label{font-size:10px;font-weight:700;color:var(--muted2);letter-spacing:.6px;text-transform:uppercase;margin:14px 0 7px}
 .member-ev-row{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg3);border-radius:7px;margin-bottom:4px;cursor:pointer;transition:background .15s}
 .member-ev-row:hover{background:var(--bg4)}
@@ -1828,8 +1828,8 @@ async function openMemberModal(m,calId,calRoles){
         </div>
       </div>
       ${isAdm?`<div style="margin-left:auto;display:flex;gap:6px">
-        <button onclick="addMemberAbsence('${m.uid}','${(m.displayName||'').replace(/'/g,"\'")}')" style="padding:5px 11px;font-size:10px;font-weight:600;border-radius:6px;border:1px solid rgba(239,68,68,.3);background:var(--red-dim);color:var(--red);cursor:pointer;font-family:var(--font)">+ Absence</button>
-        ${unexcused>0?`<button onclick="removeMemberAbsence('${m.uid}','${(m.displayName||'').replace(/'/g,"\'")}')" style="padding:5px 11px;font-size:10px;font-weight:600;border-radius:6px;border:1px solid rgba(34,197,94,.3);background:var(--green-dim);color:var(--green);cursor:pointer;font-family:var(--font)">- Absence</button>`:''}
+        <button onclick="addMemberAbsence('${m.uid}','${(m.displayName||'').replace(/'/g,"\'")}')" style="padding:5px 11px;font-size:10px;font-weight:600;border-radius:6px;border:1px solid rgba(239,68,68,.3);background:var(--red-dim);color:var(--red);cursor:pointer;font-family:var(--font)">+ Unexcused Absence</button>
+        ${unexcused>0?`<button onclick="removeMemberAbsence('${m.uid}','${(m.displayName||'').replace(/'/g,"\'")}')" style="padding:5px 11px;font-size:10px;font-weight:600;border-radius:6px;border:1px solid rgba(34,197,94,.3);background:var(--green-dim);color:var(--green);cursor:pointer;font-family:var(--font)">- Unexcused Absence</button>`:''}
       </div>`:''}
     </div>
     <div class="modal-section-label">Meetings</div>
@@ -1900,7 +1900,7 @@ function buildDashTaskItem(t,container,calId){
   const subCol=subColor(t.taskSubsection||null,calId);
   const d=new Date(t.date+'T12:00:00');
   const dateStr=d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
-  const assigneeNames=(t.assignees||[]).map(a=>a.displayName||a.name||a.email||'?').join(', ');
+  const assigneeNames=(t.assignees||[]).filter(a=>a.uid!==t.taskManagerUid).map(a=>a.displayName||a.name||'?').join(', ');
   const mgr=(t.assignees||[]).find(a=>a.uid===t.taskManagerUid);
   const item=document.createElement('div');item.className=`dash-task-item${t.completed?' completed':''}`;
   item.style.borderLeft=`3px solid ${t.completed?'#94a3b8':priColor}`;

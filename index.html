@@ -293,6 +293,17 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .confirm-modal-warning{font-size:12px;color:var(--red);background:var(--red-dim);border:1px solid rgba(239,68,68,.2);border-radius:7px;padding:9px 12px;margin-top:10px}
 .complete-btn{padding:7px 14px;font-size:11px;font-weight:600;background:var(--green-dim);border:1px solid rgba(34,197,94,.3);border-radius:7px;color:var(--green);cursor:pointer;font-family:var(--font);margin-left:auto}
 @keyframes bellRing{0%,100%{transform:rotate(0)}15%{transform:rotate(18deg)}30%{transform:rotate(-16deg)}45%{transform:rotate(12deg)}60%{transform:rotate(-8deg)}75%{transform:rotate(4deg)}}
+.member-card{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg3);border-radius:9px;cursor:pointer;transition:background .15s;border:1px solid var(--border)}
+.member-card:hover{background:var(--bg4);border-color:var(--border2)}
+.member-avatar{width:34px;height:34px;border-radius:50%;background:var(--accent-dim);border:1px solid var(--accent-border);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--accent2);flex-shrink:0;overflow:hidden}
+.member-avatar img{width:100%;height:100%;object-fit:cover}
+.member-name{font-size:13px;font-weight:600;color:var(--text)}
+.member-sub{font-size:10px;color:var(--muted);margin-top:1px}
+.roster-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;padding:20px 28px;overflow-y:auto;flex:1}
+.modal-section-label{font-size:10px;font-weight:700;color:var(--muted2);letter-spacing:.6px;text-transform:uppercase;margin:14px 0 7px}
+.member-ev-row{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg3);border-radius:7px;margin-bottom:4px;cursor:pointer;transition:background .15s}
+.member-ev-row:hover{background:var(--bg4)}
+@media(max-width:768px){.roster-grid{grid-template-columns:1fr;padding:12px 14px}}
 .dash-page{flex:1;display:flex;flex-direction:column;overflow:hidden;padding:0}
 .dash-header-row{display:flex;align-items:center;justify-content:space-between;padding:20px 28px 12px;flex-shrink:0;gap:12px;flex-wrap:wrap}
 .dash-title{font-size:22px;font-weight:700}
@@ -316,10 +327,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .dash-empty{padding:16px 14px;font-size:11px;color:var(--muted2);text-align:center}
 .dash-subsec-tag{font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;letter-spacing:.3px}
 @media(max-width:768px){.dash-columns{grid-template-columns:1fr;padding:12px 14px}.dash-header-row{padding:14px 14px 10px}.dash-tab-bar{padding:0 14px}}
-.bell-btn{background:transparent;border:1px solid var(--border);border-radius:7px;color:var(--muted);cursor:pointer;padding:5px 9px;font-size:16px;transition:all .15s;position:relative;line-height:1}
-.bell-btn:hover{border-color:var(--border2);color:var(--text)}
-.bell-btn.ringing svg{animation:bellRing .6s ease infinite}
-.bell-badge{position:absolute;top:-4px;right:-4px;width:14px;height:14px;background:var(--red);border-radius:50%;font-size:8px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;border:2px solid var(--bg2)}
 #toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--bg3);border:1px solid var(--border2);border-radius:9px;padding:10px 18px;font-size:12px;color:var(--text);z-index:600;transition:transform .3s cubic-bezier(.34,1.56,.64,1);pointer-events:none}
 #toast.show{transform:translateX(-50%) translateY(0)}
 .loader{display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:16px}
@@ -421,10 +428,6 @@ textarea.form-input{resize:vertical;min-height:68px}
         <button class="nav-pill-btn" id="nav-admin" onclick="showPage('admin')" style="display:none">Admin</button>
         <button class="nav-pill-btn" id="nav-profile" onclick="showPage('profile')">Profile</button>
       </div>
-      <button class="bell-btn" id="bell-btn" onclick="showPage('home')" title="Notifications">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-        <div class="bell-badge" id="bell-badge" style="display:none">0</div>
-      </button>
       <button class="btn-icon" id="share-btn" onclick="openShareModal()" title="Share calendar" style="display:none">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
         Share
@@ -585,13 +588,20 @@ textarea.form-input{resize:vertical;min-height:68px}
         </div>
         <div style="display:flex;gap:8px;align-items:center">
           <button class="topbar-nav-btn" onclick="dashNav(-1)">‹</button>
-          <button class="topbar-nav-btn" onclick="dashNavToday()">This week</button>
+          <button class="topbar-nav-btn" onclick="dashNavToday()" style="font-size:11px;padding:5px 10px;font-family:var(--font);white-space:nowrap">This week</button>
           <button class="topbar-nav-btn" onclick="dashNav(1)">›</button>
           <select class="form-select" id="dash-cal-select" onchange="renderDashboard()" style="max-width:160px;font-size:12px;padding:6px 10px"></select>
         </div>
       </div>
       <div class="dash-tab-bar" id="dash-tab-bar"></div>
       <div class="dash-columns" id="dash-columns"></div>
+      <!-- Member modal -->
+      <div class="modal-overlay" id="member-modal">
+        <div class="modal" style="max-width:480px">
+          <button class="modal-close" onclick="closeModal('member-modal')">✕</button>
+          <div id="member-modal-content"></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -860,13 +870,43 @@ const _invitedUnsubs=[];
 function subscribeInvitedEvents(uid){
   _invitedUnsubs.forEach(u=>u());_invitedUnsubs.length=0;
   const unsub=onSnapshot(query(collection(db,'events'),where('inviteeUids','array-contains',uid)),snap=>{
-    // Exclude events the user owns — those are already handled by the main events snapshot
     const invited=snap.docs.filter(d=>d.data().uid!==uid).map(d=>({id:d.id,...d.data(),_invited:true}));
     events=events.filter(e=>!e._invited);
     events=[...events,...invited];
+    checkForNewInvites(invited);
     renderAll();if(currentPage==='home')renderHomePage();
   },err=>console.error(err));
   _invitedUnsubs.push(unsub);
+}
+
+function sendPushNotification(title,body){
+  if('Notification' in window && Notification.permission==='granted' && localStorage.getItem('notificationsEnabled')==='true'){
+    new Notification(title,{body,icon:'https://quixilver8404.org/logo_old5.png'});
+  }
+}
+
+function checkForNewInvites(invitedEvents){
+  const myUid=cu?.uid;if(!myUid)return;
+  invitedEvents.forEach(ev=>{
+    const ppl=ev.type==='task'?ev.assignees:ev.invitees;
+    if(!ppl)return;
+    const me=ppl.find(p=>p.uid===myUid);
+    if(!me)return;
+    const rsvp=(ev.rsvp||{})[myUid];
+    if(rsvp)return; // already responded, don't re-notify
+    const seenKey=`seen_invite_${ev.id}`;
+    if(localStorage.getItem(seenKey))return; // already notified
+    localStorage.setItem(seenKey,'1');
+    const isMandatory=me.attendance==='mandatory';
+    const pri=ev.priority||null;
+    const priLabel=pri?` [${pri.charAt(0).toUpperCase()+pri.slice(1)}]`:'';
+    const typeLabel=ev.type==='task'?'Task':'Meeting';
+    const dateStr=ev.date?(new Date(ev.date+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})):'';
+    sendPushNotification(
+      `${isMandatory?'⚠️ Mandatory ':''}${typeLabel}${priLabel}: ${ev.title}`,
+      `${dateStr}${ev.time?' at '+ev.time:''} — You have been invited.`
+    );
+  });
 }
 
 // ── Auth ───────────────────────────────────────────────────────────────────
@@ -905,7 +945,7 @@ window.showPage=(page)=>{
   currentPage=page;
   ['home','calendar','profile','admin','dashboard'].forEach(p=>{
     document.getElementById(`page-${p}`)?.classList.toggle('active',p===page);
-    const nid=p==='calendar'?'nav-cal':p==='admin'?'nav-admin':`nav-${p}`;
+    const nid=p==='calendar'?'nav-cal':p==='admin'?'nav-admin':p==='dashboard'?'nav-dash':`nav-${p}`;
     document.getElementById(nid)?.classList.toggle('active',p===page);
   });
   document.getElementById('cal-topbar-center').style.display=page==='calendar'?'flex':'none';
@@ -1152,20 +1192,7 @@ function renderHomePage(){
   const h=new Date().getHours();
   document.getElementById('home-greeting').textContent=(h<12?'Good morning':h<17?'Good afternoon':'Good evening')+`, ${cu?.displayName?.split(' ')[0]||'there'}!`;
   loadAbsenceCount();
-  // Bell notification
-  const myUidBell=cu?.uid;
-  const pendingCount=events.filter(e=>{
-    if(e.completed)return false;
-    const ppl=e.type==='task'?e.assignees:e.invitees;
-    if(!ppl)return false;
-    const me=ppl.find(p=>p.uid===myUidBell);
-    if(!me)return false;
-    return !(e.rsvp||{})[myUidBell];
-  }).length;
-  const bellBtn=document.getElementById('bell-btn');
-  const bellBadge=document.getElementById('bell-badge');
-  if(bellBtn){bellBtn.classList.toggle('ringing',pendingCount>0);}
-  if(bellBadge){bellBadge.style.display=pendingCount>0?'flex':'none';bellBadge.textContent=pendingCount;}
+
 
   // Role display
   const roleRow=document.getElementById('home-role-row');
@@ -1350,7 +1377,7 @@ function renderViewPeople(){
     const mgrRow=ev.taskManagerUid?ppl.find(p=>p.uid===ev.taskManagerUid):null;
     if(mgrRow){
       const row=document.createElement('div');row.className='view-invitee-row';
-      row.innerHTML=`<span style="font-size:9px;font-weight:700;color:var(--accent2);background:var(--accent-dim);border-radius:5px;padding:2px 7px;flex-shrink:0">MANAGER</span><span style="color:var(--text);font-weight:600">${mgrRow.name||mgrRow.displayName||''}</span><span style="color:var(--muted);font-size:10px;flex:1">${mgrRow.email||''}</span>`;
+      row.innerHTML=`<span style="font-size:9px;font-weight:700;color:var(--accent2);background:var(--accent-dim);border-radius:5px;padding:2px 7px;flex-shrink:0">MANAGER</span><span style="color:var(--text);font-weight:600">${mgrRow.name||mgrRow.displayName||''}</span>`;
       el.appendChild(row);
     }
     // Other assignees
@@ -1359,7 +1386,7 @@ function renderViewPeople(){
       const lbl=document.createElement('div');lbl.style.cssText='font-size:9px;font-weight:700;color:var(--muted2);letter-spacing:.6px;text-transform:uppercase;margin:8px 0 5px';lbl.textContent='Assignees';el.appendChild(lbl);
       others.forEach(p=>{
         const row=document.createElement('div');row.className='view-invitee-row';
-        row.innerHTML=`<span style="color:var(--text);font-weight:600;min-width:70px">${p.name||p.displayName||''}</span><span style="color:var(--muted);font-size:10px;flex:1">${p.email||''}</span>`;
+        row.innerHTML=`<span style="color:var(--text);font-weight:600">${p.name||p.displayName||''}</span>`;
         el.appendChild(row);
       });
     }
@@ -1398,7 +1425,7 @@ function renderViewPeople(){
       if(!ux)adminBtn=`<button onclick="openUnexcused('${ev.id}','${p.uid}','${(p.name||p.displayName||'').replace(/'/g,"\\'")}','mark');event.stopPropagation()" style="padding:2px 7px;font-size:9px;font-weight:600;border-radius:5px;border:1px solid rgba(239,68,68,.3);background:var(--red-dim);color:var(--red);cursor:pointer;font-family:var(--font)">Mark Unexcused</button>`;
       else adminBtn=`<button onclick="openUnexcused('${ev.id}','${p.uid}','${(p.name||p.displayName||'').replace(/'/g,"\\'")}','reverse');event.stopPropagation()" style="padding:2px 7px;font-size:9px;font-weight:600;border-radius:5px;border:1px solid rgba(34,197,94,.3);background:var(--green-dim);color:var(--green);cursor:pointer;font-family:var(--font)">Reverse</button>`;
     }
-    row.innerHTML=`<span style="color:var(--text);font-weight:600;min-width:70px">${p.name||p.displayName||''}</span><span style="color:var(--muted);font-size:10px;flex:1">${p.email||''}</span>${attBadge} ${rsvpB} ${uxB} ${adminBtn}${hasDr?`<div class="decline-reason-box"><strong style="color:var(--red)">Reason:</strong> ${dr}</div>`:''}`;
+    row.innerHTML=`<span style="color:var(--text);font-weight:600;min-width:90px">${p.name||p.displayName||''}</span>${attBadge} ${rsvpB} ${uxB} ${adminBtn}${hasDr?`<div class="decline-reason-box"><strong style="color:var(--red)">Reason:</strong> ${dr}</div>`:''}`;
     if(hasDr)row.onclick=()=>row.querySelector('.decline-reason-box').classList.toggle('open');
     el.appendChild(row);
   });
@@ -1508,7 +1535,7 @@ async function loadCalMembers(calId){
   const ms=document.getElementById('ev-task-manager');
   if(ms){
     ms.innerHTML='<option value="">— Select manager (optional) —</option>';
-    calMembers.forEach(m=>{const o=document.createElement('option');o.value=m.uid;o.textContent=m.displayName+(m.email?` (${m.email})`:'');if(m.uid===taskManagerUid)o.selected=true;ms.appendChild(o);});
+    calMembers.forEach(m=>{const o=document.createElement('option');o.value=m.uid;o.textContent=m.displayName;if(m.uid===taskManagerUid)o.selected=true;ms.appendChild(o);});
   }
   // Populate subsection selector
   const ss=document.getElementById('ev-task-subsection');
@@ -1573,7 +1600,7 @@ function renderChecklists(){
       const isChk=!!existing;const att=existing?.attendance||'mandatory';
       const isSelf=m.uid===cu.uid;
       const row=document.createElement('div');row.className='member-check-row';
-      row.innerHTML=`<input type="checkbox" id="chk-${container.id}-${m.uid}" ${isChk?'checked':''} onchange="toggleInv('${m.uid}')"/><div style="flex:1"><div class="member-check-name">${m.displayName}${isSelf?' <span style="font-size:9px;color:var(--accent2)">(you)</span>':''}${m.subsection?` <span style="font-size:9px;color:var(--accent2);background:var(--accent-dim);border-radius:4px;padding:1px 5px">${m.subsection}</span>`:''}</div>${m.email&&!isSelf?`<div class="member-check-email">${m.email}</div>`:''}</div>${isChk?`<button class="member-check-att ${att}" onclick="toggleInvAtt('${m.uid}');event.stopPropagation()">${att==='mandatory'?'Mand.':'Opt.'}</button>`:''}`;
+      row.innerHTML=`<input type="checkbox" id="chk-${container.id}-${m.uid}" ${isChk?'checked':''} onchange="toggleInv('${m.uid}')"/><div style="flex:1"><div class="member-check-name">${m.displayName}${isSelf?' <span style="font-size:9px;color:var(--accent2)">(you)</span>':''}${m.subsection?` <span style="font-size:9px;color:var(--accent2);background:var(--accent-dim);border-radius:4px;padding:1px 5px">${m.subsection}</span>`:''}</div></div>${isChk?`<button class="member-check-att ${att}" onclick="toggleInvAtt('${m.uid}');event.stopPropagation()">${att==='mandatory'?'Mand.':'Opt.'}</button>`:''}`;
       row.onclick=e=>{if(e.target.tagName==='BUTTON')return;document.getElementById(`chk-${container.id}-${m.uid}`)?.click();};
       container.appendChild(row);
     });
@@ -1641,12 +1668,13 @@ function renderDashboard(){
     return e.date>=wsStr&&e.date<=weStr;
   });
 
-  // Build tab bar: All + each subsection
+  // Build tab bar: All + each subsection + Team
   const tabBar=document.getElementById('dash-tab-bar');tabBar.innerHTML='';
-  const tabs=['all',...subs];
+  const tabs=['all',...subs,'__team'];
   tabs.forEach(t=>{
     const btn=document.createElement('button');btn.className='dash-tab'+(dashSubTab===t?' active':'');
     if(t==='all'){btn.textContent='All';}
+    else if(t==='__team'){btn.textContent='👥 Team';}
     else{
       const col=subColor(t,calId);
       btn.innerHTML=`<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${col};margin-right:5px;flex-shrink:0"></span>${t}`;
@@ -1687,8 +1715,14 @@ function renderDashboard(){
     });
   });
 
+  // Team roster view
+  if(dashSubTab==='__team'){
+    renderTeamRoster(calId);
+    return;
+  }
+
   // Render columns
-  const colsEl=document.getElementById('dash-columns');colsEl.innerHTML='';
+  const colsEl=document.getElementById('dash-columns');colsEl.innerHTML='';colsEl.className='dash-columns';
 
   if(dashSubTab==='all'){
     const colList=subs.length>0?[...subs,'']:[''];
@@ -1720,6 +1754,145 @@ function renderDashboard(){
     });
   }
 }
+
+async function renderTeamRoster(calId){
+  const colsEl=document.getElementById('dash-columns');
+  colsEl.className='roster-grid';
+  colsEl.innerHTML='<div style="font-size:12px;color:var(--muted2);padding:8px">Loading team…</div>';
+  // Get all members of this calendar
+  const allCals=[...calendars,...sharedCalendars];
+  const cal=allCals.find(c=>c.id===calId);
+  const calRoles=cal?.roles||{};
+  // owner
+  const ownerSnap=await getDoc(doc(db,'users',cal?.uid||'x'));
+  const memberMap={};
+  if(ownerSnap.exists())memberMap[cal.uid]={uid:cal.uid,...ownerSnap.data()};
+  // joined members
+  const snap=await getDocs(query(collection(db,'users'),where('joinedCalendars','array-contains',calId)));
+  snap.docs.forEach(d=>{memberMap[d.id]={uid:d.id,...d.data()};});
+  const members=Object.values(memberMap);
+  colsEl.innerHTML='';
+  if(!members.length){colsEl.innerHTML='<div style="padding:24px;color:var(--muted2);font-size:13px">No members yet.</div>';return;}
+  members.forEach(m=>{
+    const role=calRoles[m.uid]||null;
+    const sub=m[`subsection_${calId}`]||'';
+    const card=document.createElement('div');card.className='member-card';
+    const char=(m.displayName||'?').charAt(0).toUpperCase();
+    card.innerHTML=`
+      <div class="member-avatar">${m.pfpUrl?`<img src="${m.pfpUrl}"/>`:`<span>${char}</span>`}</div>
+      <div style="flex:1;min-width:0">
+        <div class="member-name">${m.displayName||'User'}</div>
+        <div class="member-sub">${role?`<span class="role-badge" style="font-size:8px">${role}</span> `:''} ${sub?`<span class="subsection-tag">${sub}</span>`:''}</div>
+      </div>
+      <div style="font-size:10px;color:var(--muted2)">${(m.unexcusedCount||0)>0?`<span style="color:var(--red);font-weight:700">${m.unexcusedCount} unexcused</span>`:''}</div>
+    `;
+    card.onclick=()=>openMemberModal(m,calId,calRoles);
+    colsEl.appendChild(card);
+  });
+  // reset grid columns after roster use
+  colsEl.className='roster-grid';
+}
+
+async function openMemberModal(m,calId,calRoles){
+  const el=document.getElementById('member-modal-content');
+  const char=(m.displayName||'?').charAt(0).toUpperCase();
+  const role=calRoles[m.uid]||null;
+  const sub=m[`subsection_${calId}`]||'';
+  const isAdm=isAdmin(calId);
+  const unexcused=m.unexcusedCount||0;
+
+  // Find their meetings and tasks
+  const myMeetings=events.filter(e=>{
+    if(e.type!=='meeting'||e.completed)return false;
+    if(e.calendarId!==calId&&e.sharedCalId!==calId)return false;
+    return (e.invitees||[]).some(p=>p.uid===m.uid)||e.uid===m.uid;
+  }).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,8);
+
+  const myTasks=events.filter(e=>{
+    if(e.type!=='task')return false;
+    if(e.calendarId!==calId&&e.sharedCalId!==calId)return false;
+    return (e.assignees||[]).some(a=>a.uid===m.uid)||e.taskManagerUid===m.uid;
+  }).sort((a,b)=>a.date.localeCompare(b.date));
+
+  const priColor=(pri)=>pri==='critical'?'var(--red)':pri==='important'?'var(--amber)':'var(--green)';
+
+  el.innerHTML=`
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px">
+      <div class="member-avatar" style="width:48px;height:48px;font-size:18px">${m.pfpUrl?`<img src="${m.pfpUrl}"/>`:`<span>${char}</span>`}</div>
+      <div>
+        <div style="font-size:18px;font-weight:700">${m.displayName||'User'}</div>
+        <div style="margin-top:3px;display:flex;gap:5px;flex-wrap:wrap">
+          ${role?`<span class="role-badge">${role}</span>`:''}
+          ${sub?`<span class="subsection-tag">${sub}</span>`:''}
+          ${unexcused>0?`<span style="font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;background:var(--red-dim);color:var(--red)">${unexcused} unexcused absence${unexcused!==1?'s':''}</span>`:''}
+        </div>
+      </div>
+      ${isAdm?`<div style="margin-left:auto;display:flex;gap:6px">
+        <button onclick="addMemberAbsence('${m.uid}','${(m.displayName||'').replace(/'/g,"\'")}')" style="padding:5px 11px;font-size:10px;font-weight:600;border-radius:6px;border:1px solid rgba(239,68,68,.3);background:var(--red-dim);color:var(--red);cursor:pointer;font-family:var(--font)">+ Absence</button>
+        ${unexcused>0?`<button onclick="removeMemberAbsence('${m.uid}','${(m.displayName||'').replace(/'/g,"\'")}')" style="padding:5px 11px;font-size:10px;font-weight:600;border-radius:6px;border:1px solid rgba(34,197,94,.3);background:var(--green-dim);color:var(--green);cursor:pointer;font-family:var(--font)">- Absence</button>`:''}
+      </div>`:''}
+    </div>
+    <div class="modal-section-label">Meetings</div>
+    <div id="mm-meetings">${myMeetings.length?'':'<div style="font-size:12px;color:var(--muted2)">No upcoming meetings</div>'}</div>
+    <div class="modal-section-label">Tasks</div>
+    <div id="mm-tasks">${myTasks.length?'':'<div style="font-size:12px;color:var(--muted2)">No tasks</div>'}</div>
+  `;
+
+  // Meetings
+  const mmEl=el.querySelector('#mm-meetings');
+  myMeetings.forEach(ev=>{
+    const d=new Date(ev.date+'T12:00:00');
+    const rsvp=(ev.rsvp||{})[m.uid];
+    const rsvpColor=rsvp==='accepted'?'var(--green)':rsvp==='declined'?'var(--red)':'var(--muted2)';
+    const rsvpLabel=rsvp==='accepted'?'✓':rsvp==='declined'?'✗':'?';
+    const row=document.createElement('div');row.className='member-ev-row';
+    row.style.borderLeft=`3px solid ${ev.color||'var(--accent2)'}`;
+    row.innerHTML=`<div style="flex:1"><div style="font-size:12px;font-weight:600;color:var(--text)">${ev.title}</div><div style="font-size:10px;color:var(--muted)">${d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}${ev.time?' · '+ev.time:''}</div></div><span style="font-size:11px;font-weight:700;color:${rsvpColor}">${rsvpLabel}</span>`;
+    row.onclick=()=>{closeModal('member-modal');openViewEvent(ev);};
+    mmEl.appendChild(row);
+  });
+
+  // Tasks
+  const mtEl=el.querySelector('#mm-tasks');
+  myTasks.forEach(ev=>{
+    const d=new Date(ev.date+'T12:00:00');
+    const pri=ev.priority||'optional';
+    const isMgr=ev.taskManagerUid===m.uid;
+    const row=document.createElement('div');row.className='member-ev-row';
+    row.style.borderLeft=`3px solid ${priColor(pri)}`;
+    row.innerHTML=`<div style="flex:1"><div style="font-size:12px;font-weight:600;color:var(--text)">${ev.title}${isMgr?' <span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;background:var(--accent-dim);color:var(--accent2)">MGR</span>':''}</div><div style="font-size:10px;color:var(--muted)">${d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}${ev.taskSubsection?' · '+ev.taskSubsection:''}</div></div><span class="priority-badge priority-${pri}" style="font-size:8px">${pri.charAt(0).toUpperCase()+pri.slice(1)}</span>`;
+    row.onclick=()=>{closeModal('member-modal');openViewEvent(ev);};
+    mtEl.appendChild(row);
+  });
+
+  document.getElementById('member-modal').classList.add('open');
+}
+
+window.addMemberAbsence=async(uid,name)=>{
+  if(!confirm(`Add 1 unexcused absence to ${name}?`))return;
+  const us=await getDoc(doc(db,'users',uid));
+  await updateDoc(doc(db,'users',uid),{unexcusedCount:(us.data()?.unexcusedCount||0)+1});
+  toast(`Absence added for ${name}`);
+  // refresh modal
+  const updatedSnap=await getDoc(doc(db,'users',uid));
+  const calId=document.getElementById('dash-cal-select').value;
+  const allCals=[...calendars,...sharedCalendars];
+  const cal=allCals.find(c=>c.id===calId);
+  openMemberModal({uid,...updatedSnap.data()},calId,cal?.roles||{});
+};
+
+window.removeMemberAbsence=async(uid,name)=>{
+  if(!confirm(`Remove 1 unexcused absence from ${name}?`))return;
+  const us=await getDoc(doc(db,'users',uid));
+  const cur=us.data()?.unexcusedCount||0;
+  await updateDoc(doc(db,'users',uid),{unexcusedCount:Math.max(0,cur-1)});
+  toast(`Absence removed for ${name}`);
+  const updatedSnap=await getDoc(doc(db,'users',uid));
+  const calId=document.getElementById('dash-cal-select').value;
+  const allCals=[...calendars,...sharedCalendars];
+  const cal=allCals.find(c=>c.id===calId);
+  openMemberModal({uid,...updatedSnap.data()},calId,cal?.roles||{});
+};
 
 function buildDashTaskItem(t,container,calId){
   const pri=t.priority||'optional';

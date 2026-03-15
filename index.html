@@ -2645,35 +2645,28 @@ async function renderAdminPage(){
     myRole=usnap.data()?.role||null;
   }catch(e){console.error(e);}
 
-  // Find all calendars (own + shared) where this user has a role
-  // For shared cals: fetch the calendar doc directly to get fresh roles
-  const allCals=[...calendars,...sharedCalendars];
-  const leadCals=[];
-  for(const cal of allCals){
-    // Check cached roles first
-    let role=(cal.roles||{})[cu?.uid]||null;
-    // If not found in cache, fetch directly from Firestore
-    if(!role){
-      try{
-        const freshCal=await getDoc(doc(db,'calendars',cal.id));
-        if(freshCal.exists()){
-          const freshRoles=freshCal.data().roles||{};
-          const freshSubs=freshCal.data().subsections||[];
-          role=freshRoles[cu.uid]||null;
-          // Update cache
-          if(calendars.find(c=>c.id===cal.id)){
-            const idx=calendars.findIndex(c=>c.id===cal.id);
-            if(idx>=0){calendars[idx].roles=freshRoles;calendars[idx].subsections=freshSubs;}
-          }
-          if(sharedCalendars.find(c=>c.id===cal.id)){
-            const idx=sharedCalendars.findIndex(c=>c.id===cal.id);
-            if(idx>=0){sharedCalendars[idx].roles=freshRoles;sharedCalendars[idx].subsections=freshSubs;}
-          }
-        }
-      }catch(e){console.error(e);}
-    }
-    if(role)leadCals.push(cal);
+  // Fetch ALL calendars fresh from Firestore — own + joined
+  const allCalIds=new Set([
+    ...calendars.map(c=>c.id),
+    ...sharedCalendars.map(c=>c.id)
+  ]);
+  for(const calId of allCalIds){
+    try{
+      const freshCal=await getDoc(doc(db,'calendars',calId));
+      if(!freshCal.exists())continue;
+      const fd=freshCal.data();
+      const ownIdx=calendars.findIndex(c=>c.id===calId);
+      if(ownIdx>=0){calendars[ownIdx].roles=fd.roles||{};calendars[ownIdx].subsections=fd.subsections||[];}
+      const shIdx=sharedCalendars.findIndex(c=>c.id===calId);
+      if(shIdx>=0){sharedCalendars[shIdx].roles=fd.roles||{};sharedCalendars[shIdx].subsections=fd.subsections||[];}
+    }catch(e){console.error('Cal fetch error:',e);}
   }
+  // Now build allCals with fresh data
+  const allCals=[...calendars,...sharedCalendars];
+  const leadCals=allCals.filter(cal=>{
+    const myRolesInCal=getRolesForUid(cal.roles||{},cu?.uid);
+    return myRolesInCal.length>0;
+  });
 
   if(!leadCals.length){
     document.getElementById('admin-members-list').innerHTML='<div style="font-size:12px;color:var(--muted2)">You have no leadership role assigned. Ask your Captain to assign you a role in the Admin panel.</div>';
@@ -2749,7 +2742,7 @@ async function renderAdminPage(){
   if(!isCaptain(adminCal.id)){
     rolesEl.innerHTML='<div style="font-size:11px;color:var(--muted2)">Only the Captain can assign leadership roles.</div>';
   } else {
-    LEADER_ROLES.forEach(role=>{
+    LEADER_ROLES.filter(r=>r!=='Admin').forEach(role=>{
       // Find first holder of this role
       const currentHolderUid=Object.keys(calRoles).find(uid=>hasRole(calRoles,uid,role))||null;
       const currentHolder=currentHolderUid;

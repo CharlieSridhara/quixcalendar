@@ -1181,9 +1181,9 @@ function getNow(){
 }
 function getTodayStr(){
   const n=getNow();
-  const y=n.getFullYear();
-  const m=String(n.getMonth()+1).padStart(2,'0');
-  const d=String(n.getDate()).padStart(2,'0');
+  const y=n.getUTCFullYear();
+  const m=String(n.getUTCMonth()+1).padStart(2,'0');
+  const d=String(n.getUTCDate()).padStart(2,'0');
   return `${y}-${m}-${d}`;
 }
 function fmt12(t){
@@ -1620,7 +1620,7 @@ function renderWeekView(){
       const half=document.createElement('div');half.className='week-half-line';half.style.top=`${h*H+30}px`;col.appendChild(half);
     }
     if(d.toDateString()===today.toDateString()){
-      const nl=document.createElement('div');nl.className='week-now-line';nl.style.top=`${((getNow().getHours()*60+getNow().getMinutes())/60)*H}px`;col.appendChild(nl);
+      const nl=document.createElement('div');nl.className='week-now-line';nl.style.top=(()=>{const _t=getNow();return `${((_t.getUTCHours()*60+_t.getUTCMinutes())/60)*H}px`})();col.appendChild(nl);
     }
     col.addEventListener('click',e=>{
       if(e.target!==col)return;
@@ -1680,9 +1680,8 @@ function daysUntil(ds){return(new Date(ds+'T12:00:00')-getNow())/(864e5);}
 const priOrder={critical:0,important:1,optional:2};
 
 function renderHomePage(){
-  const h=getNow().getHours();
-  const _n=getNow();
-  document.getElementById('home-greeting').textContent=(h<12?'Good morning':h<17?'Good afternoon':'Good evening')+`, ${cu?.displayName?.split(' ')[0]||'there'}! [${_n.getHours()}:${String(_n.getMinutes()).padStart(2,'0')} UTC-7 | browser: ${new Date().getHours()}:${String(new Date().getMinutes()).padStart(2,'0')}]`;
+  const h=getNow().getUTCHours();
+  document.getElementById('home-greeting').textContent=(h<12?'Good morning':h<17?'Good afternoon':'Good evening')+`, ${cu?.displayName?.split(' ')[0]||'there'}!`;
   loadAbsenceCount();
   renderTodayStrip();
   autoDeclineStaleInvites();

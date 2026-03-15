@@ -2750,7 +2750,6 @@ async function renderAdminPage(){
     rolesEl.innerHTML='<div style="font-size:11px;color:var(--muted2)">Only the Captain can assign leadership roles.</div>';
   } else {
     LEADER_ROLES.forEach(role=>{
-      const currentHolder=Object.entries(calRoles).find(([,v])=>hasRole(calRoles,v===undefined?'':Object.keys(calRoles).find(k=>calRoles[k]===v)||'',role))||null;
       // Find first holder of this role
       const currentHolderUid=Object.keys(calRoles).find(uid=>hasRole(calRoles,uid,role))||null;
       const currentHolder=currentHolderUid;

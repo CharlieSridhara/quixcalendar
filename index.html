@@ -1175,12 +1175,9 @@ setPersistence(auth,browserLocalPersistence).catch(e=>console.error('Persistence
 // Hardcoded UTC-7 (PDT, March–November) / UTC-8 (PST, Nov–March)
 // Currently PDT (UTC-7) since it is past March 8 2026
 function getNow(){
-  // Hardcode PDT (UTC-7) for March-November, PST (UTC-8) otherwise
-  const now=new Date();
-  const mo=now.getUTCMonth(); // 0=Jan
-  const isPDT=(mo>=2&&mo<=9)||(mo===10&&now.getUTCDate()<7); // March-Oct approx
-  const laMs=now.getTime()-(isPDT?7:8)*3600*1000;
-  return new Date(laMs);
+  // Simple: subtract 7 hours from UTC (PDT, valid March-November)
+  // new Date().getTime() is ALWAYS UTC regardless of system timezone
+  return new Date(Date.now() - 7 * 60 * 60 * 1000);
 }
 function getTodayStr(){
   const n=getNow();
@@ -1188,6 +1185,13 @@ function getTodayStr(){
   const m=String(n.getMonth()+1).padStart(2,'0');
   const d=String(n.getDate()).padStart(2,'0');
   return `${y}-${m}-${d}`;
+}
+function fmt12(t){
+  if(!t)return '';
+  const [h,m]=t.split(':').map(Number);
+  const ampm=h>=12?'PM':'AM';
+  const hr=h%12||12;
+  return `${hr}:${String(m).padStart(2,'0')} ${ampm}`;
 }
 
 // ── Constants ──────────────────────────────────────────────────────────────
@@ -1543,7 +1547,7 @@ function renderCalendar(){
       const pill=document.createElement('div');pill.className=`event-pill${ev.completed?' completed':''}`;
       pill.style.background=ev.completed?'rgba(148,163,184,0.22)':color+'28';
       pill.style.color=ev.completed?'#94a3b8':color;
-      pill.innerHTML=`<div class="event-pill-dot" style="background:${ev.completed?'var(--muted2)':color}"></div>${ev.allDay?'':(ev.time?ev.time+' · ':'')}${ev.title}`;
+      pill.innerHTML=`<div class="event-pill-dot" style="background:${ev.completed?'var(--muted2)':color}"></div>${ev.allDay?'':(ev.time?fmt12(ev.time)+' · ':'')}${ev.title}`;
       pill.onclick=e=>{e.stopPropagation();openViewEvent(ev);};evd.appendChild(pill);
     });
     if(cev.length>3){const mo=document.createElement('div');mo.className='more-events';mo.textContent=`+${cev.length-3} more`;evd.appendChild(mo);}
@@ -1634,7 +1638,7 @@ function renderWeekView(){
       const blk=document.createElement('div');blk.className=`week-event-block${ev.completed?' completed':''}`;
       blk.style.top=`${(sm0/60)*H}px`;blk.style.height=`${Math.max(((em0-sm0)/60)*H,18)}px`;
       blk.style.background=color+'28';blk.style.color=color;blk.style.borderLeftColor=color;
-      blk.innerHTML=`<div class="week-event-title">${ev.title}</div><div class="week-event-time">${ev.time}${ev.timeEnd?'–'+ev.timeEnd:''}</div>`;
+      blk.innerHTML=`<div class="week-event-title">${ev.title}</div><div class="week-event-time">${fmt12(ev.time)}${ev.timeEnd?'–'+fmt12(ev.timeEnd):''}</div>`;
       blk.onclick=e=>{e.stopPropagation();openViewEvent(ev);};col.appendChild(blk);
     });
     wd.appendChild(col);
@@ -1677,9 +1681,11 @@ const priOrder={critical:0,important:1,optional:2};
 
 function renderHomePage(){
   const h=getNow().getHours();
-  document.getElementById('home-greeting').textContent=(h<12?'Good morning':h<17?'Good afternoon':'Good evening')+`, ${cu?.displayName?.split(' ')[0]||'there'}!`;
+  const _n=getNow();
+  document.getElementById('home-greeting').textContent=(h<12?'Good morning':h<17?'Good afternoon':'Good evening')+`, ${cu?.displayName?.split(' ')[0]||'there'}! [${_n.getHours()}:${String(_n.getMinutes()).padStart(2,'0')} UTC-7 | browser: ${new Date().getHours()}:${String(new Date().getMinutes()).padStart(2,'0')}]`;
   loadAbsenceCount();
   renderTodayStrip();
+  autoDeclineStaleInvites();
 
 
   // Role display
@@ -1701,7 +1707,20 @@ function renderHomePage(){
     const row=document.createElement('div');row.className='upcoming-row';
     const myRsvpU=(ev.rsvp||{})[myUid];
     const isInvitedU=(ev.invitees||[]).some(p=>p.uid===myUid||p.email===myEmail);
-    row.innerHTML=`<div class="upcoming-dot" style="background:${color}"></div><div style="flex:1"><div class="upcoming-title">${ev.title}</div><div class="upcoming-meta">${d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}${ev.time?' · '+ev.time:''}</div></div>${isInvitedU?`<div style="display:flex;gap:4px;flex-shrink:0">${myRsvpU==='accepted'?'<span style="font-size:10px;color:var(--green);font-weight:700;padding:3px 6px">✓ Going</span>':`<button class="btn-accept" style="font-size:9px;padding:3px 8px" onclick="event.stopPropagation();rsvpEvent('${ev.id}','accept')">Going</button>`}${myRsvpU!=='declined'?`<button class="btn-decline" style="font-size:9px;padding:3px 8px" onclick="event.stopPropagation();rsvpEvent('${ev.id}','decline')">Can't</button>`:''}</div>`:''}`;
+    const daysToEv=daysUntil(ev.date);
+    const lockedU=daysToEv>=0&&daysToEv<3;
+    let rsvpHtml='';
+    if(isInvitedU){
+      if(lockedU){
+        const lockedLabel=myRsvpU==='accepted'?'✓ Going':myRsvpU==='declined'?'✗ Declined':'🔒 Locked';
+        rsvpHtml=`<span style="font-size:9px;color:var(--muted2);padding:3px 7px;background:var(--bg4);border-radius:5px;white-space:nowrap">${lockedLabel}</span>`;
+      } else {
+        const goingBtn=myRsvpU==='accepted'?'<span style="font-size:10px;color:var(--green);font-weight:700;padding:3px 6px">✓ Going</span>':`<button class="btn-accept" style="font-size:9px;padding:3px 8px" onclick="event.stopPropagation();rsvpEvent('${ev.id}','accept')">Going</button>`;
+        const cantBtn=myRsvpU!=='declined'?`<button class="btn-decline" style="font-size:9px;padding:3px 8px" onclick="event.stopPropagation();rsvpEvent('${ev.id}','decline')">Can't</button>`:'';
+        rsvpHtml=`<div style="display:flex;gap:4px;flex-shrink:0">${goingBtn}${cantBtn}</div>`;
+      }
+    }
+    row.innerHTML=`<div class="upcoming-dot" style="background:${color}"></div><div style="flex:1"><div class="upcoming-title">${ev.title}</div><div class="upcoming-meta">${d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}${ev.time?' · '+fmt12(ev.time):''}</div></div>${rsvpHtml}`;
     row.onclick=()=>openViewEvent(ev);upEl.appendChild(row);
   });
 
@@ -1717,9 +1736,9 @@ function renderHomePage(){
     const ppl=e.invitees||[];
     const isInvited=ppl.some(p=>p.uid===myUid||p.email===myEmail);
     if(!isInvited)return false;
-    // Hide if already accepted
+    // Hide if already accepted or declined
     const rsvpStatus=(e.rsvp||{})[myUid];
-    if(rsvpStatus==='accepted')return false;
+    if(rsvpStatus==='accepted'||rsvpStatus==='declined')return false;
     _seenInvIds.add(e.id);
     return true;
   });
@@ -1737,7 +1756,7 @@ function renderHomePage(){
     if(rsvp==='accepted')statusHtml=`<div class="invite-actions"><span class="invite-status accepted">Accepted</span>${days3?`<button class="btn-decline" style="font-size:10px;padding:3px 9px" onclick="rsvpEvent('${ev.id}','decline')">Change</button>`:''}</div>`;
     else if(rsvp==='declined')statusHtml=`<div class="invite-actions"><span class="invite-status declined">Declined</span>${days3?`<button class="btn-accept" style="font-size:10px;padding:3px 9px" onclick="rsvpEvent('${ev.id}','accept')">Change</button>`:''}</div>`;
     else statusHtml=`<div class="invite-actions"><button class="btn-accept" onclick="rsvpEvent('${ev.id}','accept')">Accept</button><button class="btn-decline" onclick="rsvpEvent('${ev.id}','decline')">Decline</button></div>`;
-    card.innerHTML=`<div class="invite-card-title">${ev.title}</div><div class="invite-card-meta">${d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}${ev.time?' · '+ev.time:''}<br>${cal?.name||'Calendar'}${me?` · <span style="color:${me.attendance==='mandatory'?'var(--red)':'var(--green)'}">${me.attendance==='mandatory'?'Mandatory':'Optional'}</span>`:''}</div>${statusHtml}`;
+    card.innerHTML=`<div class="invite-card-title">${ev.title}</div><div class="invite-card-meta">${d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}${ev.time?' · '+fmt12(ev.time):''}<br>${cal?.name||'Calendar'}${me?` · <span style="color:${me.attendance==='mandatory'?'var(--red)':'var(--green)'}">${me.attendance==='mandatory'?'Mandatory':'Optional'}</span>`:''}</div>${statusHtml}`;
     invEl.appendChild(card);
   });
 
@@ -1794,7 +1813,7 @@ async function loadAbsenceCount(){
 // ── RSVP ──────────────────────────────────────────────────────────────────
 window.rsvpEvent=async(evId,action)=>{
   const ev=events.find(e=>e.id===evId);if(!ev)return;
-  // RSVP allowed anytime
+  if(daysUntil(ev.date)<3&&daysUntil(ev.date)>=0){toast('RSVP locked — within 3 days of event');return;}
   if(action==='decline'){
     declineTargetEvId=evId;
     document.getElementById('decline-reason').value=(ev.declineReasons||{})[cu.uid]||'';
@@ -1830,7 +1849,7 @@ function openViewEvent(ev){
   const dateObj=new Date(ev.date+'T12:00:00');
   document.getElementById('view-date').textContent=dateObj.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
   if(ev.allDay){document.getElementById('view-time').textContent='All day';document.getElementById('view-time-row').style.display='flex';}
-  else if(ev.time){let t=ev.time;if(ev.timeEnd)t+=` → ${ev.timeEnd}`;document.getElementById('view-time').textContent=t;document.getElementById('view-time-row').style.display='flex';}
+  else if(ev.time){let t=fmt12(ev.time);if(ev.timeEnd)t+=` → ${fmt12(ev.timeEnd)}`;document.getElementById('view-time').textContent=t;document.getElementById('view-time-row').style.display='flex';}
   else document.getElementById('view-time-row').style.display='none';
   document.getElementById('view-cal').textContent=cal?.name||'Calendar';
   if(ev.repeat&&ev.repeat!=='none'){document.getElementById('view-repeat').textContent=REPEAT_LABELS[ev.repeat]+(ev.repeatEnd?' until '+ev.repeatEnd:'');document.getElementById('view-repeat-row').style.display='flex';}
@@ -3034,7 +3053,7 @@ function renderTodayStrip(){
     const color=ev.type==='task'?(ev.priority==='critical'?'#ef4444':ev.priority==='important'?'#f59e0b':'#22c55e'):(ev.color||cal?.color||'#00b4ff');
     const pill=document.createElement('span');pill.className='today-event-pill';
     pill.style.background=color+'22';pill.style.color=color;
-    pill.textContent=(ev.time?ev.time+' ':'')+ev.title;
+    pill.textContent=(ev.time?fmt12(ev.time)+' ':'')+ev.title;
     pill.onclick=()=>openViewEvent(ev);
     pillsEl.appendChild(pill);
   });
@@ -3042,6 +3061,36 @@ function renderTodayStrip(){
 }
 
 // ── Search ──────────────────────────────────────────────────────────────────
+// ── Auto-decline stale invites ──────────────────────────────────────────────
+async function autoDeclineStaleInvites(){
+  const myUid=cu?.uid;const myEmail=cu?.email;
+  if(!myUid)return;
+  const stale=events.filter(e=>{
+    if(e.type!=='meeting'||e.completed)return false;
+    const ppl=e.invitees||[];
+    const isInvited=ppl.some(p=>p.uid===myUid||p.email===myEmail);
+    if(!isInvited)return false;
+    const rsvp=(e.rsvp||{})[myUid];
+    if(rsvp)return false; // already responded
+    // Auto-decline if event is more than 3 days away but invitation is >3 days old
+    const createdAt=e.createdAt?.toDate?.()||new Date(e.createdAt||0);
+    const daysSinceCreated=(getNow()-createdAt)/(864e5);
+    return daysSinceCreated>3&&daysUntil(e.date)>0; // invite ignored for 3+ days
+  });
+  for(const ev of stale){
+    try{
+      const newRsvp={...(ev.rsvp||{}),[myUid]:'declined'};
+      const newDeclineReasons={...(ev.declineReasons||{}),[myUid]:'Auto-declined: invitation not checked within 3 days (unexcused absence)'};
+      await updateDoc(doc(db,'events',ev.id),{rsvp:newRsvp,declineReasons:newDeclineReasons});
+      // Add unexcused absence
+      const uref=doc(db,'users',myUid);
+      const usnap=await getDoc(uref);
+      const cur=usnap.data()?.unexcusedCount||0;
+      await updateDoc(uref,{unexcusedCount:cur+1});
+    }catch(e){console.error('Auto-decline error:',e);}
+  }
+}
+
 // ── In-app notification toast ──────────────────────────────────────────────
 function showInAppNotif(msg){
   const el=document.createElement('div');

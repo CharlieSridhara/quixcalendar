@@ -59,7 +59,7 @@ body.light-mode{
 .theme-toggle.notif-active::after{transform:translateX(16px);background:var(--accent2)}
 body.light-mode .theme-toggle{background:var(--accent-dim)}
 body.light-mode .theme-toggle::after{transform:translateX(16px);background:var(--accent2)}
-body.light-mode .topbar{display:flex;align-items:center;padding:0 20px;height:56px;border-bottom:1px solid var(--border);background:var(--topbar-bg);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);flex-shrink:0;position:sticky;top:0;z-index:50;transition:background .3s;position:relative}
+body.light-mode .topbar{border-bottom-color:rgba(30,50,100,0.1);box-shadow:0 1px 12px rgba(20,40,80,0.06)}
 body.light-mode .sidebar{border-right-color:rgba(30,50,100,0.1)}
 body.light-mode .cal-cell:hover{background:rgba(0,149,232,0.05)}
 body.light-mode .modal{box-shadow:0 16px 64px rgba(20,40,80,0.18)}
@@ -103,13 +103,13 @@ body.light-mode::before{background:radial-gradient(ellipse 60% 40% at 20% -10%,r
 .auth-error{background:var(--red-dim);border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:10px 13px;font-size:13px;color:var(--red);margin-bottom:14px;display:none}
 #app-screen{display:none;height:100vh;flex-direction:column}
 #app-screen.visible{display:flex}
-.topbar{display:flex;align-items:center;padding:0 20px;height:56px;position:sticky;top:0;z-index:50;border-bottom:1px solid var(--border);background:var(--topbar-bg);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);flex-shrink:0;gap:0;position:sticky;top:0;z-index:50;transition:background .3s;position:sticky}
-.topbar-logo{display:flex;align-items:center;gap:9px;cursor:pointer;flex-shrink:0;width:180px}
+.topbar{display:flex;align-items:center;padding:0 20px;height:56px;border-bottom:1px solid var(--border);background:var(--topbar-bg);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);flex-shrink:0;position:sticky;top:0;z-index:50;transition:background .3s}
+.topbar-logo{display:flex;align-items:center;gap:9px;cursor:pointer;flex-shrink:0}
 .topbar-logo-text{font-size:15px;font-weight:700;letter-spacing:-.4px;white-space:nowrap}
 .topbar-logo-text span{background:linear-gradient(130deg,var(--accent2) 0%,var(--accent3) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .topbar-team-badge{font-size:9px;font-weight:700;color:var(--muted);letter-spacing:1.2px;text-transform:uppercase;background:var(--bg4);border:1px solid var(--border);border-radius:4px;padding:2px 6px}
 .topbar-center{display:none}
-.topbar-right{display:flex;align-items:center;gap:6px;flex-shrink:0;white-space:nowrap;width:180px;justify-content:flex-end}
+.topbar-right{display:flex;align-items:center;gap:6px;flex-shrink:0;white-space:nowrap}
 .topbar-nav-btn{background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--muted);cursor:pointer;padding:5px 10px;font-size:14px;transition:all .2s}
 .topbar-nav-btn:hover{border-color:var(--border3);color:var(--text);background:var(--glass2)}
 .topbar-month{font-size:14px;font-weight:600;min-width:120px;text-align:center;white-space:nowrap}
@@ -117,8 +117,8 @@ body.light-mode::before{background:radial-gradient(ellipse 60% 40% at 20% -10%,r
 .view-btn{padding:5px 13px;font-family:var(--font);font-size:11px;font-weight:600;background:transparent;border:none;color:var(--muted);cursor:pointer;transition:all .2s}
 .view-btn.active{background:var(--bg5);color:var(--text);box-shadow:inset 0 1px 0 rgba(255,255,255,0.06)}
 .view-btn+.view-btn{border-left:1px solid var(--border)}
-.nav-pill{display:flex;gap:2px;background:var(--bg3);border:1px solid var(--border);border-radius:11px;padding:3px;flex-shrink:0}
-.nav-pill-btn{padding:5px 14px;font-size:11px;font-weight:600;border-radius:8px;border:1px solid transparent;background:transparent;color:var(--muted);cursor:pointer;font-family:var(--font);transition:color .2s,background .2s,box-shadow .2s;white-space:nowrap;letter-spacing:.02em;min-width:72px;text-align:center;flex-shrink:0}
+.nav-pill{display:flex;gap:2px;background:var(--bg3);border:1px solid var(--border);border-radius:11px;padding:3px}
+.nav-pill-btn{padding:5px 12px;font-size:11px;font-weight:600;border-radius:8px;border:1px solid transparent;background:transparent;color:var(--muted);cursor:pointer;font-family:var(--font);transition:color .2s,background .2s,box-shadow .2s;white-space:nowrap;letter-spacing:.01em;text-align:center}
 .nav-pill-btn.active{background:linear-gradient(135deg,var(--accent-dim2),var(--accent-dim));color:var(--accent2);border-color:var(--accent-border);box-shadow:0 2px 10px var(--accent-glow)}
 .user-pill{display:flex;align-items:center;gap:7px;padding:3px 11px 3px 3px;background:var(--bg3);border:1px solid var(--border);border-radius:20px;cursor:pointer;font-size:12px;color:var(--muted);position:relative;transition:all .2s}
 .user-pill:hover{border-color:var(--accent-border);background:var(--bg4)}
@@ -545,31 +545,28 @@ textarea.form-input{resize:vertical;min-height:68px}
 <!-- APP -->
 <div id="app-screen">
   <div class="topbar">
-    <div class="topbar-logo" onclick="showPage('home')">
+    <!-- LEFT: Logo — fixed width so center never shifts -->
+    <div class="topbar-logo" onclick="showPage('home')" style="flex:1">
       <img src="https://quixilver8404.org/logo_old5.png" alt="Quixilver" style="width:26px;height:26px;object-fit:contain"/>
       <div><div class="topbar-logo-text">Quixil<span>ver</span></div></div>
       <span class="topbar-team-badge">8404</span>
     </div>
-    <!-- NAV centered absolutely so it NEVER shifts -->
-    <div style="position:absolute;left:50%;transform:translateX(-50%)">
-      <div class="nav-pill">
-        <button class="nav-pill-btn active" id="nav-home" onclick="showPage('home')">Home</button>
-        <button class="nav-pill-btn" id="nav-cal" onclick="showPage('calendar')">Calendar</button>
-        <button class="nav-pill-btn" id="nav-dash" onclick="showPage('dashboard')">Dashboard</button>
-        <button class="nav-pill-btn" id="nav-admin" onclick="showPage('admin')" style="display:none">Admin</button>
-        <button class="nav-pill-btn" id="nav-profile" onclick="showPage('profile')">Profile</button>
-      </div>
+    <!-- CENTER: Nav pill — does not grow/shrink -->
+    <div class="nav-pill" style="flex-shrink:0">
+      <button class="nav-pill-btn active" id="nav-home" onclick="showPage('home')">Home</button>
+      <button class="nav-pill-btn" id="nav-cal" onclick="showPage('calendar')">Calendar</button>
+      <button class="nav-pill-btn" id="nav-dash" onclick="showPage('dashboard')">Dashboard</button>
+      <button class="nav-pill-btn" id="nav-admin" onclick="showPage('admin')" style="display:none">Admin</button>
+      <button class="nav-pill-btn" id="nav-profile" onclick="showPage('profile')">Profile</button>
     </div>
-    <div class="topbar-right">
-      <button class="btn-icon" onclick="openSearch()" title="Search (⌘K)" style="font-size:13px;padding:6px 10px">⌘K</button>
+    <!-- RIGHT: Controls — flex:1 + justify-end to mirror left side -->
+    <div class="topbar-right" style="flex:1;justify-content:flex-end">
+      <button class="btn-icon" onclick="openSearch()" title="Search (⌘K)" style="font-size:12px;padding:5px 10px;font-weight:600">⌘K</button>
       <button class="btn-icon" id="share-btn" onclick="openShareModal()" title="Share calendar" style="display:none">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
         Share
       </button>
-      <div style="display:flex;align-items:center;gap:6px">
-        <span id="theme-label" style="font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.3px;white-space:nowrap">Dark mode</span>
-        <button class="theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle theme"></button>
-      </div>
+      <button class="theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle theme"></button>
       <div class="user-pill" id="user-pill" onclick="toggleUserMenu()">
         <div class="user-avatar" id="user-avatar-el"><span id="user-avatar-char">?</span></div>
         <span id="user-display-name">…</span>

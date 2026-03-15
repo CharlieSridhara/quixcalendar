@@ -886,15 +886,33 @@ onAuthStateChanged(auth,async user=>{
 });
 
 async function initUserData(user){
+  const CHARLIE_UID='FFCcwj3440ZXFcDZVAZzXmGuRQw2';
   const uref=doc(db,'users',user.uid);
   const snap=await getDoc(uref);
   if(!snap.exists()){
     await setDoc(uref,{displayName:user.displayName||'User',email:user.email,joinedCalendars:[],pfpUrl:null,unexcusedCount:0,role:null});
     const code=Math.random().toString(36).substring(2,8).toUpperCase();
-    await addDoc(collection(db,'calendars'),{uid:user.uid,name:'General',color:'#00b4ff',inviteCode:code,roles:{},subsections:[],createdAt:serverTimestamp()});
+    const initRoles=user.uid===CHARLIE_UID?{[user.uid]:'Captain'}:{};
+    await addDoc(collection(db,'calendars'),{uid:user.uid,name:'General',color:'#00b4ff',inviteCode:code,roles:initRoles,subsections:[],createdAt:serverTimestamp()});
   } else {
     userPfpUrl=snap.data().pfpUrl||null;
     myRole=snap.data().role||null;
+  }
+  // Auto-restore: Charlie always gets Captain back on any owned calendar missing it
+  if(user.uid===CHARLIE_UID){
+    try{
+      const calSnap=await getDocs(query(collection(db,'calendars'),where('uid','==',user.uid)));
+      for(const calDoc of calSnap.docs){
+        const data=calDoc.data();
+        const roles=data.roles||{};
+        if(roles[CHARLIE_UID]!=='Captain'){
+          roles[CHARLIE_UID]='Captain';
+          await updateDoc(doc(db,'calendars',calDoc.id),{roles});
+          await updateDoc(doc(db,'users',CHARLIE_UID),{role:'Captain'});
+          myRole='Captain';
+        }
+      }
+    }catch(e){console.error('Captain restore error:',e);}
   }
   updateAvatarDisplay();
 }
@@ -2202,10 +2220,12 @@ async function renderAdminPage(){
       row.querySelector('div:last-child').appendChild(subSel);
       // Kick
       if(m.uid!==cu.uid){
-        const kickBtn=document.createElement('button');kickBtn.style.cssText='padding:3px 8px;font-size:10px;font-weight:600;border-radius:5px;border:1px solid rgba(239,68,68,.3);background:var(--red-dim);color:var(--red);cursor:pointer;font-family:var(--font)';
-        kickBtn.textContent='Kick';
-        kickBtn.onclick=async()=>{if(!confirm(`Remove ${m.displayName}?`))return;const us=await getDoc(doc(db,'users',m.uid));const jc=(us.data().joinedCalendars||[]).filter(id=>id!==adminCal.id);await updateDoc(doc(db,'users',m.uid),{joinedCalendars:jc});toast(`${m.displayName} removed`);renderAdminPage();};
-        row.querySelector('div:last-child').appendChild(kickBtn);
+        if(m.uid!==cu?.uid){
+          const kickBtn=document.createElement('button');kickBtn.style.cssText='padding:3px 8px;font-size:10px;font-weight:600;border-radius:5px;border:1px solid rgba(239,68,68,.3);background:var(--red-dim);color:var(--red);cursor:pointer;font-family:var(--font)';
+          kickBtn.textContent='Kick';
+          kickBtn.onclick=async()=>{if(!confirm(`Remove ${m.displayName}?`))return;const us=await getDoc(doc(db,'users',m.uid));const jc=(us.data().joinedCalendars||[]).filter(id=>id!==adminCal.id);await updateDoc(doc(db,'users',m.uid),{joinedCalendars:jc});toast(`${m.displayName} removed`);renderAdminPage();};
+          row.querySelector('div:last-child').appendChild(kickBtn);
+        }
       }
     }
     ml.appendChild(row);
@@ -2236,7 +2256,7 @@ async function renderAdminPage(){
   });
   if(!hasAny)al.innerHTML='<div style="font-size:12px;color:var(--muted2)">No declined events yet</div>';
 
-  // FIX #9: Leadership roles — Captain only can assign, one person per role
+  // Leadership roles — Captain only, cannot remove self
   const rolesEl=document.getElementById('admin-roles-section');rolesEl.innerHTML='';
   if(!isCaptain(adminCal.id)){
     rolesEl.innerHTML='<div style="font-size:11px;color:var(--muted2)">Only the Captain can assign leadership roles.</div>';
@@ -2244,25 +2264,47 @@ async function renderAdminPage(){
     LEADER_ROLES.forEach(role=>{
       const currentHolder=Object.entries(calRoles).find(([,v])=>v===role)?.[0]||null;
       const holderMember=members.find(m=>m.uid===currentHolder);
-      const wrap=document.createElement('div');wrap.style.cssText='display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg3);border-radius:7px;margin-bottom:6px;flex-wrap:wrap';
-      wrap.innerHTML=`<span style="font-size:12px;font-weight:600;color:var(--text);flex:1">${role}</span>${holderMember?`<span style="font-size:11px;color:var(--muted)">${holderMember.displayName}</span><button onclick="removeRole('${adminCal.id}','${currentHolder}')" style="padding:2px 7px;font-size:10px;font-weight:600;border-radius:5px;border:1px solid rgba(239,68,68,.3);background:var(--red-dim);color:var(--red);cursor:pointer;font-family:var(--font)">Remove</button>`:'<span style="font-size:11px;color:var(--muted2)">Unassigned</span>'}`;
-      // Assign select
-      const asel=document.createElement('select');asel.style.cssText='padding:4px 7px;font-size:11px;background:var(--bg3);border:1px solid var(--border2);border-radius:5px;color:var(--text);font-family:var(--font)';
-      asel.innerHTML='<option value="">— Assign —</option>';
-      members.filter(m=>!calRoles[m.uid]||calRoles[m.uid]===role).forEach(m=>{const o=document.createElement('option');o.value=m.uid;o.textContent=m.displayName;if(m.uid===currentHolder)o.selected=true;asel.appendChild(o);});
-      asel.onchange=async()=>{
-        if(!asel.value)return;
-        // Remove this role from any previous holder
-        const newRoles={...calRoles};
-        Object.keys(newRoles).forEach(k=>{if(newRoles[k]===role)delete newRoles[k];});
-        newRoles[asel.value]=role;
-        await updateDoc(doc(db,'calendars',adminCal.id),{roles:newRoles});
-        // Update user doc
-        await updateDoc(doc(db,'users',asel.value),{role});
-        if(currentHolder&&currentHolder!==asel.value)await updateDoc(doc(db,'users',currentHolder),{role:null});
-        toast(`${role} assigned`);renderAdminPage();
-      };
-      wrap.appendChild(asel);
+      const isSelfRole=currentHolder===cu?.uid;
+      const wrap=document.createElement('div');
+      wrap.style.cssText='background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:12px 14px;margin-bottom:8px';
+      wrap.innerHTML=`
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--text)">${role}</div>
+            ${holderMember
+              ?`<div style="font-size:11px;color:var(--muted);margin-top:2px">Currently: <strong style="color:var(--text)">${holderMember.displayName}</strong></div>`
+              :`<div style="font-size:11px;color:var(--muted2);margin-top:2px">Unassigned</div>`}
+          </div>
+          ${holderMember&&!isSelfRole?`<button onclick="removeRole('${adminCal.id}','${currentHolder}')" style="padding:4px 10px;font-size:10px;font-weight:600;border-radius:6px;border:1px solid rgba(239,68,68,.3);background:var(--red-dim);color:var(--red);cursor:pointer;font-family:var(--font)">Remove</button>`:''}
+          ${isSelfRole?`<span style="font-size:9px;color:var(--muted2);font-style:italic">You (cannot remove self)</span>`:''}
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap" id="role-members-${role.replace(/\s/g,'_')}"></div>
+      `;
+      // Member buttons to assign
+      const btnWrap=wrap.querySelector(`#role-members-${role.replace(/\s/g,'_')}`);
+      const assignable=members.filter(m=>!calRoles[m.uid]||calRoles[m.uid]===role);
+      if(!assignable.length){btnWrap.innerHTML='<span style="font-size:11px;color:var(--muted2)">No available members</span>';}
+      assignable.forEach(m=>{
+        const isHolder=m.uid===currentHolder;
+        const btn=document.createElement('button');
+        btn.style.cssText=`padding:5px 12px;font-size:11px;font-weight:600;border-radius:7px;cursor:pointer;font-family:var(--font);border:1px solid ${isHolder?'var(--accent-border)':'var(--border2)'};background:${isHolder?'var(--accent-dim)':'transparent'};color:${isHolder?'var(--accent2)':'var(--muted)'};transition:all .15s`;
+        btn.textContent=m.displayName+(isHolder?' ✓':'');
+        if(!isHolder){
+          btn.onmouseover=()=>{btn.style.background='var(--bg4)';btn.style.color='var(--text)';};
+          btn.onmouseout=()=>{btn.style.background='transparent';btn.style.color='var(--muted)';};
+          btn.onclick=async()=>{
+            if(!confirm(`Assign ${role} to ${m.displayName}?`))return;
+            const newRoles={...calRoles};
+            Object.keys(newRoles).forEach(k=>{if(newRoles[k]===role)delete newRoles[k];});
+            newRoles[m.uid]=role;
+            await updateDoc(doc(db,'calendars',adminCal.id),{roles:newRoles});
+            await updateDoc(doc(db,'users',m.uid),{role});
+            if(currentHolder&&currentHolder!==m.uid)await updateDoc(doc(db,'users',currentHolder),{role:null});
+            toast(`${m.displayName} is now ${role}`);renderAdminPage();
+          };
+        }
+        btnWrap.appendChild(btn);
+      });
       rolesEl.appendChild(wrap);
     });
   }

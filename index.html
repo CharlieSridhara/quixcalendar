@@ -1165,22 +1165,33 @@ const db=getFirestore(app);
 // Keep user logged in across sessions
 setPersistence(auth,browserLocalPersistence).catch(e=>console.error('Persistence error:',e));
 
-// ── PST Time Helper ────────────────────────────────────────────────────────
-// Uses Intl API to get the real current time in America/Los_Angeles (PST/PDT)
+// ── PST/PDT Time Helper ─────────────────────────────────────────────────────
+// Hardcoded UTC-7 (PDT, March–November) / UTC-8 (PST, Nov–March)
+// Currently PDT (UTC-7) since it is past March 8 2026
 function getNow(){
   const now=new Date();
-  // Get the UTC offset for LA right now (handles DST automatically)
-  const laStr=now.toLocaleString('en-US',{timeZone:'America/Los_Angeles'});
-  return new Date(laStr);
+  // Detect DST: PDT runs second Sunday in March to first Sunday in November
+  const year=now.getUTCFullYear();
+  // Second Sunday in March
+  const dstStart=new Date(Date.UTC(year,2,1));
+  dstStart.setUTCDate(1+(7-dstStart.getUTCDay()+0)%7+7); // second Sunday
+  // First Sunday in November  
+  const dstEnd=new Date(Date.UTC(year,10,1));
+  dstEnd.setUTCDate(1+(7-dstEnd.getUTCDay())%7); // first Sunday
+  const isPDT=now>=dstStart&&now<dstEnd;
+  const offsetMs=(isPDT?7:8)*3600000;
+  return new Date(now.getTime()-offsetMs);
 }
 function getTodayStr(){
-  const now=new Date();
-  const parts=now.toLocaleDateString('en-CA',{timeZone:'America/Los_Angeles'});
-  return parts; // returns YYYY-MM-DD
+  const n=getNow();
+  const y=n.getFullYear();
+  const m=String(n.getMonth()+1).padStart(2,'0');
+  const d=String(n.getDate()).padStart(2,'0');
+  return `${y}-${m}-${d}`;
 }
 
 // ── Constants ──────────────────────────────────────────────────────────────
-const LEADER_ROLES=['Captain','Captain 2','Outreach Lead','Programming Lead','Mechanical Lead','Admin'];
+const LEADER_ROLES=['Captain','Co-Captain','Outreach Lead','Programming Lead','Mechanical Lead','Admin'];
 const CHARLIE_UID='FFCcwj3440ZXFcDZVAZzXmGuRQw2';
 // Roles helpers — roles map is {uid: ['Role1','Role2']} (supports multiple roles)
 // Backward compat: also handles old string format {uid: 'Role'}
@@ -1204,8 +1215,8 @@ function removeRoleFromMap(rolesMap,uid,role){
 }
 function getPrimaryRole(rolesMap,uid){
   const roles=getRolesForUid(rolesMap,uid);
-  // Priority: Admin > Captain > Captain 2 > leads
-  const priority=['Admin','Captain','Captain 2','Outreach Lead','Programming Lead','Mechanical Lead'];
+  // Priority: Admin > Captain > Co-Captain > leads
+  const priority=['Admin','Captain','Co-Captain','Outreach Lead','Programming Lead','Mechanical Lead'];
   for(const p of priority){if(roles.includes(p))return p;}
   return roles[0]||null;
 }
@@ -1261,9 +1272,9 @@ async function initUserData(user){
         // Remove Charlie from Captain if he's there
         const charlieRoles=getRolesForUid(roles,CHARLIE_UID);
         if(!charlieRoles.includes('Admin')){
-          // Remove Captain/Captain 2, add Admin
+          // Remove Captain/Co-Captain, add Admin
           let updatedRoles=removeRoleFromMap(roles,CHARLIE_UID,'Captain');
-          updatedRoles=removeRoleFromMap(updatedRoles,CHARLIE_UID,'Captain 2');
+          updatedRoles=removeRoleFromMap(updatedRoles,CHARLIE_UID,'Co-Captain');
           updatedRoles=addRoleToMap(updatedRoles,CHARLIE_UID,'Admin');
           await updateDoc(doc(db,'calendars',calDoc.id),{roles:updatedRoles});
         }
@@ -1301,9 +1312,9 @@ function subscribeInvitedEvents(uid){
       .map(d=>({id:d.id,...d.data(),_invited:true}));
     // Remove stale invited events
     events=events.filter(e=>!e._invited);
-    // Add new invited events — but never duplicate an event already in own list
-    const ownIds=new Set(events.map(e=>e.id));
-    events=[...events,...invited.filter(e=>!ownIds.has(e.id))];
+    // Never add an invited event that already exists as owned OR shared
+    const existingIds=new Set(events.map(e=>e.id));
+    events=[...events,...invited.filter(e=>!existingIds.has(e.id))];
     checkForNewInvites(invited);
     renderAll();if(currentPage==='home')renderHomePage();
   },err=>console.error(err));
@@ -1376,9 +1387,9 @@ function isLeader(calId){
 }
 function isCaptain(calId){
   const roles=getMyRolesForCal(calId);
-  return roles.includes('Captain')||roles.includes('Captain 2')||roles.includes('Admin');
+  return roles.includes('Captain')||roles.includes('Co-Captain')||roles.includes('Admin');
 }
-function isAdmin(calId){return isLeader(calId);} // Captain, Captain 2, all leads, and Admin all count
+function isAdmin(calId){return isLeader(calId);} // Captain, Co-Captain, all leads, and Admin all count
 
 // ── Page nav ───────────────────────────────────────────────────────────────
 window.showPage=(page)=>{
@@ -1661,11 +1672,16 @@ function renderHomePage(){
 
   // Meeting invitations
   const invEl=document.getElementById('home-invites');invEl.innerHTML='';
+  // Deduplicate by event ID — shared + invited snapshots can both add same event
+  const _seenInvIds=new Set();
   const myMtgInvites=events.filter(e=>{
     if(e.type==='task')return false;
     if(e.completed)return false;
+    if(_seenInvIds.has(e.id))return false;
     const ppl=e.invitees||[];
-    return ppl.some(p=>p.uid===myUid||p.email===myEmail);
+    const isInvited=ppl.some(p=>p.uid===myUid||p.email===myEmail);
+    if(isInvited)_seenInvIds.add(e.id);
+    return isInvited;
   });
   if(!myMtgInvites.length)invEl.innerHTML='<div style="color:var(--muted2);font-size:12px">No meeting invitations</div>';
   else myMtgInvites.forEach(ev=>{
@@ -2597,9 +2613,9 @@ function subscribeSharedCal(calId,ownerUid,calName,ownerName,calColor,roles={},s
   onSnapshot(query(collection(db,'events'),where('calendarId','==',calId)),snap=>{
     const shared=snap.docs.map(d=>({id:d.id,...d.data(),isShared:true,sharedCalId:calId,sharedCalName:calName,color:d.data().color||calColor}));
     events=events.filter(e=>!(e.isShared&&e.sharedCalId===calId));
-    // Don't add shared events that the user already owns (would show twice)
-    const ownEventIds=new Set(events.filter(e=>!e.isShared&&!e._invited).map(e=>e.id));
-    events=[...events,...shared.filter(e=>!ownEventIds.has(e.id))];
+    // Don't add shared events that already exist as owned OR invited
+    const existingEventIds=new Set(events.map(e=>e.id));
+    events=[...events,...shared.filter(e=>!existingEventIds.has(e.id))];
     renderAll();if(currentPage==='home')renderHomePage();
   });
   // Also keep roles in sync
@@ -2793,7 +2809,7 @@ async function renderAdminPage(){
               await updateDoc(doc(db,'users',m.uid),{role:primaryRole||null});
             } else {
               // Add role — for unique roles, remove from previous holder first
-              if(role!=='Captain'&&role!=='Captain 2'){
+              if(role!=='Captain'&&role!=='Co-Captain'){
                 Object.keys(newRoles).forEach(k=>{
                   if(k!==m.uid&&hasRole(newRoles,k,role)){
                     newRoles=removeRoleFromMap(newRoles,k,role);

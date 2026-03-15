@@ -791,7 +791,8 @@ const _invitedUnsubs=[];
 function subscribeInvitedEvents(uid){
   _invitedUnsubs.forEach(u=>u());_invitedUnsubs.length=0;
   const unsub=onSnapshot(query(collection(db,'events'),where('inviteeUids','array-contains',uid)),snap=>{
-    const invited=snap.docs.map(d=>({id:d.id,...d.data(),_invited:true}));
+    // Exclude events the user owns — those are already handled by the main events snapshot
+    const invited=snap.docs.filter(d=>d.data().uid!==uid).map(d=>({id:d.id,...d.data(),_invited:true}));
     events=events.filter(e=>!e._invited);
     events=[...events,...invited];
     renderAll();if(currentPage==='home')renderHomePage();

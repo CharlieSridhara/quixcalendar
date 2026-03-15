@@ -31,11 +31,9 @@ body.light-mode{
 .theme-toggle::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:var(--muted);transition:transform .2s,background .2s}
 body.light-mode .theme-toggle{background:var(--accent-dim)}
 body.light-mode .theme-toggle::after{transform:translateX(16px);background:var(--accent2)}
-.icon{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;zoom:1.05}
 @media(max-width:768px){body{zoom:1}}
-.fox-watermark{position:fixed;bottom:20px;right:20px;opacity:.04;pointer-events:none;z-index:0}
 #auth-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(29,106,229,0.1),transparent 70%)}
 .auth-card{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:48px 40px;width:100%;max-width:420px;position:relative}
 .auth-logo{display:flex;align-items:center;gap:12px;margin-bottom:8px}
@@ -138,7 +136,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .cell-events{display:flex;flex-direction:column;gap:2px;overflow:hidden}
 .event-pill{display:flex;align-items:center;gap:4px;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:500;cursor:pointer;overflow:hidden;white-space:nowrap;transition:opacity .15s}
 .event-pill:hover{opacity:.8}
-.event-pill.completed{opacity:.45;text-decoration:line-through}
+.event-pill.completed{opacity:.35;text-decoration:line-through;filter:grayscale(1)}
 .event-pill-dot{width:4px;height:4px;border-radius:50%;flex-shrink:0}
 .more-events{font-size:9px;color:var(--muted2);padding:1px 6px;cursor:pointer}
 .week-container{display:flex;flex:1;overflow:hidden;position:relative}
@@ -164,12 +162,13 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .week-half-line{position:absolute;left:0;right:0;border-top:1px dashed rgba(255,255,255,.03);pointer-events:none}
 .week-event-block{position:absolute;left:2px;right:2px;border-radius:5px;padding:3px 6px;font-size:10px;font-weight:500;cursor:pointer;overflow:hidden;transition:opacity .15s;min-height:18px;border-left:3px solid}
 .week-event-block:hover{opacity:.85}
-.week-event-block.completed{opacity:.4;text-decoration:line-through}
+.week-event-block.completed{opacity:.35;text-decoration:line-through;filter:grayscale(1)}
 .week-event-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .week-event-time{font-size:9px;opacity:.75;white-space:nowrap}
 .week-now-line{position:absolute;left:0;right:0;height:2px;background:var(--red);z-index:5;pointer-events:none}
 .week-now-line::before{content:'';position:absolute;left:-3px;top:-3px;width:8px;height:8px;border-radius:50%;background:var(--red)}
 .time-gutter-line{position:absolute;left:0;right:0;border-top:1px solid var(--border);pointer-events:none;width:100%}
+/* HOME */
 .home-page{flex:1;overflow-y:auto;padding:28px 32px}
 .home-greeting{font-size:24px;font-weight:700;margin-bottom:3px}
 .home-sub{color:var(--muted);font-size:13px;margin-bottom:24px}
@@ -195,12 +194,21 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .upcoming-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
 .upcoming-title{font-size:12px;font-weight:500;color:var(--text)}
 .upcoming-meta{font-size:10px;color:var(--muted);margin-top:1px}
+/* priority badges */
+.priority-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;letter-spacing:.3px;text-transform:uppercase;flex-shrink:0}
+.priority-critical{background:rgba(239,68,68,.18);color:var(--red)}
+.priority-important{background:rgba(245,158,11,.18);color:var(--amber)}
+.priority-optional{background:rgba(34,197,94,.18);color:var(--green)}
+/* role badge */
+.role-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;letter-spacing:.4px;text-transform:uppercase;background:rgba(168,85,247,.18);color:#a855f7}
+/* PROFILE */
 .profile-page{flex:1;overflow-y:auto;padding:28px 32px;max-width:580px}
 .profile-avatar-section{display:flex;align-items:center;gap:18px;margin-bottom:24px;padding:20px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg)}
 .profile-avatar-big{width:64px;height:64px;border-radius:50%;background:var(--accent-dim);border:2px solid var(--accent-border);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:var(--accent2);overflow:hidden;cursor:pointer;position:relative;flex-shrink:0}
 .profile-avatar-big img{width:100%;height:100%;object-fit:cover}
 .profile-name{font-size:18px;font-weight:700}
 .profile-email-sm{font-size:12px;color:var(--muted);margin-top:2px}
+/* ADMIN */
 .admin-page{flex:1;overflow-y:auto;padding:28px 32px}
 .admin-header{font-size:22px;font-weight:700;margin-bottom:4px}
 .admin-sub{color:var(--muted);font-size:13px;margin-bottom:24px}
@@ -208,9 +216,10 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 @media(max-width:1000px){.admin-grid{grid-template-columns:1fr}}
 .admin-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px}
 .admin-card-title{font-size:11px;font-weight:700;color:var(--muted2);letter-spacing:.6px;text-transform:uppercase;margin-bottom:14px}
-.admin-member-row{display:flex;align-items:center;gap:8px;padding:9px 11px;background:var(--bg3);border-radius:8px;margin-bottom:5px}
+.admin-member-row{display:flex;align-items:center;gap:8px;padding:9px 11px;background:var(--bg3);border-radius:8px;margin-bottom:5px;flex-wrap:wrap}
 .admin-badge{font-size:9px;font-weight:700;padding:2px 6px;border-radius:8px;background:rgba(245,158,11,.15);color:var(--amber);letter-spacing:.4px;text-transform:uppercase}
 .subsection-tag{font-size:9px;font-weight:600;padding:1px 6px;border-radius:8px;background:var(--accent-dim);color:var(--accent2);letter-spacing:.3px}
+/* MODAL */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:300;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px)}
 .modal-overlay.open{display:flex}
 .modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:26px 28px;width:100%;max-width:520px;position:relative;max-height:92vh;overflow-y:auto}
@@ -221,9 +230,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .modal-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .form-select{width:100%;padding:10px 12px;font-family:var(--font);font-size:13px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);outline:none;cursor:pointer}
 .form-select:focus{border-color:var(--accent2)}
-.color-row{display:flex;gap:7px;margin-top:3px}
-.color-swatch{width:26px;height:26px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .15s}
-.color-swatch.selected{border-color:#fff;transform:scale(1.12)}
 .modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
 .btn-secondary{padding:9px 16px;font-family:var(--font);font-size:12px;font-weight:500;background:transparent;border:1px solid var(--border2);border-radius:var(--radius);color:var(--muted);cursor:pointer;transition:all .15s}
 .btn-secondary:hover{color:var(--text);border-color:var(--border2)}
@@ -246,6 +252,11 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .member-check-att{padding:2px 7px;font-size:10px;font-weight:600;border-radius:5px;border:none;cursor:pointer;font-family:var(--font);transition:all .15s;flex-shrink:0}
 .member-check-att.mandatory{background:var(--red-dim);color:var(--red)}
 .member-check-att.optional{background:var(--green-dim);color:var(--green)}
+/* priority selector on task assignee */
+.member-check-pri{padding:2px 6px;font-size:9px;font-weight:700;border-radius:5px;border:1px solid var(--border2);background:var(--bg4);color:var(--muted);cursor:pointer;font-family:var(--font);transition:all .15s;flex-shrink:0}
+.member-check-pri.critical{background:rgba(239,68,68,.18);color:var(--red);border-color:rgba(239,68,68,.3)}
+.member-check-pri.important{background:rgba(245,158,11,.18);color:var(--amber);border-color:rgba(245,158,11,.3)}
+.member-check-pri.optional{background:rgba(34,197,94,.18);color:var(--green);border-color:rgba(34,197,94,.3)}
 .member-check-empty{padding:10px;font-size:12px;color:var(--muted2);text-align:center}
 .bulk-att-row{display:flex;gap:5px;margin-bottom:8px;flex-wrap:wrap;align-items:center}
 .bulk-att-btn{padding:4px 9px;font-size:10px;font-weight:600;border-radius:5px;cursor:pointer;font-family:var(--font);border:1px solid var(--border2);background:transparent;color:var(--muted);transition:all .15s}
@@ -269,7 +280,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .event-view-title{font-size:20px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;flex-wrap:wrap;gap:6px}
 .event-type-badge{font-size:10px;font-weight:700;padding:2px 9px;border-radius:18px;letter-spacing:.3px}
 .event-meta{font-size:12px;color:var(--muted);margin-bottom:7px;display:flex;align-items:center;gap:7px}
-.event-meta-icon{font-size:13px}
 .event-desc{font-size:13px;color:var(--muted);margin-top:12px;line-height:1.6;background:var(--bg3);border-radius:7px;padding:10px 12px}
 .share-code{font-family:var(--mono);font-size:17px;font-weight:500;color:var(--accent2);background:var(--bg3);border:1px solid var(--accent-border);border-radius:var(--radius);padding:12px 18px;text-align:center;letter-spacing:4px;margin:12px 0;cursor:pointer;transition:background .15s}
 .share-code:hover{background:var(--accent-dim)}
@@ -296,8 +306,6 @@ textarea.form-input{resize:vertical;min-height:68px}
   .btn-icon{padding:4px 7px;font-size:12px}
   #user-display-name{display:none}
   .sidebar{display:none}
-  .cal-header-bar{padding:7px 12px}
-  .cal-day-header{padding:7px 4px;font-size:9px}
   .cal-cell{min-height:70px;padding:5px 3px 3px}
   .cell-num{font-size:11px;width:20px;height:20px}
   .event-pill{font-size:9px;padding:1px 4px}
@@ -362,9 +370,7 @@ textarea.form-input{resize:vertical;min-height:68px}
   <div class="topbar">
     <div class="topbar-logo" onclick="showPage('home')">
       <img src="https://quixilver8404.org/logo_old5.png" alt="Quixilver" style="width:26px;height:26px;object-fit:contain"/>
-      <div>
-        <div class="topbar-logo-text">Quixil<span>ver</span></div>
-      </div>
+      <div><div class="topbar-logo-text">Quixil<span>ver</span></div></div>
       <span class="topbar-team-badge">8404</span>
     </div>
     <div class="topbar-center" id="cal-topbar-center" style="display:none">
@@ -390,7 +396,7 @@ textarea.form-input{resize:vertical;min-height:68px}
       </button>
       <div style="display:flex;align-items:center;gap:6px">
         <span id="theme-label" style="font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.3px;white-space:nowrap">Dark mode</span>
-        <button class="theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle light/dark mode"></button>
+        <button class="theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle theme"></button>
       </div>
       <div class="user-pill" id="user-pill" onclick="toggleUserMenu()">
         <div class="user-avatar" id="user-avatar-el"><span id="user-avatar-char">?</span></div>
@@ -408,11 +414,18 @@ textarea.form-input{resize:vertical;min-height:68px}
     <div class="home-page">
       <div id="home-probation-banner" class="probation-banner">You are on <strong>probation</strong> — you have 3 or more unexcused absences.</div>
       <div class="home-greeting" id="home-greeting">Welcome back!</div>
-      <div style="color:var(--muted);font-size:13px;margin-bottom:6px" id="home-absence-row" style="display:none">Unexcused absences: <span id="home-absence-count" class="absence-pill"></span></div>
+      <div style="color:var(--muted);font-size:13px;margin-bottom:6px" id="home-absence-row">Unexcused absences: <span id="home-absence-count" class="absence-pill"></span></div>
+      <div class="home-sub" id="home-role-row" style="margin-bottom:6px"></div>
       <div class="home-sub">Here's what's on your plate.</div>
       <div class="home-grid">
-        <div class="home-card"><div class="home-card-title">Invitations</div><div id="home-invites"></div></div>
-        <div class="home-card"><div class="home-card-title">Upcoming (14 days)</div><div id="home-upcoming"></div></div>
+        <div>
+          <div class="home-card" style="margin-bottom:20px"><div class="home-card-title">Meeting Invitations</div><div id="home-invites"></div></div>
+          <div class="home-card"><div class="home-card-title">My Tasks</div><div id="home-tasks"></div></div>
+        </div>
+        <div>
+          <div class="home-card" style="margin-bottom:20px"><div class="home-card-title">Upcoming Meetings (14 days)</div><div id="home-upcoming"></div></div>
+          <div class="home-card" id="home-managed-tasks-card" style="display:none"><div class="home-card-title">Tasks I'm Managing</div><div id="home-managed-tasks"></div></div>
+        </div>
       </div>
     </div>
   </div>
@@ -422,7 +435,7 @@ textarea.form-input{resize:vertical;min-height:68px}
     <div class="main-layout">
       <div class="sidebar">
         <div class="sidebar-section">
-          <div class="btn-new-group" id="create-btns">
+          <div class="btn-new-group" id="create-btns" style="display:none">
             <button class="btn-new-meeting" onclick="openNewEvent('meeting')">Meeting</button>
             <button class="btn-new-task" onclick="openNewEvent('task')">Task</button>
           </div>
@@ -430,7 +443,7 @@ textarea.form-input{resize:vertical;min-height:68px}
         <div class="sidebar-section">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
             <div class="sidebar-label" style="margin-bottom:0">My Calendars</div>
-            <button onclick="openNewCalendarModal()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:17px;padding:0 3px;line-height:1" title="New calendar">＋</button>
+            <button onclick="openNewCalendarModal()" id="new-cal-btn" style="display:none;background:none;border:none;color:var(--muted);cursor:pointer;font-size:17px;padding:0 3px;line-height:1" title="New calendar">＋</button>
           </div>
           <div class="calendar-list" id="cal-list"></div>
         </div>
@@ -459,12 +472,8 @@ textarea.form-input{resize:vertical;min-height:68px}
           <div class="cal-grid" id="cal-grid"></div>
         </div>
         <div id="week-view" style="display:none;flex-direction:column;flex:1;overflow:hidden">
-          <div class="week-sticky-header" id="week-sticky-header">
-            <div class="week-time-gutter-hdr"></div>
-          </div>
-          <div class="week-allday-strip" id="week-allday-strip">
-            <div class="week-allday-gutter">all-day</div>
-          </div>
+          <div class="week-sticky-header" id="week-sticky-header"><div class="week-time-gutter-hdr"></div></div>
+          <div class="week-allday-strip" id="week-allday-strip"><div class="week-allday-gutter">all-day</div></div>
           <div class="week-container">
             <div class="week-scroll" id="week-scroll">
               <div class="week-inner">
@@ -486,7 +495,12 @@ textarea.form-input{resize:vertical;min-height:68px}
           <span id="profile-avatar-char">?</span>
           <input type="file" id="pfp-input" accept="image/*" style="display:none" onchange="handlePfpChange(event)"/>
         </div>
-        <div><div class="profile-name" id="profile-name-display"></div><div class="profile-email-sm" id="profile-email-display"></div><div style="font-size:10px;color:var(--muted2);margin-top:3px">Click avatar to change photo</div></div>
+        <div>
+          <div class="profile-name" id="profile-name-display"></div>
+          <div class="profile-email-sm" id="profile-email-display"></div>
+          <div id="profile-role-display" style="margin-top:4px"></div>
+          <div style="font-size:10px;color:var(--muted2);margin-top:3px">Click avatar to change photo</div>
+        </div>
       </div>
       <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-bottom:16px">
         <div style="font-size:14px;font-weight:600;margin-bottom:16px">Edit Profile</div>
@@ -496,17 +510,9 @@ textarea.form-input{resize:vertical;min-height:68px}
         <div id="profile-save-msg" style="font-size:12px;margin-bottom:10px;display:none"></div>
         <button class="btn-primary-sm" onclick="saveProfile()">Save changes</button>
       </div>
-      <div id="profile-admin-tools" style="display:none;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-bottom:16px">
-        <div style="font-size:14px;font-weight:600;margin-bottom:6px">Admin Tools</div>
-        <div style="font-size:11px;color:var(--muted);margin-bottom:14px">Reset your own unexcused absence count if it was set incorrectly.</div>
-        <div style="display:flex;align-items:center;gap:12px">
-          <span style="font-size:13px;color:var(--muted)">Your unexcused count: <strong id="profile-absence-count" style="color:var(--text)">0</strong></span>
-          <button class="btn-secondary" style="font-size:11px;padding:6px 12px" onclick="resetMyAbsences()">Reset to 0</button>
-        </div>
-      </div>
       <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px">
         <div style="font-size:14px;font-weight:600;margin-bottom:6px">Notifications</div>
-        <div style="font-size:11px;color:var(--muted);margin-bottom:14px">Get notified when you're invited to a meeting or task. Works on desktop and most mobile browsers. For phone notifications, add this site to your home screen first.</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:14px">Get notified of new invitations. Works on desktop and most mobile browsers.</div>
         <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
           <button class="btn-primary-sm" onclick="requestNotificationPermission()">Enable notifications</button>
           <span id="notif-status" style="font-size:11px;color:var(--muted)"></span>
@@ -518,17 +524,17 @@ textarea.form-input{resize:vertical;min-height:68px}
   <!-- ADMIN -->
   <div class="page" id="page-admin">
     <div class="admin-page">
-      <div class="admin-header">Admin Panel</div>
-      <div class="admin-sub">Manage your calendars — members, roles, subsections, absences.</div>
+      <div class="admin-header">Leadership Panel</div>
+      <div class="admin-sub">Manage calendars — members, roles, subsections, absences.</div>
       <div style="margin-bottom:16px">
         <label class="form-label">Managing calendar</label>
         <select class="form-select" id="admin-cal-select" onchange="renderAdminPage()" style="max-width:300px"></select>
       </div>
       <div class="admin-grid">
         <div class="admin-card"><div class="admin-card-title">Members &amp; Roles</div><div id="admin-members-list"></div></div>
-        <div class="admin-card"><div class="admin-card-title">Subsections</div><div style="font-size:11px;color:var(--muted2);margin-bottom:10px">Group members into teams (e.g. Mechanical, Programming, Outreach)</div><div id="admin-subsections-list"></div><div style="display:flex;gap:7px;margin-top:10px"><input class="form-input" id="new-subsection-input" type="text" placeholder="New subsection name" style="flex:1"/><button class="btn-primary-sm" onclick="addSubsection()">Add</button></div></div>
+        <div class="admin-card"><div class="admin-card-title">Subsections</div><div style="font-size:11px;color:var(--muted2);margin-bottom:10px">Group members into teams</div><div id="admin-subsections-list"></div><div style="display:flex;gap:7px;margin-top:10px"><input class="form-input" id="new-subsection-input" type="text" placeholder="New subsection name" style="flex:1"/><button class="btn-primary-sm" onclick="addSubsection()">Add</button></div></div>
         <div class="admin-card"><div class="admin-card-title">Absences</div><div style="font-size:11px;color:var(--muted2);margin-bottom:10px">Mark or reverse unexcused absences.</div><div id="admin-absences-list"></div></div>
-        <div class="admin-card"><div class="admin-card-title">Transfer Ownership</div><div style="font-size:11px;color:var(--muted2);margin-bottom:10px">Transfer full admin rights to another member. You will become a regular member.</div><div id="admin-transfer-section"></div></div>
+        <div class="admin-card"><div class="admin-card-title">Leadership Roles</div><div style="font-size:11px;color:var(--muted2);margin-bottom:10px">Assign one person per role. Leaders have full admin access.</div><div id="admin-roles-section"></div></div>
       </div>
     </div>
   </div>
@@ -559,20 +565,16 @@ textarea.form-input{resize:vertical;min-height:68px}
     <div class="form-group" id="ev-repeat-end-wrap" style="display:none"><label class="form-label">Repeat until</label><input class="form-input" id="ev-repeat-end" type="date"/></div>
     <div class="form-group"><label class="form-label">Calendar</label><select class="form-select" id="ev-calendar"></select></div>
 
-    <!-- MEETING -->
+    <!-- MEETING SECTION -->
     <div id="ev-meeting-section">
       <div class="section-divider"></div>
       <div class="form-group" id="ev-week-schedule-wrap">
         <label class="form-label">Quick schedule</label>
         <div style="display:flex;gap:7px;flex-wrap:wrap">
-          <button class="btn-secondary" style="font-size:11px;padding:6px 12px" onclick="applyWeekSchedule('normal')" type="button">
-            Normal week (T/Th/F · 3:30–6pm)
-          </button>
-          <button class="btn-secondary" style="font-size:11px;padding:6px 12px;color:var(--red);border-color:rgba(239,68,68,.3)" onclick="applyWeekSchedule('crunch')" type="button">
-            Crunch week (Mon–Fri · 3:30–6pm)
-          </button>
+          <button class="btn-secondary" style="font-size:11px;padding:6px 12px" onclick="applyWeekSchedule('normal')" type="button">Normal week (T/Th/F · 3:30–6pm)</button>
+          <button class="btn-secondary" style="font-size:11px;padding:6px 12px;color:var(--red);border-color:rgba(239,68,68,.3)" onclick="applyWeekSchedule('crunch')" type="button">Crunch week (Mon–Fri · 3:30–6pm)</button>
         </div>
-        <div style="font-size:10px;color:var(--muted2);margin-top:5px">Creates multiple meetings at once in the selected date's week</div>
+        <div style="font-size:10px;color:var(--muted2);margin-top:5px">Creates multiple meetings in the selected week — with current invitees &amp; settings</div>
       </div>
       <div class="section-divider"></div>
       <div class="form-group">
@@ -583,22 +585,23 @@ textarea.form-input{resize:vertical;min-height:68px}
             <button class="bulk-att-btn" onclick="setBulkAttendance('optional')" style="color:var(--green);border-color:rgba(34,197,94,.3)">All Optional</button>
           </div>
         </div>
-        <div style="font-size:10px;color:var(--muted2);margin-bottom:7px">Mandatory invitees = event shows red. Optional = green. Color is set automatically.</div>
+        <div style="font-size:10px;color:var(--muted2);margin-bottom:7px">Mandatory = red event · Optional = green event</div>
         <div id="ev-group-filter" style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:7px"></div>
         <div class="member-checklist" id="ev-invite-checklist"><div class="member-check-empty">Loading…</div></div>
       </div>
     </div>
 
-    <!-- TASK -->
+    <!-- TASK SECTION -->
     <div id="ev-task-section" style="display:none">
       <div class="section-divider"></div>
       <div class="form-group">
         <label class="form-label">Task manager</label>
-        <select class="form-select" id="ev-task-manager"><option value="">— Select manager —</option></select>
-        <div style="font-size:10px;color:var(--muted2);margin-top:4px">Manager can add/remove assignees and mark task complete.</div>
+        <select class="form-select" id="ev-task-manager"><option value="">— Select manager (optional) —</option></select>
+        <div style="font-size:10px;color:var(--muted2);margin-top:4px">Manager can edit this task and mark it complete.</div>
       </div>
       <div class="form-group">
         <label class="form-label" style="margin-bottom:7px">Assign to</label>
+        <div style="font-size:10px;color:var(--muted2);margin-bottom:7px">Click priority badge to cycle: Critical → Important → Optional</div>
         <div id="ev-group-filter-task" style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:7px"></div>
         <div class="member-checklist" id="ev-assign-checklist"><div class="member-check-empty">Loading…</div></div>
       </div>
@@ -618,11 +621,11 @@ textarea.form-input{resize:vertical;min-height:68px}
   <div class="modal">
     <button class="modal-close" onclick="closeModal('view-modal')">✕</button>
     <div class="event-view-title" id="view-title"></div>
-    <div class="event-meta"><span class="event-meta-icon"></span><span id="view-date"></span></div>
-    <div class="event-meta" id="view-time-row" style="display:none"><span class="event-meta-icon"></span><span id="view-time"></span></div>
-    <div class="event-meta"><span class="event-meta-icon"></span><span id="view-cal"></span></div>
-    <div class="event-meta" id="view-repeat-row" style="display:none"><span class="event-meta-icon"></span><span id="view-repeat"></span></div>
-    <div class="event-meta" id="view-manager-row" style="display:none"><span class="event-meta-icon"></span><span id="view-manager"></span></div>
+    <div class="event-meta"><span id="view-date"></span></div>
+    <div class="event-meta" id="view-time-row" style="display:none"><span id="view-time"></span></div>
+    <div class="event-meta"><span id="view-cal"></span></div>
+    <div class="event-meta" id="view-repeat-row" style="display:none"><span id="view-repeat"></span></div>
+    <div class="event-meta" id="view-manager-row" style="display:none"><span id="view-manager"></span></div>
     <div class="event-desc" id="view-desc" style="display:none"></div>
     <div id="view-people-tabs" style="display:none;margin-top:12px">
       <div class="rsvp-tabs">
@@ -636,7 +639,7 @@ textarea.form-input{resize:vertical;min-height:68px}
     <div class="modal-actions" id="view-actions">
       <button class="btn-danger" id="view-delete-btn" onclick="deleteViewedEvent()" style="display:none">Delete</button>
       <button class="btn-secondary" id="view-edit-btn" onclick="editViewedEvent()" style="display:none">Edit</button>
-      <button class="complete-btn" id="view-complete-btn" onclick="markTaskComplete()" style="display:none">Mark Complete</button>
+      <button class="complete-btn" id="view-complete-btn" onclick="markTaskComplete()" style="display:none">✓ Mark Complete</button>
       <button class="btn-secondary" onclick="closeModal('view-modal')">Close</button>
     </div>
   </div>
@@ -648,7 +651,6 @@ textarea.form-input{resize:vertical;min-height:68px}
     <button class="modal-close" onclick="closeModal('newcal-modal')">✕</button>
     <div class="modal-title">New Calendar</div>
     <div class="form-group"><label class="form-label">Name</label><input class="form-input" id="newcal-name" type="text" placeholder="e.g. Mechanical, Competition…"/></div>
-    <div class="form-group"><label class="form-label">Color</label><div class="color-row" id="newcal-color-row"></div></div>
     <div class="modal-actions"><button class="btn-secondary" onclick="closeModal('newcal-modal')">Cancel</button><button class="btn-primary-sm" onclick="saveNewCalendar()">Create</button></div>
   </div>
 </div>
@@ -691,7 +693,7 @@ textarea.form-input{resize:vertical;min-height:68px}
     <div class="modal-title" id="unexcused-modal-title">Absence Action</div>
     <p style="font-size:12px;color:var(--muted);margin-bottom:14px" id="unexcused-modal-desc"></p>
     <div class="form-group" id="unexcused-note-wrap"><label class="form-label">Note (optional)</label><input class="form-input" id="unexcused-note" type="text" placeholder="e.g. No prior notice given"/></div>
-    <div class="modal-actions"><button class="btn-secondary" onclick="closeModal('unexcused-modal')">Cancel</button><button class="btn-danger" id="unexcused-confirm-btn">Confirm</button></div>
+    <div class="modal-actions"><button class="btn-secondary" onclick="closeModal('unexcused-modal')">Cancel</button><button class="btn-danger" id="unexcused-confirm-btn" onclick="submitUnexcused()">Confirm</button></div>
   </div>
 </div>
 
@@ -718,83 +720,62 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/fireba
 import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as fbSignOut, updateProfile, updateEmail, updatePassword } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import { getFirestore, collection, doc, setDoc, getDoc, addDoc, updateDoc, deleteDoc, query, where, onSnapshot, serverTimestamp, getDocs, writeBatch } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCPbBj5WUGWduOLw1hmA761nawPxUbLRyA",
-  authDomain: "quixcalendar-fc708.firebaseapp.com",
-  projectId: "quixcalendar-fc708",
-  storageBucket: "quixcalendar-fc708.firebasestorage.app",
-  messagingSenderId: "1066637408084",
-  appId: "1:1066637408084:web:8f0655f4a089696319fac1"
-};
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+const firebaseConfig={apiKey:"AIzaSyCPbBj5WUGWduOLw1hmA761nawPxUbLRyA",authDomain:"quixcalendar-fc708.firebaseapp.com",projectId:"quixcalendar-fc708",storageBucket:"quixcalendar-fc708.firebasestorage.app",messagingSenderId:"1066637408084",appId:"1:1066637408084:web:8f0655f4a089696319fac1"};
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getFirestore(app);
 
-// ── State ──────────────────────────────────────────────────────────────────
-let cu=null, events=[], calendars=[], sharedCalendars=[];
-let currentDate=new Date(), miniDate=new Date();
-let selColor='#2979ff', editEvId=null, viewingEv=null;
-let unsubEv=null, unsubCals=null;
-let activeCalId=null, currentView='month', currentType='meeting';
-let invitees=[], assignees=[], calMembers=[], taskManagerUid=null;
-let _newCalColor='#2979ff', userPfpUrl=null;
-let declineTargetEvId=null, unexcusedTarget=null;
-let viewTab='all', currentPage='home';
-
-const COLORS=[
-  {v:'#00b4ff'},{v:'#22c55e'},{v:'#ef4444'},{v:'#f59e0b'},{v:'#a855f7'},{v:'#06b6d4'}
-];
+// ── Constants ──────────────────────────────────────────────────────────────
+const LEADER_ROLES=['Captain','Outreach Lead','Programming Lead','Mechanical Lead'];
+const PRIORITY_CYCLE=['critical','important','optional'];
+const PRIORITY_LABELS={critical:'Critical',important:'Important',optional:'Optional'};
 const REPEAT_LABELS={none:'Does not repeat',daily:'Daily',weekly:'Weekly',monthly:'Monthly'};
 
-// ── Loading timeout ────────────────────────────────────────────────────────
+// ── State ──────────────────────────────────────────────────────────────────
+let cu=null,events=[],calendars=[],sharedCalendars=[];
+let currentDate=new Date(),miniDate=new Date();
+let editEvId=null,viewingEv=null;
+let unsubEv=null,unsubCals=null;
+let activeCalId=null,currentView='month',currentType='meeting';
+let invitees=[],assignees=[],calMembers=[],taskManagerUid=null;
+let userPfpUrl=null,myRole=null;
+let declineTargetEvId=null,unexcusedTarget=null;
+let viewTab='all',currentPage='home';
+
 const _lt=setTimeout(()=>{
   const ls=document.getElementById('loading-screen');
-  if(ls&&ls.style.display!=='none')ls.innerHTML=`<div style="text-align:center;padding:24px;max-width:440px"><div style="font-size:24px;margin-bottom:10px;color:var(--red);font-weight:700">!</div><div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px">Firebase not connecting</div><div style="color:var(--muted);font-size:12px;line-height:1.8">Add domain: <strong style="color:var(--text)">Authentication → Settings → Authorized domains</strong><br>Add <code style="color:var(--accent2)">charliesridhara.github.io</code> or <code style="color:var(--accent2)">quixcalendar.org</code><br>Also fix Firestore rules: <code style="color:var(--accent2)">allow read, write: if request.auth != null;</code></div><button onclick="location.reload()" style="margin-top:16px;padding:9px 22px;background:var(--accent2);color:#fff;border:none;border-radius:8px;font-family:var(--font);font-size:12px;cursor:pointer">Refresh</button></div>`;
+  if(ls&&ls.style.display!=='none')ls.innerHTML=`<div style="text-align:center;padding:24px;max-width:440px"><div style="font-size:24px;margin-bottom:10px;color:var(--red);font-weight:700">!</div><div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px">Firebase not connecting</div><div style="color:var(--muted);font-size:12px;line-height:1.8">Check Firestore rules and authorized domains.</div><button onclick="location.reload()" style="margin-top:16px;padding:9px 22px;background:var(--accent2);color:#fff;border:none;border-radius:8px;font-family:var(--font);font-size:12px;cursor:pointer">Refresh</button></div>`;
 },10000);
 
 onAuthStateChanged(auth,async user=>{
   clearTimeout(_lt);
   document.getElementById('loading-screen').style.display='none';
-  if(user){cu=user;showApp();try{await initUserData(user);subscribeData(user.uid);}catch(e){console.error(e);showFSError();}}
+  if(user){cu=user;showApp();try{await initUserData(user);subscribeData(user.uid);}catch(e){console.error(e);}}
   else{cu=null;showAuth();}
 });
 
-function showFSError(){document.body.innerHTML+=`<div style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--bg);z-index:9999;padding:24px"><div style="background:var(--bg2);border:1px solid rgba(239,68,68,.3);border-radius:14px;padding:28px;max-width:440px;text-align:center"><div style="font-size:18px;font-weight:700;margin-bottom:8px">Firestore Rules Blocking App</div><div style="color:var(--muted);font-size:12px;line-height:1.8;margin-bottom:14px">Firebase console → Firestore → Rules → paste: <code style="color:var(--accent2)">allow read, write: if request.auth != null;</code> → Publish</div><button onclick="location.reload()" style="padding:9px 22px;background:var(--accent2);color:#fff;border:none;border-radius:7px;font-family:var(--font);font-size:12px;cursor:pointer">Refresh</button></div></div>`;}
-
 async function initUserData(user){
-  const CHARLIE_UID = 'FFCcwj3440ZXFcDZVAZzXmGuRQw2';
   const uref=doc(db,'users',user.uid);
   const snap=await getDoc(uref);
   if(!snap.exists()){
-    await setDoc(uref,{displayName:user.displayName||'User',email:user.email,joinedCalendars:[],pfpUrl:null,unexcusedCount:0});
+    await setDoc(uref,{displayName:user.displayName||'User',email:user.email,joinedCalendars:[],pfpUrl:null,unexcusedCount:0,role:null});
     const code=Math.random().toString(36).substring(2,8).toUpperCase();
-    await addDoc(collection(db,'calendars'),{uid:user.uid,name:'General',color:'#00b4ff',inviteCode:code,admins:[user.uid],subsections:[],createdAt:serverTimestamp()});
+    await addDoc(collection(db,'calendars'),{uid:user.uid,name:'General',color:'#00b4ff',inviteCode:code,roles:{},subsections:[],createdAt:serverTimestamp()});
   } else {
     userPfpUrl=snap.data().pfpUrl||null;
+    myRole=snap.data().role||null;
   }
-  try {
-    const calSnap = await getDocs(query(collection(db,'calendars'),where('uid','==',user.uid)));
-    for (const calDoc of calSnap.docs) {
-      const data = calDoc.data();
-      const admins = data.admins || [];
-      const needsPatch = !data.admins || !admins.includes(user.uid) || (user.uid === CHARLIE_UID && !admins.includes(CHARLIE_UID));
-      if (needsPatch) {
-        const newAdmins = [...new Set([...admins, user.uid])];
-        await updateDoc(doc(db,'calendars',calDoc.id), {admins: newAdmins, subsections: data.subsections||[]});
-      }
-    }
-  } catch(e) { console.error('Admin patch error:', e); }
   updateAvatarDisplay();
 }
 
 function subscribeData(uid){
-  if(unsubEv)unsubEv(); if(unsubCals)unsubCals();
+  if(unsubEv)unsubEv();if(unsubCals)unsubCals();
   unsubCals=onSnapshot(query(collection(db,'calendars'),where('uid','==',uid)),snap=>{
     calendars=snap.docs.map(d=>({id:d.id,...d.data()}));
     if(!activeCalId&&calendars.length>0)activeCalId=calendars[0].id;
     if(activeCalId&&!calendars.find(c=>c.id===activeCalId)&&!sharedCalendars.find(c=>c.id===activeCalId)&&calendars.length>0)activeCalId=calendars[0].id;
     renderSidebar();renderAll();updateAdminUI();
-  },err=>{console.error(err);showFSError();});
+  },err=>console.error(err));
 
   unsubEv=onSnapshot(query(collection(db,'events'),where('uid','==',uid)),snap=>{
     const own=snap.docs.map(d=>({id:d.id,...d.data()}));
@@ -803,33 +784,18 @@ function subscribeData(uid){
   },err=>console.error(err));
 
   subscribeInvitedEvents(uid);
-
-  setInterval(()=>{
-    const myInviteEvents=events.filter(e=>{
-      const ppl=e.type==='task'?e.assignees:e.invitees;
-      return ppl&&ppl.some(p=>p.uid===cu?.uid);
-    });
-    checkForNewInvites(myInviteEvents);
-  },30000);
-
   loadJoinedCalendars();
 }
 
 const _invitedUnsubs=[];
 function subscribeInvitedEvents(uid){
-  _invitedUnsubs.forEach(u=>u()); _invitedUnsubs.length=0;
-  const unsub = onSnapshot(
-    query(collection(db,'events'), where('inviteeUids','array-contains',uid)),
-    snap => {
-      const invited = snap.docs.map(d=>({id:d.id,...d.data(),_invited:true}));
-      events = events.filter(e=>!e._invited);
-      events = [...events, ...invited];
-      checkForNewInvites(invited);
-      renderAll();
-      if(currentPage==='home') renderHomePage();
-    },
-    err => console.error('Invited events error:', err)
-  );
+  _invitedUnsubs.forEach(u=>u());_invitedUnsubs.length=0;
+  const unsub=onSnapshot(query(collection(db,'events'),where('inviteeUids','array-contains',uid)),snap=>{
+    const invited=snap.docs.map(d=>({id:d.id,...d.data(),_invited:true}));
+    events=events.filter(e=>!e._invited);
+    events=[...events,...invited];
+    renderAll();if(currentPage==='home')renderHomePage();
+  },err=>console.error(err));
   _invitedUnsubs.push(unsub);
 }
 
@@ -850,17 +816,30 @@ window.handleSignUp=async()=>{
 window.signOut=async()=>{if(unsubEv)unsubEv();if(unsubCals)unsubCals();await fbSignOut(auth);};
 function friendlyErr(c){return({'auth/user-not-found':'No account with that email.','auth/wrong-password':'Incorrect password.','auth/email-already-in-use':'Email already in use.','auth/weak-password':'Password needs 6+ chars.','auth/invalid-email':'Invalid email.','auth/invalid-credential':'Incorrect email or password.'})[c]||'Something went wrong.';}
 
+// ── Roles ──────────────────────────────────────────────────────────────────
+// A user is a leader if they have any role set. Captain is the top leader.
+// roles are stored on the calendar doc as roles:{uid:'Captain',...}
+// and also on the user doc as role:'Captain'
+function getMyRoleForCal(calId){
+  const cal=calendars.find(c=>c.id===calId)||sharedCalendars.find(c=>c.id===calId);
+  if(!cal)return null;
+  return (cal.roles||{})[cu?.uid]||null;
+}
+function isLeader(calId){return !!getMyRoleForCal(calId);}
+function isCaptain(calId){return getMyRoleForCal(calId)==='Captain';}
+// Any leader can do admin actions
+function isAdmin(calId){return isLeader(calId);}
+
 // ── Page nav ───────────────────────────────────────────────────────────────
 window.showPage=(page)=>{
   currentPage=page;
   ['home','calendar','profile','admin'].forEach(p=>{
-    const el=document.getElementById(`page-${p}`);if(el)el.classList.toggle('active',p===page);
+    document.getElementById(`page-${p}`)?.classList.toggle('active',p===page);
     const nid=p==='calendar'?'nav-cal':p==='admin'?'nav-admin':`nav-${p}`;
-    const nel=document.getElementById(nid);if(nel)nel.classList.toggle('active',p===page);
+    document.getElementById(nid)?.classList.toggle('active',p===page);
   });
   document.getElementById('cal-topbar-center').style.display=page==='calendar'?'flex':'none';
-  const shareBtn=document.getElementById('share-btn');
-  if(shareBtn)shareBtn.style.display=page==='calendar'?'flex':'none';
+  document.getElementById('share-btn').style.display=page==='calendar'?'flex':'none';
   if(page==='home')renderHomePage();
   if(page==='profile')renderProfilePage();
   if(page==='admin')renderAdminPage();
@@ -868,19 +847,13 @@ window.showPage=(page)=>{
 
 function updateAdminUI(){
   const isAdm=isAdmin(activeCalId);
-  const ownsAny=calendars.some(c=>(c.admins||[]).includes(cu?.uid));
-  document.getElementById('nav-admin').style.display=ownsAny?'block':'none';
+  const isAnyLeader=calendars.some(c=>isLeader(c.id))||sharedCalendars.some(c=>isLeader(c.id));
+  document.getElementById('nav-admin').style.display=isAnyLeader?'block':'none';
   document.getElementById('create-btns').style.display=isAdm?'flex':'none';
+  document.getElementById('new-cal-btn').style.display=isCaptain(activeCalId)?'inline':'none';
   const hn=document.getElementById('cal-header-name');
   if(hn){hn.className='cal-header-name'+(isAdm?' editable':'');hn.ondblclick=isAdm?startRenameCalendar:null;}
-  const hh=document.getElementById('cal-header-hint');
-  if(hh)hh.textContent=isAdm?'· dbl-click to rename':'';
-}
-
-function isAdmin(calId){
-  const cal=calendars.find(c=>c.id===calId)||sharedCalendars.find(c=>c.id===calId);
-  if(!cal)return false;
-  return (cal.admins||[]).includes(cu?.uid);
+  document.getElementById('cal-header-hint').textContent=isAdm?'· dbl-click to rename':'';
 }
 
 // ── Render all ─────────────────────────────────────────────────────────────
@@ -893,17 +866,14 @@ function updateTopbar(){
   const M=['January','February','March','April','May','June','July','August','September','October','November','December'];
   if(currentView==='month'){document.getElementById('month-label').textContent=`${M[currentDate.getMonth()]} ${currentDate.getFullYear()}`;}
   else{const ws=weekStart(currentDate),we=new Date(ws);we.setDate(we.getDate()+6);document.getElementById('month-label').textContent=ws.getMonth()===we.getMonth()?`${M[ws.getMonth()]} ${ws.getDate()}–${we.getDate()}, ${ws.getFullYear()}`:`${M[ws.getMonth()]} ${ws.getDate()} – ${M[we.getMonth()]} ${we.getDate()}`;}
-  const name=cu?.displayName||cu?.email?.split('@')[0]||'User';
-  document.getElementById('user-display-name').textContent=name;
+  document.getElementById('user-display-name').textContent=cu?.displayName||cu?.email?.split('@')[0]||'User';
   updateAvatarDisplay();
 }
 
 function updateAvatarDisplay(){
   const char=(cu?.displayName||cu?.email||'?').charAt(0).toUpperCase();
-  const el=document.getElementById('user-avatar-el');
-  if(!el)return;
-  if(userPfpUrl)el.innerHTML=`<img src="${userPfpUrl}" alt="pfp"/>`;
-  else el.innerHTML=`<span>${char}</span>`;
+  const el=document.getElementById('user-avatar-el');if(!el)return;
+  el.innerHTML=userPfpUrl?`<img src="${userPfpUrl}" alt="pfp"/>`:`<span>${char}</span>`;
 }
 
 function updateCalHeader(){
@@ -920,18 +890,18 @@ function renderSidebar(){
   calendars.forEach(cal=>{
     const cnt=events.filter(e=>e.calendarId===cal.id&&!e.isShared).length;
     const isAct=activeCalId===cal.id;
+    const canDel=isCaptain(cal.id);
     const div=document.createElement('div');div.className=`calendar-item${isAct?' active':''}`;
-    div.innerHTML=`<div class="cal-dot" style="background:${cal.color}"></div><div class="cal-name">${cal.name}</div>${cnt?`<div class="cal-badge">${cnt}</div>`:''}<button class="cal-action-btn" title="Delete" onclick="confirmDeleteCalendar(event,'${cal.id}','${cal.name.replace(/'/g,"\\'")}')">✕</button>`;
+    div.innerHTML=`<div class="cal-dot" style="background:${cal.color}"></div><div class="cal-name">${cal.name}</div>${cnt?`<div class="cal-badge">${cnt}</div>`:''} ${canDel?`<button class="cal-action-btn" title="Delete" onclick="confirmDeleteCalendar(event,'${cal.id}','${cal.name.replace(/'/g,"\\'")}')">✕</button>`:''}`;
     div.addEventListener('click',e=>{if(e.target.classList.contains('cal-action-btn'))return;activeCalId=cal.id;renderSidebar();renderAll();updateAdminUI();});
     list.appendChild(div);
   });
   if(sharedCalendars.length>0){
     const sep=document.createElement('div');sep.className='sidebar-sub';sep.textContent='Shared with me';list.appendChild(sep);
     sharedCalendars.forEach(cal=>{
-      const cnt=events.filter(e=>e.sharedCalId===cal.id).length;
       const isAct=activeCalId===cal.id;
       const div=document.createElement('div');div.className=`calendar-item${isAct?' active':''}`;
-      div.innerHTML=`<div class="cal-dot" style="background:${cal.color}"></div><div class="cal-name">${cal.name}</div>${cnt?`<div class="cal-badge">${cnt}</div>`:''}<button class="cal-action-btn" title="Leave" onclick="leaveCalendar('${cal.id}')">✕</button>`;
+      div.innerHTML=`<div class="cal-dot" style="background:${cal.color}"></div><div class="cal-name">${cal.name}</div><button class="cal-action-btn" title="Leave" onclick="leaveCalendar('${cal.id}')">✕</button>`;
       div.addEventListener('click',e=>{if(e.target.classList.contains('cal-action-btn'))return;activeCalId=cal.id;renderSidebar();renderAll();});
       list.appendChild(div);
     });
@@ -968,8 +938,9 @@ function renderCalendar(){
       const cal=calendars.find(c=>c.id===ev.calendarId)||sharedCalendars.find(c=>c.id===ev.sharedCalId);
       const color=ev.color||cal?.color||'#2979ff';
       const pill=document.createElement('div');pill.className=`event-pill${ev.completed?' completed':''}`;
-      pill.style.background=color+'22';pill.style.color=color;
-      pill.innerHTML=`<div class="event-pill-dot" style="background:${color}"></div>${ev.type==='task'?'[T] ':''}${ev.allDay?'':(ev.time?ev.time+' · ':'')}${ev.title}`;
+      pill.style.background=ev.completed?'rgba(156,163,175,0.12)':color+'22';
+      pill.style.color=ev.completed?'var(--muted2)':color;
+      pill.innerHTML=`<div class="event-pill-dot" style="background:${ev.completed?'var(--muted2)':color}"></div>${ev.type==='task'?'[T] ':''}${ev.allDay?'':(ev.time?ev.time+' · ':'')}${ev.title}`;
       pill.onclick=e=>{e.stopPropagation();openViewEvent(ev);};evd.appendChild(pill);
     });
     if(cev.length>3){const mo=document.createElement('div');mo.className='more-events';mo.textContent=`+${cev.length-3} more`;evd.appendChild(mo);}
@@ -989,8 +960,7 @@ function expandRec(evList,rs,re){
       if(ev.repeat==='daily')cur.setDate(cur.getDate()+1);
       else if(ev.repeat==='weekly')cur.setDate(cur.getDate()+7);
       else if(ev.repeat==='monthly')cur.setMonth(cur.getMonth()+1);
-      else break;
-      cnt++;
+      else break;cnt++;
     }
   });
   return res;
@@ -1002,48 +972,38 @@ function weekStart(d){const s=new Date(d);s.setDate(s.getDate()-s.getDay());s.se
 function renderWeekView(){
   const ws=weekStart(currentDate),today=new Date();
   const days=Array.from({length:7},(_,i)=>{const d=new Date(ws);d.setDate(d.getDate()+i);return d;});
-  const H=60;
-  const re=new Date(ws);re.setDate(re.getDate()+6);
+  const H=60,re=new Date(ws);re.setDate(re.getDate()+6);
   const exp=expandRec(events,ws,re);
   const isShCal=sharedCalendars.find(c=>c.id===activeCalId);
   const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-
-  const hdr=document.getElementById('week-sticky-header');
-  hdr.innerHTML='<div class="week-time-gutter-hdr"></div>';
+  const hdr=document.getElementById('week-sticky-header');hdr.innerHTML='<div class="week-time-gutter-hdr"></div>';
   days.forEach(d=>{
     const isT=d.toDateString()===today.toDateString();
     const div=document.createElement('div');div.className='week-day-header';
     div.innerHTML=`<div style="font-size:9px;color:var(--muted2)">${dayNames[d.getDay()]}</div><div class="week-day-num${isT?' today':''}">${d.getDate()}</div>`;
     hdr.appendChild(div);
   });
-
-  const als=document.getElementById('week-allday-strip');
-  als.innerHTML='<div class="week-allday-gutter">all-day</div>';
+  const als=document.getElementById('week-allday-strip');als.innerHTML='<div class="week-allday-gutter">all-day</div>';
   days.forEach(d=>{
     const ds=d.toISOString().split('T')[0];
     const cell=document.createElement('div');cell.className='week-allday-cell';
     exp.filter(e=>e.date===ds&&e.allDay&&(isShCal?e.sharedCalId===activeCalId:((e.calendarId===activeCalId&&!e.isShared)||(e._invited&&e.calendarId===activeCalId)))).forEach(ev=>{
       const cal=calendars.find(c=>c.id===ev.calendarId)||sharedCalendars.find(c=>c.id===ev.sharedCalId);
-      const color=ev.color||cal?.color||'#2979ff';
+      const color=ev.completed?'#6b7280':(ev.color||cal?.color||'#2979ff');
       const p=document.createElement('div');p.className='week-allday-pill';
-      p.style.background=color+'22';p.style.color=color;
-      p.textContent=(ev.type==='task'?'[T] ':'')+ev.title;
+      p.style.background=color+'22';p.style.color=color;p.textContent=(ev.type==='task'?'[T] ':'')+ev.title;
       p.onclick=()=>openViewEvent(ev);cell.appendChild(p);
     });
     als.appendChild(cell);
   });
-
-  const tg=document.getElementById('week-time-gutter');tg.innerHTML='';
-  tg.style.borderRight='1px solid var(--border)';
+  const tg=document.getElementById('week-time-gutter');tg.innerHTML='';tg.style.borderRight='1px solid var(--border)';
   for(let h=0;h<24;h++){
     const line=document.createElement('div');line.className='time-gutter-line';line.style.top=`${h*H}px`;tg.appendChild(line);
     const lbl=document.createElement('div');lbl.className='week-time-label';
     lbl.textContent=h===0?'':(h<12?`${h} AM`:h===12?'12 PM':`${h-12} PM`);
     lbl.style.height=`${H}px`;tg.appendChild(lbl);
   }
-
-  const wd=document.getElementById('week-days');wd.innerHTML='';
-  wd.style.gridTemplateColumns=`repeat(7,1fr)`;
+  const wd=document.getElementById('week-days');wd.innerHTML='';wd.style.gridTemplateColumns='repeat(7,1fr)';
   days.forEach(d=>{
     const ds=d.toISOString().split('T')[0];
     const col=document.createElement('div');col.className='week-body-col';
@@ -1052,8 +1012,7 @@ function renderWeekView(){
       const half=document.createElement('div');half.className='week-half-line';half.style.top=`${h*H+30}px`;col.appendChild(half);
     }
     if(d.toDateString()===today.toDateString()){
-      const nl=document.createElement('div');nl.className='week-now-line';
-      nl.style.top=`${((today.getHours()*60+today.getMinutes())/60)*H}px`;col.appendChild(nl);
+      const nl=document.createElement('div');nl.className='week-now-line';nl.style.top=`${((today.getHours()*60+today.getMinutes())/60)*H}px`;col.appendChild(nl);
     }
     col.addEventListener('click',e=>{
       if(e.target!==col)return;
@@ -1064,7 +1023,7 @@ function renderWeekView(){
     });
     exp.filter(e=>e.date===ds&&!e.allDay&&e.time&&(isShCal?e.sharedCalId===activeCalId:((e.calendarId===activeCalId&&!e.isShared)||(e._invited&&e.calendarId===activeCalId)))).forEach(ev=>{
       const cal=calendars.find(c=>c.id===ev.calendarId)||sharedCalendars.find(c=>c.id===ev.sharedCalId);
-      const color=ev.color||cal?.color||'#2979ff';
+      const color=ev.completed?'#6b7280':(ev.color||cal?.color||'#2979ff');
       const[sh,sm]=ev.time.split(':').map(Number);let sm0=sh*60+sm,em0=sm0+60;
       if(ev.timeEnd){const[eh,em]=ev.timeEnd.split(':').map(Number);em0=eh*60+em;}
       const blk=document.createElement('div');blk.className=`week-event-block${ev.completed?' completed':''}`;
@@ -1075,7 +1034,6 @@ function renderWeekView(){
     });
     wd.appendChild(col);
   });
-
   const scroll=document.getElementById('week-scroll');
   if(scroll&&scroll.dataset.scrolled!=='1'){scroll.scrollTop=8*H-20;scroll.dataset.scrolled='1';}
 }
@@ -1110,42 +1068,96 @@ window.setView=(v)=>{currentView=v;document.getElementById('month-view').style.d
 
 // ── Home ───────────────────────────────────────────────────────────────────
 function daysUntil(ds){return(new Date(ds+'T12:00:00')-new Date())/(864e5);}
+const priOrder={critical:0,important:1,optional:2};
 
 function renderHomePage(){
   const h=new Date().getHours();
   document.getElementById('home-greeting').textContent=(h<12?'Good morning':h<17?'Good afternoon':'Good evening')+`, ${cu?.displayName?.split(' ')[0]||'there'}!`;
   loadAbsenceCount();
+
+  // Role display
+  const roleRow=document.getElementById('home-role-row');
+  if(myRole)roleRow.innerHTML=`Your role: <span class="role-badge">${myRole}</span>`;
+  else roleRow.textContent='';
+
   const now=new Date(),soon=new Date(now);soon.setDate(soon.getDate()+14);
+  const myUid=cu?.uid,myEmail=(cu?.email||'').toLowerCase();
+
+  // Upcoming meetings
   const upEl=document.getElementById('home-upcoming');upEl.innerHTML='';
-  const upcoming=events.filter(e=>!e.isShared&&!e.completed).filter(e=>{const d=new Date(e.date+'T12:00:00');return d>=now&&d<=soon;}).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,8);
-  if(!upcoming.length)upEl.innerHTML='<div style="color:var(--muted2);font-size:12px">No upcoming events in 2 weeks</div>';
+  const upcoming=events.filter(e=>e.type!=='task'&&!e.isShared&&!e.completed).filter(e=>{const d=new Date(e.date+'T12:00:00');return d>=now&&d<=soon;}).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,8);
+  if(!upcoming.length)upEl.innerHTML='<div style="color:var(--muted2);font-size:12px">No upcoming meetings in 2 weeks</div>';
   else upcoming.forEach(ev=>{
     const cal=calendars.find(c=>c.id===ev.calendarId);
     const color=ev.color||cal?.color||'#2979ff';
     const d=new Date(ev.date+'T12:00:00');
     const row=document.createElement('div');row.className='upcoming-row';
-    row.innerHTML=`<div class="upcoming-dot" style="background:${color}"></div><div><div class="upcoming-title">${ev.type==='task'?'Task: ':'Mtg: '}${ev.title}</div><div class="upcoming-meta">${d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}${ev.time?' · '+ev.time:''}</div></div>`;
+    row.innerHTML=`<div class="upcoming-dot" style="background:${color}"></div><div><div class="upcoming-title">${ev.title}</div><div class="upcoming-meta">${d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}${ev.time?' · '+ev.time:''}</div></div>`;
     row.onclick=()=>openViewEvent(ev);upEl.appendChild(row);
   });
+
+  // Meeting invitations
   const invEl=document.getElementById('home-invites');invEl.innerHTML='';
-  const myUid=cu?.uid,myEmail=(cu?.email||'').toLowerCase();
-  const myInvites=events.filter(e=>{const ppl=e.type==='task'?e.assignees:e.invitees;return ppl&&ppl.some(p=>p.uid===myUid||p.email===myEmail);});
-  if(!myInvites.length)invEl.innerHTML='<div style="color:var(--muted2);font-size:12px">No invitations</div>';
-  else myInvites.forEach(ev=>{
+  const myMtgInvites=events.filter(e=>{
+    if(e.type==='task')return false;
+    if(e.completed)return false;
+    const ppl=e.invitees||[];
+    return ppl.some(p=>p.uid===myUid||p.email===myEmail);
+  });
+  if(!myMtgInvites.length)invEl.innerHTML='<div style="color:var(--muted2);font-size:12px">No meeting invitations</div>';
+  else myMtgInvites.forEach(ev=>{
     const cal=calendars.find(c=>c.id===ev.calendarId)||sharedCalendars.find(c=>c.id===ev.sharedCalId);
     const color=ev.color||cal?.color||'#2979ff';
-    const ppl=ev.type==='task'?ev.assignees:ev.invitees;
+    const ppl=ev.invitees||[];
     const me=ppl.find(p=>p.uid===myUid||p.email===myEmail);
     const rsvp=(ev.rsvp||{})[myUid];
     const d=new Date(ev.date+'T12:00:00');
-    const card=document.createElement('div');card.className=`invite-card${ev.type==='task'?' task-invite':''}`;card.style.borderLeftColor=color;
+    const card=document.createElement('div');card.className='invite-card';card.style.borderLeftColor=color;
     const days3=daysUntil(ev.date)>=3;
     let statusHtml='';
     if(rsvp==='accepted')statusHtml=`<div class="invite-actions"><span class="invite-status accepted">Accepted</span>${days3?`<button class="btn-decline" style="font-size:10px;padding:3px 9px" onclick="rsvpEvent('${ev.id}','decline')">Change</button>`:''}</div>`;
     else if(rsvp==='declined')statusHtml=`<div class="invite-actions"><span class="invite-status declined">Declined</span>${days3?`<button class="btn-accept" style="font-size:10px;padding:3px 9px" onclick="rsvpEvent('${ev.id}','accept')">Change</button>`:''}</div>`;
     else statusHtml=`<div class="invite-actions"><button class="btn-accept" onclick="rsvpEvent('${ev.id}','accept')">Accept</button><button class="btn-decline" onclick="rsvpEvent('${ev.id}','decline')">Decline</button></div>`;
-    card.innerHTML=`<div class="invite-card-title">${ev.type==='task'?'Task':'Mtg'} ${ev.title}</div><div class="invite-card-meta">${d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}${ev.time?' · '+ev.time:''}<br>${cal?.name||'Calendar'}${me&&ev.type==='meeting'?` · <span style="color:${me.attendance==='mandatory'?'var(--red)':'var(--green)'}">${me.attendance==='mandatory'?'Mandatory':'Optional'}</span>`:''}</div>${statusHtml}`;
+    card.innerHTML=`<div class="invite-card-title">${ev.title}</div><div class="invite-card-meta">${d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}${ev.time?' · '+ev.time:''}<br>${cal?.name||'Calendar'}${me?` · <span style="color:${me.attendance==='mandatory'?'var(--red)':'var(--green)'}">${me.attendance==='mandatory'?'Mandatory':'Optional'}</span>`:''}</div>${statusHtml}`;
     invEl.appendChild(card);
+  });
+
+  // My tasks — sorted by priority
+  const taskEl=document.getElementById('home-tasks');taskEl.innerHTML='';
+  const myTasks=events.filter(e=>{
+    if(e.type!=='task')return false;
+    if(e.completed)return false;
+    const asgn=e.assignees||[];
+    return asgn.some(a=>a.uid===myUid||a.email===myEmail);
+  }).sort((a,b)=>{
+    // sort by priority then date
+    const pa=priOrder[(a.assignees||[]).find(x=>x.uid===myUid)?.priority||'optional'];
+    const pb=priOrder[(b.assignees||[]).find(x=>x.uid===myUid)?.priority||'optional'];
+    if(pa!==pb)return pa-pb;
+    return a.date.localeCompare(b.date);
+  });
+  if(!myTasks.length)taskEl.innerHTML='<div style="color:var(--muted2);font-size:12px">No tasks assigned to you</div>';
+  else myTasks.forEach(ev=>{
+    const cal=calendars.find(c=>c.id===ev.calendarId)||sharedCalendars.find(c=>c.id===ev.sharedCalId);
+    const me=(ev.assignees||[]).find(a=>a.uid===myUid);
+    const pri=me?.priority||'optional';
+    const d=new Date(ev.date+'T12:00:00');
+    const row=document.createElement('div');row.className='upcoming-row';
+    row.innerHTML=`<div class="upcoming-dot" style="background:${pri==='critical'?'var(--red)':pri==='important'?'var(--amber)':'var(--green)'}"></div><div style="flex:1"><div class="upcoming-title">${ev.title}</div><div class="upcoming-meta">${d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})} · ${cal?.name||'Calendar'}</div></div><span class="priority-badge priority-${pri}">${PRIORITY_LABELS[pri]}</span>`;
+    row.onclick=()=>openViewEvent(ev);taskEl.appendChild(row);
+  });
+
+  // Tasks I'm managing
+  const mgrCard=document.getElementById('home-managed-tasks-card');
+  const mgrEl=document.getElementById('home-managed-tasks');mgrEl.innerHTML='';
+  const managedTasks=events.filter(e=>e.type==='task'&&!e.completed&&e.taskManagerUid===myUid);
+  mgrCard.style.display=managedTasks.length?'block':'none';
+  managedTasks.sort((a,b)=>a.date.localeCompare(b.date)).forEach(ev=>{
+    const d=new Date(ev.date+'T12:00:00');
+    const asgn=ev.assignees||[];
+    const row=document.createElement('div');row.className='upcoming-row';
+    row.innerHTML=`<div class="upcoming-dot" style="background:var(--amber)"></div><div style="flex:1"><div class="upcoming-title">${ev.title}</div><div class="upcoming-meta">${d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})} · ${asgn.length} assignee${asgn.length!==1?'s':''}: ${asgn.map(a=>a.name||a.displayName||a.email).join(', ')}</div></div>`;
+    row.onclick=()=>openViewEvent(ev);mgrEl.appendChild(row);
   });
 }
 
@@ -1153,18 +1165,15 @@ async function loadAbsenceCount(){
   if(!cu)return;
   const us=await getDoc(doc(db,'users',cu.uid));
   const cnt=us.data()?.unexcusedCount||0;
-  const pb=document.getElementById('home-probation-banner');
-  const ar=document.getElementById('home-absence-row');
-  const ac=document.getElementById('home-absence-count');
-  if(pb)pb.style.display=cnt>=3?'block':'none';
-  if(ar)ar.style.display=cnt>0?'block':'none';
-  if(ac)ac.textContent=cnt;
+  document.getElementById('home-probation-banner').style.display=cnt>=3?'block':'none';
+  document.getElementById('home-absence-row').style.display=cnt>0?'flex':'none';
+  document.getElementById('home-absence-count').textContent=cnt;
 }
 
 // ── RSVP ──────────────────────────────────────────────────────────────────
 window.rsvpEvent=async(evId,action)=>{
   const ev=events.find(e=>e.id===evId);if(!ev)return;
-  if(daysUntil(ev.date)<3){toast('Cannot change RSVP within 3 days — contact your lead directly');return;}
+  if(daysUntil(ev.date)<3){toast('Cannot change RSVP within 3 days');return;}
   if(action==='decline'){
     declineTargetEvId=evId;
     document.getElementById('decline-reason').value=(ev.declineReasons||{})[cu.uid]||'';
@@ -1191,9 +1200,12 @@ window.setViewTab=(tab)=>{
 function openViewEvent(ev){
   viewingEv=ev;
   const cal=calendars.find(c=>c.id===ev.calendarId)||sharedCalendars.find(c=>c.id===ev.sharedCalId);
-  const color=ev.color||cal?.color||'#2979ff';
-  const typeBadge=ev.type==='task'?`<span class="event-type-badge" style="background:var(--amber-dim);color:var(--amber)">TASK</span>`:`<span class="event-type-badge" style="background:var(--accent-dim);color:var(--accent2)">MEETING</span>`;
-  document.getElementById('view-title').innerHTML=`<span class="event-view-color" style="background:${color}"></span>${ev.title}${typeBadge}`;
+  const color=ev.completed?'#6b7280':(ev.color||cal?.color||'#2979ff');
+  const typeBadge=ev.type==='task'
+    ?`<span class="event-type-badge" style="background:var(--amber-dim);color:var(--amber)">TASK</span>`
+    :`<span class="event-type-badge" style="background:var(--accent-dim);color:var(--accent2)">MEETING</span>`;
+  const completedBadge=ev.completed?`<span class="event-type-badge" style="background:rgba(156,163,175,.15);color:var(--muted)">COMPLETED</span>`:'';
+  document.getElementById('view-title').innerHTML=`<span class="event-view-color" style="background:${color}"></span>${ev.title}${typeBadge}${completedBadge}`;
   const dateObj=new Date(ev.date+'T12:00:00');
   document.getElementById('view-date').textContent=dateObj.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
   if(ev.allDay){document.getElementById('view-time').textContent='All day';document.getElementById('view-time-row').style.display='flex';}
@@ -1206,8 +1218,8 @@ function openViewEvent(ev){
   else document.getElementById('view-desc').style.display='none';
   const mgrRow=document.getElementById('view-manager-row');
   if(ev.type==='task'&&ev.taskManagerUid){
-    const mgr=(ev.assignees||[]).find(a=>a.uid===ev.taskManagerUid)||(ev.invitees||[]).find(a=>a.uid===ev.taskManagerUid);
-    document.getElementById('view-manager').textContent='Manager: '+(mgr?.name||ev.taskManagerUid);
+    const mgr=(ev.assignees||[]).find(a=>a.uid===ev.taskManagerUid);
+    document.getElementById('view-manager').textContent='Manager: '+(mgr?.name||mgr?.displayName||ev.taskManagerUid);
     mgrRow.style.display='flex';
   } else mgrRow.style.display='none';
   const ppl=ev.type==='task'?ev.assignees:ev.invitees;
@@ -1218,7 +1230,8 @@ function openViewEvent(ev){
   const isAdm=isAdmin(ev.calendarId);
   const isMgr=ev.type==='task'&&ev.taskManagerUid===cu?.uid;
   document.getElementById('view-delete-btn').style.display=isOwn||isAdm?'block':'none';
-  document.getElementById('view-edit-btn').style.display=isOwn||isAdm||isMgr?'block':'none';
+  document.getElementById('view-edit-btn').style.display=(isOwn||isAdm||isMgr)&&!ev.completed?'block':'none';
+  // FIX #6: complete button shows for admin OR task manager, task turns gray when done
   document.getElementById('view-complete-btn').style.display=(ev.type==='task'&&(isAdm||isMgr)&&!ev.completed)?'block':'none';
   document.getElementById('view-modal').classList.add('open');
 }
@@ -1231,38 +1244,51 @@ function renderViewPeople(){
   el.innerHTML='';
   if(!ppl||!ppl.length){document.getElementById('view-people-tabs').style.display='none';return;}
   document.getElementById('view-people-tabs').style.display='block';
-  const filtered=viewTab==='all'?ppl:ppl.filter(p=>{const r=(ev.rsvp||{})[p.uid];return viewTab==='accepted'?r==='accepted':viewTab==='declined'?r==='declined':!r;});
+  // For tasks, show all assignees regardless of tab (no rsvp concept for tasks)
+  const isTask=ev.type==='task';
+  const filtered=isTask?ppl:(viewTab==='all'?ppl:ppl.filter(p=>{const r=(ev.rsvp||{})[p.uid];return viewTab==='accepted'?r==='accepted':viewTab==='declined'?r==='declined':!r;}));
   if(!filtered.length){el.innerHTML=`<div style="font-size:12px;color:var(--muted2);padding:7px 4px">No ${viewTab} responses</div>`;return;}
   const isAdm=isAdmin(ev.calendarId);
   filtered.forEach(p=>{
     const rsvp=(ev.rsvp||{})[p.uid];
     const dr=(ev.declineReasons||{})[p.uid];
     const ux=(ev.unexcusedAbsences||{})[p.uid];
-    const isMand=p.attendance==='mandatory';
     const hasDr=rsvp==='declined'&&dr;
     const row=document.createElement('div');row.className=`view-invitee-row${hasDr?' has-decline':''}`;
-    const attB=`<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:${isMand?'var(--red-dim)':'var(--green-dim)'};color:${isMand?'var(--red)':'var(--green)'}">${isMand?(ev.type==='task'?'Must complete':'Mandatory'):'Optional'}</span>`;
-    let rsvpB='<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:var(--bg4);color:var(--muted2)">Pending</span>';
-    if(rsvp==='accepted')rsvpB=`<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:var(--green-dim);color:var(--green)">Accepted</span>`;
-    else if(rsvp==='declined')rsvpB=`<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:var(--red-dim);color:var(--red)">Declined${hasDr?' ·':''}</span>`;
+    let attBadge='';
+    if(isTask){
+      const pri=p.priority||'optional';
+      attBadge=`<span class="priority-badge priority-${pri}">${PRIORITY_LABELS[pri]}</span>`;
+    } else {
+      const isMand=p.attendance==='mandatory';
+      attBadge=`<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:${isMand?'var(--red-dim)':'var(--green-dim)'};color:${isMand?'var(--red)':'var(--green)'}">${isMand?'Mandatory':'Optional'}</span>`;
+    }
+    let rsvpB='';
+    if(!isTask){
+      if(rsvp==='accepted')rsvpB=`<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:var(--green-dim);color:var(--green)">Accepted</span>`;
+      else if(rsvp==='declined')rsvpB=`<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:var(--red-dim);color:var(--red)">Declined</span>`;
+      else rsvpB='<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:var(--bg4);color:var(--muted2)">Pending</span>';
+    }
     const uxB=ux?`<span style="font-size:9px;padding:2px 7px;border-radius:8px;background:rgba(239,68,68,.25);color:var(--red);font-weight:700">UNEXCUSED</span>`:'';
     let adminBtn='';
-    if(isAdm&&rsvp==='declined'){
-      if(!ux)adminBtn=`<button onclick="openUnexcused('${ev.id}','${p.uid}','${p.name.replace(/'/g,"\\'")}','mark');event.stopPropagation()" style="padding:2px 7px;font-size:9px;font-weight:600;border-radius:5px;border:1px solid rgba(239,68,68,.3);background:var(--red-dim);color:var(--red);cursor:pointer;font-family:var(--font)">Mark Unexcused</button>`;
-      else adminBtn=`<button onclick="openUnexcused('${ev.id}','${p.uid}','${p.name.replace(/'/g,"\\'")}','reverse');event.stopPropagation()" style="padding:2px 7px;font-size:9px;font-weight:600;border-radius:5px;border:1px solid rgba(34,197,94,.3);background:var(--green-dim);color:var(--green);cursor:pointer;font-family:var(--font)">Reverse</button>`;
+    if(isAdm&&!isTask&&rsvp==='declined'){
+      if(!ux)adminBtn=`<button onclick="openUnexcused('${ev.id}','${p.uid}','${(p.name||p.displayName||'').replace(/'/g,"\\'")}','mark');event.stopPropagation()" style="padding:2px 7px;font-size:9px;font-weight:600;border-radius:5px;border:1px solid rgba(239,68,68,.3);background:var(--red-dim);color:var(--red);cursor:pointer;font-family:var(--font)">Mark Unexcused</button>`;
+      else adminBtn=`<button onclick="openUnexcused('${ev.id}','${p.uid}','${(p.name||p.displayName||'').replace(/'/g,"\\'")}','reverse');event.stopPropagation()" style="padding:2px 7px;font-size:9px;font-weight:600;border-radius:5px;border:1px solid rgba(34,197,94,.3);background:var(--green-dim);color:var(--green);cursor:pointer;font-family:var(--font)">Reverse</button>`;
     }
-    row.innerHTML=`<span style="color:var(--text);font-weight:600;min-width:70px">${p.name}</span><span style="color:var(--muted);font-size:10px;flex:1">${p.email||''}</span>${attB} ${rsvpB} ${uxB} ${adminBtn}${hasDr?`<div class="decline-reason-box"><strong style="color:var(--red)">Reason:</strong> ${dr}</div>`:''}`;
+    row.innerHTML=`<span style="color:var(--text);font-weight:600;min-width:70px">${p.name||p.displayName||''}</span><span style="color:var(--muted);font-size:10px;flex:1">${p.email||''}</span>${attBadge} ${rsvpB} ${uxB} ${adminBtn}${hasDr?`<div class="decline-reason-box"><strong style="color:var(--red)">Reason:</strong> ${dr}</div>`:''}`;
     if(hasDr)row.onclick=()=>row.querySelector('.decline-reason-box').classList.toggle('open');
     el.appendChild(row);
   });
 }
 
-window.deleteViewedEvent=async()=>{if(!viewingEv)return;if(!confirm('Delete?'))return;await deleteDoc(doc(db,'events',viewingEv.id));toast('Deleted');closeModal('view-modal');viewingEv=null;};
+// FIX #3: deleteViewedEvent removes from invitees list too — done via Firestore delete which triggers snapshot
+window.deleteViewedEvent=async()=>{if(!viewingEv)return;if(!confirm('Delete this event?'))return;await deleteDoc(doc(db,'events',viewingEv.id));toast('Deleted');closeModal('view-modal');viewingEv=null;};
 window.editViewedEvent=()=>{closeModal('view-modal');openEventModal(viewingEv);};
 
+// FIX #6: completed tasks go gray (handled in CSS + color logic)
 window.markTaskComplete=async()=>{
   if(!viewingEv||viewingEv.type!=='task')return;
-  if(!confirm('Mark this task as complete? It will be removed from the calendar.'))return;
+  if(!confirm('Mark this task complete? It will appear grayed out.'))return;
   await updateDoc(doc(db,'events',viewingEv.id),{completed:true,completedAt:serverTimestamp()});
   toast('Task marked complete');closeModal('view-modal');viewingEv=null;
 };
@@ -1270,13 +1296,12 @@ window.markTaskComplete=async()=>{
 // ── Unexcused ──────────────────────────────────────────────────────────────
 window.openUnexcused=(evId,uid,name,action)=>{
   unexcusedTarget={evId,uid,action};
-  const modal=document.getElementById('unexcused-modal');
   document.getElementById('unexcused-modal-title').textContent=action==='mark'?'Mark Unexcused':'Reverse Unexcused Absence';
   document.getElementById('unexcused-modal-desc').textContent=action==='mark'?`Mark ${name}'s absence as unexcused?`:`Reverse the unexcused mark for ${name}?`;
   document.getElementById('unexcused-note-wrap').style.display=action==='mark'?'block':'none';
   document.getElementById('unexcused-note').value='';
   document.getElementById('unexcused-confirm-btn').textContent=action==='mark'?'Mark Unexcused':'Reverse';
-  modal.classList.add('open');
+  document.getElementById('unexcused-modal').classList.add('open');
 };
 window.submitUnexcused=async()=>{
   if(!unexcusedTarget)return;
@@ -1290,8 +1315,7 @@ window.submitUnexcused=async()=>{
   } else {
     await updateDoc(doc(db,'events',evId),{[`unexcusedAbsences.${uid}`]:null,[`unexcusedNotes.${uid}`]:null});
     const us=await getDoc(doc(db,'users',uid));
-    const cur=us.data()?.unexcusedCount||0;
-    await updateDoc(doc(db,'users',uid),{unexcusedCount:Math.max(0,cur-1)});
+    await updateDoc(doc(db,'users',uid),{unexcusedCount:Math.max(0,(us.data()?.unexcusedCount||0)-1)});
     toast('Absence reversed');
   }
   closeModal('unexcused-modal');renderViewPeople();if(currentPage==='admin')renderAdminPage();
@@ -1299,7 +1323,7 @@ window.submitUnexcused=async()=>{
 
 // ── Event modal ────────────────────────────────────────────────────────────
 window.openNewEvent=(type='meeting')=>openEventModal(null,null,type);
-window.openNewEventOnDate=(date)=>openEventModal(null,date,'meeting');
+window.openNewEventOnDate=(date)=>{if(!isAdmin(activeCalId))return;openEventModal(null,date,'meeting');};
 
 function openEventModal(ev=null,defDate=null,defType='meeting'){
   editEvId=ev?.id||null;
@@ -1316,9 +1340,8 @@ function openEventModal(ev=null,defDate=null,defType='meeting'){
   document.getElementById('ev-repeat-end').value=ev?.repeatEnd||'';
   document.getElementById('ev-repeat-end-wrap').style.display=(ev?.repeat&&ev.repeat!=='none')?'block':'none';
   document.getElementById('ev-delete-btn').style.display=ev?'block':'none';
-  const isAllDay=ev?.allDay||false;
-  document.getElementById('ev-allday').checked=isAllDay;
-  document.getElementById('ev-time-row').style.display=(type==='meeting'&&!isAllDay)?'grid':'none';
+  document.getElementById('ev-allday').checked=ev?.allDay||false;
+  document.getElementById('ev-time-row').style.display=(type==='meeting'&&!ev?.allDay)?'grid':'none';
   const sel=document.getElementById('ev-calendar');sel.innerHTML='';
   calendars.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.name;sel.appendChild(o);});
   if(ev?.calendarId)sel.value=ev.calendarId;
@@ -1347,14 +1370,19 @@ window.switchType=(type)=>{
 async function loadCalMembers(calId){
   calMembers=[];
   if(!calId){renderChecklists();return;}
-  calMembers.push({uid:cu.uid,displayName:cu.displayName||cu.email?.split('@')[0]||'Me',email:cu.email||'',subsection:''});
+  // FIX #4: include yourself in the members list
+  const mySnap=await getDoc(doc(db,'users',cu.uid));
+  calMembers.push({uid:cu.uid,displayName:cu.displayName||cu.email?.split('@')[0]||'Me',email:cu.email||'',subsection:mySnap.data()?.[`subsection_${calId}`]||''});
   try{
     const snap=await getDocs(query(collection(db,'users'),where('joinedCalendars','array-contains',calId)));
     snap.docs.forEach(d=>{if(d.id!==cu.uid)calMembers.push({uid:d.id,displayName:d.data().displayName||d.data().email?.split('@')[0]||'User',email:d.data().email||'',subsection:d.data()[`subsection_${calId}`]||''});});
   }catch(e){console.error(e);}
   renderChecklists();
   const ms=document.getElementById('ev-task-manager');
-  if(ms){ms.innerHTML='<option value="">— Select manager —</option>';calMembers.forEach(m=>{const o=document.createElement('option');o.value=m.uid;o.textContent=m.displayName+(m.email?` (${m.email})`:'');if(m.uid===taskManagerUid)o.selected=true;ms.appendChild(o);});}
+  if(ms){
+    ms.innerHTML='<option value="">— Select manager (optional) —</option>';
+    calMembers.forEach(m=>{const o=document.createElement('option');o.value=m.uid;o.textContent=m.displayName+(m.email?` (${m.email})`:'');if(m.uid===taskManagerUid)o.selected=true;ms.appendChild(o);});
+  }
 }
 
 function getCalSubsections(calId){
@@ -1364,37 +1392,84 @@ function getCalSubsections(calId){
 function renderChecklists(){
   const calId=document.getElementById('ev-calendar')?.value;
   const subs=getCalSubsections(calId);
-  const gf=document.getElementById('ev-group-filter');
-  if(gf){gf.innerHTML='';if(subs.length>0){const allBtn=document.createElement('button');allBtn.style.cssText='padding:3px 9px;font-size:10px;font-weight:600;border-radius:5px;border:1px solid var(--accent-border);background:var(--accent-dim);color:var(--accent2);cursor:pointer;font-family:var(--font)';allBtn.textContent='All';allBtn.onclick=()=>{invitees=calMembers.filter(m=>m.uid!==cu.uid).map(m=>({...m,attendance:'mandatory'}));renderChecklists();};gf.appendChild(allBtn);subs.forEach(s=>{const b=document.createElement('button');b.style.cssText='padding:3px 9px;font-size:10px;font-weight:600;border-radius:5px;border:1px solid var(--border2);background:transparent;color:var(--muted);cursor:pointer;font-family:var(--font)';b.textContent=s;b.onclick=()=>{const grp=calMembers.filter(m=>m.subsection===s&&m.uid!==cu.uid);grp.forEach(m=>{if(!invitees.find(i=>i.uid===m.uid))invitees.push({...m,attendance:'mandatory'});});renderChecklists();};gf.appendChild(b);});}}
-  const gft=document.getElementById('ev-group-filter-task');
-  if(gft){gft.innerHTML='';if(subs.length>0){const allBtn=document.createElement('button');allBtn.style.cssText='padding:3px 9px;font-size:10px;font-weight:600;border-radius:5px;border:1px solid var(--accent-border);background:var(--accent-dim);color:var(--accent2);cursor:pointer;font-family:var(--font)';allBtn.textContent='All';allBtn.onclick=()=>{assignees=calMembers.filter(m=>m.uid!==cu.uid).map(m=>({...m,attendance:'mandatory'}));renderChecklists();};gft.appendChild(allBtn);subs.forEach(s=>{const b=document.createElement('button');b.style.cssText='padding:3px 9px;font-size:10px;font-weight:600;border-radius:5px;border:1px solid var(--border2);background:transparent;color:var(--muted);cursor:pointer;font-family:var(--font)';b.textContent=s;b.onclick=()=>{const grp=calMembers.filter(m=>m.subsection===s&&m.uid!==cu.uid);grp.forEach(m=>{if(!assignees.find(a=>a.uid===m.uid))assignees.push({...m,attendance:'mandatory'});});renderChecklists();};gft.appendChild(b);});}}
+  // Group filter buttons
+  function buildGroupFilter(containerId,arr,isTask){
+    const gf=document.getElementById(containerId);if(!gf)return;
+    gf.innerHTML='';
+    if(subs.length>0){
+      const allBtn=document.createElement('button');
+      allBtn.style.cssText='padding:3px 9px;font-size:10px;font-weight:600;border-radius:5px;border:1px solid var(--accent-border);background:var(--accent-dim);color:var(--accent2);cursor:pointer;font-family:var(--font)';
+      allBtn.textContent='All';
+      allBtn.onclick=()=>{
+        const toAdd=calMembers.map(m=>({...m,attendance:'mandatory',priority:'important'}));
+        if(isTask){assignees=toAdd;}else{invitees=toAdd;}
+        renderChecklists();
+      };
+      gf.appendChild(allBtn);
+      subs.forEach(s=>{
+        const b=document.createElement('button');
+        b.style.cssText='padding:3px 9px;font-size:10px;font-weight:600;border-radius:5px;border:1px solid var(--border2);background:transparent;color:var(--muted);cursor:pointer;font-family:var(--font)';
+        b.textContent=s;
+        b.onclick=()=>{
+          const grp=calMembers.filter(m=>m.subsection===s);
+          grp.forEach(m=>{
+            if(isTask){if(!assignees.find(a=>a.uid===m.uid))assignees.push({...m,priority:'important'});}
+            else{if(!invitees.find(i=>i.uid===m.uid))invitees.push({...m,attendance:'mandatory'});}
+          });
+          renderChecklists();
+        };
+        gf.appendChild(b);
+      });
+    }
+  }
+  buildGroupFilter('ev-group-filter',invitees,false);
+  buildGroupFilter('ev-group-filter-task',assignees,true);
 
+  // Meeting checklist — includes self (FIX #4)
   const ic=document.getElementById('ev-invite-checklist');
   const ac=document.getElementById('ev-assign-checklist');
-  const mems=calMembers.filter(m=>m.uid!==cu.uid);
-  function buildList(container,arr,toggleFn,attFn){
+
+  function buildMeetingList(container,arr){
     if(!container)return;
-    if(!mems.length){container.innerHTML='<div class="member-check-empty">No other members yet.<br><span style="font-size:10px">Share the calendar code so others can join.</span></div>';return;}
+    if(!calMembers.length){container.innerHTML='<div class="member-check-empty">No members yet. Share the calendar code.</div>';return;}
     container.innerHTML='';
-    mems.forEach(m=>{
+    calMembers.forEach(m=>{
       const existing=arr.find(x=>x.uid===m.uid);
       const isChk=!!existing;const att=existing?.attendance||'mandatory';
+      const isSelf=m.uid===cu.uid;
       const row=document.createElement('div');row.className='member-check-row';
-      row.innerHTML=`<input type="checkbox" id="chk-${container.id}-${m.uid}" ${isChk?'checked':''} onchange="${toggleFn}('${m.uid}')"/><div style="flex:1"><div class="member-check-name">${m.displayName}${m.subsection?` <span style="font-size:9px;color:var(--accent2);background:var(--accent-dim);border-radius:4px;padding:1px 5px">${m.subsection}</span>`:''}</div>${m.email?`<div class="member-check-email">${m.email}</div>`:''}</div>${isChk?`<button class="member-check-att ${att}" onclick="${attFn}('${m.uid}');event.stopPropagation()">${att==='mandatory'?'Mand.':'Opt.'}</button>`:''}`;
-      row.onclick=e=>{if(e.target.tagName==='BUTTON')return;document.getElementById(`chk-${container.id}-${m.uid}`).click();};
+      row.innerHTML=`<input type="checkbox" id="chk-${container.id}-${m.uid}" ${isChk?'checked':''} onchange="toggleInv('${m.uid}')"/><div style="flex:1"><div class="member-check-name">${m.displayName}${isSelf?' <span style="font-size:9px;color:var(--accent2)">(you)</span>':''}${m.subsection?` <span style="font-size:9px;color:var(--accent2);background:var(--accent-dim);border-radius:4px;padding:1px 5px">${m.subsection}</span>`:''}</div>${m.email&&!isSelf?`<div class="member-check-email">${m.email}</div>`:''}</div>${isChk?`<button class="member-check-att ${att}" onclick="toggleInvAtt('${m.uid}');event.stopPropagation()">${att==='mandatory'?'Mand.':'Opt.'}</button>`:''}`;
+      row.onclick=e=>{if(e.target.tagName==='BUTTON')return;document.getElementById(`chk-${container.id}-${m.uid}`)?.click();};
       container.appendChild(row);
     });
   }
-  buildList(ic,invitees,'toggleInv','toggleInvAtt');
-  buildList(ac,assignees,'toggleAsgn','toggleAsgnAtt');
+
+  function buildTaskList(container,arr){
+    if(!container)return;
+    if(!calMembers.length){container.innerHTML='<div class="member-check-empty">No members yet. Share the calendar code.</div>';return;}
+    container.innerHTML='';
+    calMembers.forEach(m=>{
+      const existing=arr.find(x=>x.uid===m.uid);
+      const isChk=!!existing;const pri=existing?.priority||'important';
+      const isSelf=m.uid===cu.uid;
+      const row=document.createElement('div');row.className='member-check-row';
+      row.innerHTML=`<input type="checkbox" id="chk-${container.id}-${m.uid}" ${isChk?'checked':''} onchange="toggleAsgn('${m.uid}')"/><div style="flex:1"><div class="member-check-name">${m.displayName}${isSelf?' <span style="font-size:9px;color:var(--accent2)">(you)</span>':''}</div></div>${isChk?`<button class="member-check-pri ${pri}" onclick="cycleAsgnPri('${m.uid}');event.stopPropagation()">${PRIORITY_LABELS[pri]}</button>`:''}`;
+      row.onclick=e=>{if(e.target.tagName==='BUTTON')return;document.getElementById(`chk-${container.id}-${m.uid}`)?.click();};
+      container.appendChild(row);
+    });
+  }
+
+  buildMeetingList(ic,invitees);
+  buildTaskList(ac,assignees);
 }
 
 window.toggleInv=(uid)=>{const m=calMembers.find(x=>x.uid===uid);if(!m)return;const i=invitees.findIndex(x=>x.uid===uid);if(i>=0)invitees.splice(i,1);else invitees.push({...m,attendance:'mandatory'});renderChecklists();};
-window.toggleAsgn=(uid)=>{const m=calMembers.find(x=>x.uid===uid);if(!m)return;const i=assignees.findIndex(x=>x.uid===uid);if(i>=0)assignees.splice(i,1);else assignees.push({...m,attendance:'mandatory'});renderChecklists();};
+window.toggleAsgn=(uid)=>{const m=calMembers.find(x=>x.uid===uid);if(!m)return;const i=assignees.findIndex(x=>x.uid===uid);if(i>=0)assignees.splice(i,1);else assignees.push({...m,priority:'important'});renderChecklists();};
 window.toggleInvAtt=(uid)=>{const i=invitees.find(x=>x.uid===uid);if(i)i.attendance=i.attendance==='mandatory'?'optional':'mandatory';renderChecklists();};
-window.toggleAsgnAtt=(uid)=>{const a=assignees.find(x=>x.uid===uid);if(a)a.attendance=a.attendance==='mandatory'?'optional':'mandatory';renderChecklists();};
+window.cycleAsgnPri=(uid)=>{const a=assignees.find(x=>x.uid===uid);if(!a)return;const idx=PRIORITY_CYCLE.indexOf(a.priority||'important');a.priority=PRIORITY_CYCLE[(idx+1)%3];renderChecklists();};
 window.setBulkAttendance=(att)=>{invitees.forEach(i=>i.attendance=att);renderChecklists();};
 
+// FIX #5: task saving fixed — inviteeUids includes assignee uids so subscribeInvitedEvents works
 window.saveEvent=async()=>{
   const title=document.getElementById('ev-title').value.trim();if(!title){toast('Enter a title');return;}
   const calendarId=document.getElementById('ev-calendar').value;if(!calendarId){toast('Select a calendar');return;}
@@ -1404,14 +1479,32 @@ window.saveEvent=async()=>{
   let autoColor;
   if(currentType==='meeting'){
     const hasMandatory=invitees.some(i=>i.attendance==='mandatory');
-    autoColor=invitees.length>0?(hasMandatory?'#ef4444':'#22c55e'):(ev?.color||'#00b4ff');
+    autoColor=invitees.length>0?(hasMandatory?'#ef4444':'#22c55e'):'#00b4ff';
   } else {
-    autoColor=ev?.color||'#f59e0b';
+    autoColor='#f59e0b';
   }
-  const inviteeUids = currentType==='meeting' ? invitees.map(i=>i.uid) : assignees.map(a=>a.uid);
-  const data={uid:cu.uid,title,type:currentType,date:document.getElementById('ev-date').value,time:currentType==='meeting'&&!allDay?(document.getElementById('ev-time').value||null):null,timeEnd:currentType==='meeting'&&!allDay?(document.getElementById('ev-time-end').value||null):null,allDay:currentType==='meeting'?allDay:false,repeat,repeatEnd:repeat!=='none'?(document.getElementById('ev-repeat-end').value||null):null,invitees:currentType==='meeting'?invitees:[],assignees:currentType==='task'?assignees:[],inviteeUids,taskManagerUid:currentType==='task'?(mgr||null):null,calendarId,color:autoColor,description:document.getElementById('ev-desc').value.trim()||null,completed:false,updatedAt:serverTimestamp()};
-  try{if(editEvId){await updateDoc(doc(db,'events',editEvId),data);toast('Saved');}else{data.createdAt=serverTimestamp();await addDoc(collection(db,'events'),data);toast('Saved');}closeModal('event-modal');}
-  catch(e){toast('Error saving');console.error(e);}
+  // inviteeUids for both meetings and tasks so snapshot subscriptions work
+  const inviteeUids=currentType==='meeting'?invitees.map(i=>i.uid):assignees.map(a=>a.uid);
+  const data={
+    uid:cu.uid,title,type:currentType,
+    date:document.getElementById('ev-date').value,
+    time:currentType==='meeting'&&!allDay?(document.getElementById('ev-time').value||null):null,
+    timeEnd:currentType==='meeting'&&!allDay?(document.getElementById('ev-time-end').value||null):null,
+    allDay:currentType==='meeting'?allDay:false,
+    repeat,repeatEnd:repeat!=='none'?(document.getElementById('ev-repeat-end').value||null):null,
+    invitees:currentType==='meeting'?invitees:[],
+    assignees:currentType==='task'?assignees:[],
+    inviteeUids,
+    taskManagerUid:currentType==='task'?(mgr||null):null,
+    calendarId,color:autoColor,
+    description:document.getElementById('ev-desc').value.trim()||null,
+    completed:false,updatedAt:serverTimestamp()
+  };
+  try{
+    if(editEvId){await updateDoc(doc(db,'events',editEvId),data);toast('Saved');}
+    else{data.createdAt=serverTimestamp();await addDoc(collection(db,'events'),data);toast('Created');}
+    closeModal('event-modal');
+  }catch(e){toast('Error saving');console.error(e);}
 };
 window.deleteCurrentEvent=async()=>{if(!editEvId)return;if(!confirm('Delete?'))return;await deleteDoc(doc(db,'events',editEvId));toast('Deleted');closeModal('event-modal');};
 
@@ -1440,25 +1533,32 @@ window.saveRenameCalendar=async()=>{
   try{await updateDoc(doc(db,'calendars',activeCalId),{name});toast('Renamed');closeModal('rename-cal-modal');}catch(e){toast('Error');}
 };
 window.openNewCalendarModal=()=>{
-  _newCalColor='#00b4ff';document.getElementById('newcal-name').value='';
-  renderSwatches('newcal-color-row',_newCalColor,v=>{_newCalColor=v;});
-  document.getElementById('newcal-modal').classList.add('open');document.getElementById('newcal-name').focus();
+  document.getElementById('newcal-name').value='';
+  document.getElementById('newcal-modal').classList.add('open');
+  document.getElementById('newcal-name').focus();
 };
 window.saveNewCalendar=async()=>{
   const name=document.getElementById('newcal-name').value.trim();if(!name){toast('Enter a name');return;}
-  try{const code=Math.random().toString(36).substring(2,8).toUpperCase();await addDoc(collection(db,'calendars'),{uid:cu.uid,name,color:_newCalColor,inviteCode:code,admins:[cu.uid],subsections:[],createdAt:serverTimestamp()});toast(`"${name}" created`);closeModal('newcal-modal');}catch(e){toast('Error');}
+  try{
+    const code=Math.random().toString(36).substring(2,8).toUpperCase();
+    await addDoc(collection(db,'calendars'),{uid:cu.uid,name,color:'#00b4ff',inviteCode:code,roles:{[cu.uid]:'Captain'},subsections:[],createdAt:serverTimestamp()});
+    toast(`"${name}" created`);closeModal('newcal-modal');
+  }catch(e){toast('Error');}
 };
 
 // ── Share & Join ───────────────────────────────────────────────────────────
 window.openShareModal=async()=>{
   const cal=calendars.find(c=>c.id===activeCalId);
-  if(cal){if(!cal.inviteCode){const code=Math.random().toString(36).substring(2,8).toUpperCase();await updateDoc(doc(db,'calendars',activeCalId),{inviteCode:code});cal.inviteCode=code;}
-    document.getElementById('share-cal-name').textContent=cal.name;document.getElementById('share-cal-dot').style.background=cal.color;document.getElementById('share-code-display').textContent=cal.inviteCode;}
+  if(cal){
+    if(!cal.inviteCode){const code=Math.random().toString(36).substring(2,8).toUpperCase();await updateDoc(doc(db,'calendars',activeCalId),{inviteCode:code});cal.inviteCode=code;}
+    document.getElementById('share-cal-name').textContent=cal.name;
+    document.getElementById('share-cal-dot').style.background=cal.color;
+    document.getElementById('share-code-display').textContent=cal.inviteCode;
+  }
   await loadJoinedCalendars();document.getElementById('share-modal').classList.add('open');
 };
 window.copyCode=()=>{const cal=calendars.find(c=>c.id===activeCalId);navigator.clipboard.writeText(cal?.inviteCode||'').then(()=>toast('Copied!')).catch(()=>{});};
 
-// ── FIX: joinCalendar now calls renderSidebar() immediately after subscribing ──
 window.joinCalendar=async()=>{
   const code=document.getElementById('join-code-input').value.trim().toUpperCase();if(code.length<4){toast('Enter a valid code');return;}
   const cSnap=await getDocs(query(collection(db,'calendars'),where('inviteCode','==',code)));if(cSnap.empty){toast('No calendar found');return;}
@@ -1469,40 +1569,43 @@ window.joinCalendar=async()=>{
   joined.push(calId);await updateDoc(uref,{joinedCalendars:joined});
   const oSnap=await getDoc(doc(db,'users',cData.uid));
   const oName=oSnap.data()?.displayName||'Someone';
-  subscribeSharedCal(calId,cData.name,oName,cData.color||'#2979ff');
+  subscribeSharedCal(calId,cData.name,oName,cData.color||'#00b4ff',cData.roles||{});
   subscribeInvitedEvents(cu.uid);
-  renderSidebar(); // ← FIX: sidebar now updates immediately on join
+  renderSidebar();
   toast(`Joined "${cData.name}"!`);
   document.getElementById('join-code-input').value='';
   await loadJoinedCalendars();
 };
 
-// ── FIX: loadJoinedCalendars now calls renderSidebar() after loading all shared cals ──
 async function loadJoinedCalendars(){
   const usnap=await getDoc(doc(db,'users',cu.uid));const joined=usnap.data().joinedCalendars||[];
   const listEl=document.getElementById('joined-list');
-  if(!joined.length){
-    listEl.innerHTML='<div style="font-size:12px;color:var(--muted2)">No shared calendars yet</div>';
-    renderSidebar(); // ← FIX: ensure sidebar reflects empty shared state too
-    return;
-  }
+  if(!joined.length){listEl.innerHTML='<div style="font-size:12px;color:var(--muted2)">No shared calendars yet</div>';renderSidebar();return;}
   listEl.innerHTML='<div style="font-size:10px;font-weight:700;color:var(--muted2);letter-spacing:.6px;text-transform:uppercase;margin-bottom:8px">Joined</div>';
   for(const calId of joined){
     const cDoc=await getDoc(doc(db,'calendars',calId));if(!cDoc.exists())continue;
     const cData=cDoc.data();const oDoc=await getDoc(doc(db,'users',cData.uid));const oName=oDoc.data()?.displayName||'Unknown';
     const div=document.createElement('div');div.style.cssText='display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);margin-bottom:7px';
-    div.innerHTML=`<div style="width:7px;height:7px;border-radius:50%;background:${cData.color||'#2979ff'};flex-shrink:0"></div><span style="flex:1">${cData.name} <span style="color:var(--muted2);font-size:10px">by ${oName}</span></span><button onclick="leaveCalendar('${calId}')" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:11px">Leave</button>`;
+    div.innerHTML=`<div style="width:7px;height:7px;border-radius:50%;background:${cData.color||'#00b4ff'};flex-shrink:0"></div><span style="flex:1">${cData.name} <span style="color:var(--muted2);font-size:10px">by ${oName}</span></span><button onclick="leaveCalendar('${calId}')" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:11px">Leave</button>`;
     listEl.appendChild(div);
-    subscribeSharedCal(calId,cData.name,oName,cData.color||'#2979ff');
+    subscribeSharedCal(calId,cData.name,oName,cData.color||'#00b4ff',cData.roles||{});
   }
-  renderSidebar(); // ← FIX: sidebar now updates after all shared cals are loaded
+  renderSidebar();
 }
 
-function subscribeSharedCal(calId,calName,ownerName,calColor){
-  if(!sharedCalendars.find(c=>c.id===calId))sharedCalendars.push({id:calId,name:calName,color:calColor,ownerName,admins:[]});
+function subscribeSharedCal(calId,calName,ownerName,calColor,roles={}){
+  if(!sharedCalendars.find(c=>c.id===calId))sharedCalendars.push({id:calId,name:calName,color:calColor,ownerName,roles});
   onSnapshot(query(collection(db,'events'),where('calendarId','==',calId)),snap=>{
     const shared=snap.docs.map(d=>({id:d.id,...d.data(),isShared:true,sharedCalId:calId,sharedCalName:calName,color:d.data().color||calColor}));
-    events=events.filter(e=>!(e.isShared&&e.sharedCalId===calId));events=[...events,...shared];renderAll();if(currentPage==='home')renderHomePage();
+    events=events.filter(e=>!(e.isShared&&e.sharedCalId===calId));events=[...events,...shared];
+    renderAll();if(currentPage==='home')renderHomePage();
+  });
+  // Also keep roles in sync
+  onSnapshot(doc(db,'calendars',calId),snap=>{
+    if(!snap.exists())return;
+    const idx=sharedCalendars.findIndex(c=>c.id===calId);
+    if(idx>=0)sharedCalendars[idx].roles=snap.data().roles||{};
+    updateAdminUI();
   });
 }
 
@@ -1514,76 +1617,118 @@ window.leaveCalendar=async(calId)=>{
   renderSidebar();renderAll();await loadJoinedCalendars();toast('Left calendar');
 };
 
-// ── Admin page ─────────────────────────────────────────────────────────────
+// ── Admin / Leadership page ────────────────────────────────────────────────
 async function renderAdminPage(){
   const sel=document.getElementById('admin-cal-select');sel.innerHTML='';
-  const ownedCals=calendars.filter(c=>(c.admins||[]).includes(cu?.uid));
-  if(!ownedCals.length){document.getElementById('admin-members-list').innerHTML='<div style="font-size:12px;color:var(--muted2)">You are not an admin of any calendar.</div>';return;}
-  ownedCals.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.name;sel.appendChild(o);});
-  const adminCal=calendars.find(c=>c.id===sel.value)||ownedCals[0];if(!adminCal)return;
-  const isOwner=adminCal.uid===cu?.uid;
+  // Show calendars where user is a leader
+  const allCals=[...calendars,...sharedCalendars];
+  const leadCals=allCals.filter(c=>isLeader(c.id));
+  if(!leadCals.length){document.getElementById('admin-members-list').innerHTML='<div style="font-size:12px;color:var(--muted2)">You have no leadership role.</div>';return;}
+  leadCals.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.name;sel.appendChild(o);});
+  const adminCal=allCals.find(c=>c.id===sel.value)||leadCals[0];if(!adminCal)return;
 
+  // Members
   const ml=document.getElementById('admin-members-list');ml.innerHTML='<div style="font-size:11px;color:var(--muted2)">Loading…</div>';
   const snap=await getDocs(query(collection(db,'users'),where('joinedCalendars','array-contains',adminCal.id)));
-  const members=[{uid:cu.uid,displayName:cu.displayName||'Me',email:cu.email,subsection:(await getDoc(doc(db,'users',cu.uid))).data()?.[`subsection_${adminCal.id}`]||'',isOwner:true}];
-  snap.docs.forEach(d=>{if(d.id!==cu.uid)members.push({uid:d.id,displayName:d.data().displayName||d.data().email?.split('@')[0]||'User',email:d.data().email||'',subsection:d.data()[`subsection_${adminCal.id}`]||'',isOwner:false});});
-  const admins=adminCal.admins||[];const subs=adminCal.subsections||[];
+  const ownerSnap=await getDoc(doc(db,'users',adminCal.uid));
+  const members=[];
+  // Always include the calendar owner
+  if(ownerSnap.exists())members.push({uid:adminCal.uid,displayName:ownerSnap.data().displayName||'Owner',email:ownerSnap.data().email||'',subsection:ownerSnap.data()[`subsection_${adminCal.id}`]||''});
+  snap.docs.forEach(d=>{if(d.id!==adminCal.uid)members.push({uid:d.id,displayName:d.data().displayName||d.data().email?.split('@')[0]||'User',email:d.data().email||'',subsection:d.data()[`subsection_${adminCal.id}`]||''});});
+  const subs=adminCal.subsections||[];
+  const calRoles=adminCal.roles||{};
   ml.innerHTML='';
   members.forEach(m=>{
-    const isAdm=admins.includes(m.uid);
+    const mRole=calRoles[m.uid]||null;
     const row=document.createElement('div');row.className='admin-member-row';
-    row.innerHTML=`<div style="width:30px;height:30px;border-radius:50%;background:var(--accent-dim);border:1px solid var(--accent-border);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--accent2);font-size:12px;flex-shrink:0">${(m.displayName||'?').charAt(0).toUpperCase()}</div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:600;color:var(--text)">${m.displayName} ${isAdm?'<span class="admin-badge">ADMIN</span>':''}${m.subsection?`<span class="subsection-tag">${m.subsection}</span>`:''}</div><div style="font-size:10px;color:var(--muted)">${m.email}</div></div><div style="display:flex;gap:5px;flex-shrink:0;flex-wrap:wrap">`;
-    const subSel=document.createElement('select');subSel.style.cssText='padding:3px 6px;font-size:10px;background:var(--bg3);border:1px solid var(--border2);border-radius:5px;color:var(--text);font-family:var(--font)';
-    const emptyOpt=document.createElement('option');emptyOpt.value='';emptyOpt.textContent='No subsection';subSel.appendChild(emptyOpt);
-    subs.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;if(m.subsection===s)o.selected=true;subSel.appendChild(o);});
-    subSel.onchange=async()=>{await updateDoc(doc(db,'users',m.uid),{[`subsection_${adminCal.id}`]:subSel.value||null});toast('Updated');renderAdminPage();};
-    row.querySelector('div:last-child').appendChild(subSel);
-    if(!m.isOwner&&isOwner){
-        const admBtn=document.createElement('button');admBtn.style.cssText=`padding:3px 8px;font-size:10px;font-weight:600;border-radius:5px;border:1px solid ${isAdm?'rgba(239,68,68,.3)':'rgba(41,121,255,.3)'};background:${isAdm?'var(--red-dim)':'var(--accent-dim)'};color:${isAdm?'var(--red)':'var(--accent2)'};cursor:pointer;font-family:var(--font)`;
-        admBtn.textContent=isAdm?'Remove Admin':'Make Admin';
-        admBtn.onclick=async()=>{let a=[...admins];if(isAdm)a=a.filter(x=>x!==m.uid);else a.push(m.uid);await updateDoc(doc(db,'calendars',adminCal.id),{admins:a});toast(isAdm?'Admin removed':'Admin added');renderAdminPage();};
-        row.querySelector('div:last-child').appendChild(admBtn);
+    row.innerHTML=`<div style="width:30px;height:30px;border-radius:50%;background:var(--accent-dim);border:1px solid var(--accent-border);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--accent2);font-size:12px;flex-shrink:0">${(m.displayName||'?').charAt(0).toUpperCase()}</div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:600;color:var(--text)">${m.displayName} ${mRole?`<span class="role-badge">${mRole}</span>`:''}</div><div style="font-size:10px;color:var(--muted)">${m.email}${m.subsection?` · ${m.subsection}`:''}</div></div><div style="display:flex;gap:5px;flex-shrink:0;flex-wrap:wrap">`;
+    // Subsection selector
+    if(isCaptain(adminCal.id)){
+      const subSel=document.createElement('select');subSel.style.cssText='padding:3px 6px;font-size:10px;background:var(--bg3);border:1px solid var(--border2);border-radius:5px;color:var(--text);font-family:var(--font)';
+      const emptyOpt=document.createElement('option');emptyOpt.value='';emptyOpt.textContent='No subsection';subSel.appendChild(emptyOpt);
+      subs.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;if(m.subsection===s)o.selected=true;subSel.appendChild(o);});
+      subSel.onchange=async()=>{await updateDoc(doc(db,'users',m.uid),{[`subsection_${adminCal.id}`]:subSel.value||null});toast('Updated');renderAdminPage();};
+      row.querySelector('div:last-child').appendChild(subSel);
+      // Kick
+      if(m.uid!==cu.uid){
         const kickBtn=document.createElement('button');kickBtn.style.cssText='padding:3px 8px;font-size:10px;font-weight:600;border-radius:5px;border:1px solid rgba(239,68,68,.3);background:var(--red-dim);color:var(--red);cursor:pointer;font-family:var(--font)';
         kickBtn.textContent='Kick';
-        kickBtn.onclick=async()=>{if(!confirm(`Remove ${m.displayName} from this calendar?`))return;const us=await getDoc(doc(db,'users',m.uid));const jc=(us.data().joinedCalendars||[]).filter(id=>id!==adminCal.id);await updateDoc(doc(db,'users',m.uid),{joinedCalendars:jc});toast(`${m.displayName} removed`);renderAdminPage();};
+        kickBtn.onclick=async()=>{if(!confirm(`Remove ${m.displayName}?`))return;const us=await getDoc(doc(db,'users',m.uid));const jc=(us.data().joinedCalendars||[]).filter(id=>id!==adminCal.id);await updateDoc(doc(db,'users',m.uid),{joinedCalendars:jc});toast(`${m.displayName} removed`);renderAdminPage();};
         row.querySelector('div:last-child').appendChild(kickBtn);
       }
+    }
     ml.appendChild(row);
   });
 
+  // Subsections
   const sl=document.getElementById('admin-subsections-list');sl.innerHTML='';
   if(subs.length===0)sl.innerHTML='<div style="font-size:11px;color:var(--muted2)">No subsections yet</div>';
   subs.forEach(s=>{
     const row=document.createElement('div');row.style.cssText='display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--bg3);border-radius:7px;margin-bottom:5px;font-size:12px';
-    row.innerHTML=`<span style="flex:1;color:var(--text);font-weight:500">${s}</span><button style="padding:2px 7px;font-size:10px;font-weight:600;border-radius:5px;border:1px solid rgba(239,68,68,.3);background:var(--red-dim);color:var(--red);cursor:pointer;font-family:var(--font)" onclick="deleteSubsection('${adminCal.id}','${s.replace(/'/g,"\\'")}')">Remove</button>`;
+    row.innerHTML=`<span style="flex:1;color:var(--text);font-weight:500">${s}</span>${isCaptain(adminCal.id)?`<button style="padding:2px 7px;font-size:10px;font-weight:600;border-radius:5px;border:1px solid rgba(239,68,68,.3);background:var(--red-dim);color:var(--red);cursor:pointer;font-family:var(--font)" onclick="deleteSubsection('${adminCal.id}','${s.replace(/'/g,"\\'")}')">Remove</button>`:''}`;
     sl.appendChild(row);
   });
   document.getElementById('new-subsection-input').dataset.calId=adminCal.id;
 
+  // Absences
   const al=document.getElementById('admin-absences-list');al.innerHTML='';
   const calEvents=events.filter(e=>e.calendarId===adminCal.id);let hasAny=false;
-  calEvents.forEach(ev=>{const ppl=ev.type==='task'?ev.assignees:ev.invitees;if(!ppl)return;ppl.forEach(p=>{const rsvp=(ev.rsvp||{})[p.uid];if(rsvp!=='declined')return;hasAny=true;const ux=(ev.unexcusedAbsences||{})[p.uid];const reason=(ev.declineReasons||{})[p.uid];const row=document.createElement('div');row.style.cssText='display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg3);border-radius:7px;margin-bottom:5px;font-size:12px;flex-wrap:wrap';row.innerHTML=`<div style="flex:1"><span style="color:var(--text);font-weight:600">${p.name}</span><span style="color:var(--muted);font-size:10px;margin-left:7px">declined "${ev.title}"</span>${reason?`<div style="font-size:10px;color:var(--muted2);margin-top:1px">Reason: ${reason}</div>`:''}</div>${ux?`<span style="font-size:9px;padding:2px 8px;border-radius:8px;background:rgba(239,68,68,.25);color:var(--red);font-weight:700">UNEXCUSED</span><button onclick="openUnexcused('${ev.id}','${p.uid}','${p.name.replace(/'/g,"\\'")}','reverse')" style="padding:2px 7px;font-size:9px;font-weight:600;border-radius:5px;border:1px solid rgba(34,197,94,.3);background:var(--green-dim);color:var(--green);cursor:pointer;font-family:var(--font)">Reverse</button>`:`<button onclick="openUnexcused('${ev.id}','${p.uid}','${p.name.replace(/'/g,"\\'")}','mark')" style="padding:2px 7px;font-size:9px;font-weight:600;border-radius:5px;border:1px solid rgba(239,68,68,.3);background:var(--red-dim);color:var(--red);cursor:pointer;font-family:var(--font)">Mark Unexcused</button>`}`;al.appendChild(row);});});
+  calEvents.forEach(ev=>{
+    const ppl=ev.type==='task'?ev.assignees:ev.invitees;if(!ppl)return;
+    ppl.forEach(p=>{
+      const rsvp=(ev.rsvp||{})[p.uid];if(rsvp!=='declined')return;hasAny=true;
+      const ux=(ev.unexcusedAbsences||{})[p.uid];const reason=(ev.declineReasons||{})[p.uid];
+      const row=document.createElement('div');row.style.cssText='display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg3);border-radius:7px;margin-bottom:5px;font-size:12px;flex-wrap:wrap';
+      row.innerHTML=`<div style="flex:1"><span style="color:var(--text);font-weight:600">${p.name||p.displayName||''}</span><span style="color:var(--muted);font-size:10px;margin-left:7px">declined "${ev.title}"</span>${reason?`<div style="font-size:10px;color:var(--muted2);margin-top:1px">Reason: ${reason}</div>`:''}</div>${ux?`<span style="font-size:9px;padding:2px 8px;border-radius:8px;background:rgba(239,68,68,.25);color:var(--red);font-weight:700">UNEXCUSED</span><button onclick="openUnexcused('${ev.id}','${p.uid}','${(p.name||p.displayName||'').replace(/'/g,"\\'")}','reverse')" style="padding:2px 7px;font-size:9px;font-weight:600;border-radius:5px;border:1px solid rgba(34,197,94,.3);background:var(--green-dim);color:var(--green);cursor:pointer;font-family:var(--font)">Reverse</button>`:`<button onclick="openUnexcused('${ev.id}','${p.uid}','${(p.name||p.displayName||'').replace(/'/g,"\\'")}','mark')" style="padding:2px 7px;font-size:9px;font-weight:600;border-radius:5px;border:1px solid rgba(239,68,68,.3);background:var(--red-dim);color:var(--red);cursor:pointer;font-family:var(--font)">Mark Unexcused</button>`}`;
+      al.appendChild(row);
+    });
+  });
   if(!hasAny)al.innerHTML='<div style="font-size:12px;color:var(--muted2)">No declined events yet</div>';
 
-  const tr=document.getElementById('admin-transfer-section');tr.innerHTML='';
-  if(adminCal.uid===cu?.uid){
-    const otherMembers=members.filter(m=>!m.isOwner);
-    if(!otherMembers.length){tr.innerHTML='<div style="font-size:11px;color:var(--muted2)">No other members to transfer to.</div>';return;}
-    const sel2=document.createElement('select');sel2.className='form-select';sel2.style.marginBottom='10px';
-    sel2.innerHTML='<option value="">— Select new owner —</option>';
-    otherMembers.forEach(m=>{const o=document.createElement('option');o.value=m.uid;o.textContent=m.displayName;sel2.appendChild(o);});
-    const btn=document.createElement('button');btn.className='btn-danger';btn.style.fontSize='12px';btn.textContent='Transfer Ownership';
-    btn.onclick=async()=>{const newOwner=sel2.value;if(!newOwner){toast('Select a member');return;}if(!confirm('Transfer full admin rights? You will become a regular member.'))return;const newAdmins=[...new Set([...admins.filter(a=>a!==cu.uid),newOwner])];await updateDoc(doc(db,'calendars',adminCal.id),{uid:newOwner,admins:newAdmins});toast('Ownership transferred');renderAdminPage();};
-    tr.appendChild(sel2);tr.appendChild(btn);
+  // FIX #9: Leadership roles — Captain only can assign, one person per role
+  const rolesEl=document.getElementById('admin-roles-section');rolesEl.innerHTML='';
+  if(!isCaptain(adminCal.id)){
+    rolesEl.innerHTML='<div style="font-size:11px;color:var(--muted2)">Only the Captain can assign leadership roles.</div>';
   } else {
-    tr.innerHTML='<div style="font-size:11px;color:var(--muted2)">Only the calendar owner can transfer ownership.</div>';
+    LEADER_ROLES.forEach(role=>{
+      const currentHolder=Object.entries(calRoles).find(([,v])=>v===role)?.[0]||null;
+      const holderMember=members.find(m=>m.uid===currentHolder);
+      const wrap=document.createElement('div');wrap.style.cssText='display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg3);border-radius:7px;margin-bottom:6px;flex-wrap:wrap';
+      wrap.innerHTML=`<span style="font-size:12px;font-weight:600;color:var(--text);flex:1">${role}</span>${holderMember?`<span style="font-size:11px;color:var(--muted)">${holderMember.displayName}</span><button onclick="removeRole('${adminCal.id}','${currentHolder}')" style="padding:2px 7px;font-size:10px;font-weight:600;border-radius:5px;border:1px solid rgba(239,68,68,.3);background:var(--red-dim);color:var(--red);cursor:pointer;font-family:var(--font)">Remove</button>`:'<span style="font-size:11px;color:var(--muted2)">Unassigned</span>'}`;
+      // Assign select
+      const asel=document.createElement('select');asel.style.cssText='padding:4px 7px;font-size:11px;background:var(--bg3);border:1px solid var(--border2);border-radius:5px;color:var(--text);font-family:var(--font)';
+      asel.innerHTML='<option value="">— Assign —</option>';
+      members.filter(m=>!calRoles[m.uid]||calRoles[m.uid]===role).forEach(m=>{const o=document.createElement('option');o.value=m.uid;o.textContent=m.displayName;if(m.uid===currentHolder)o.selected=true;asel.appendChild(o);});
+      asel.onchange=async()=>{
+        if(!asel.value)return;
+        // Remove this role from any previous holder
+        const newRoles={...calRoles};
+        Object.keys(newRoles).forEach(k=>{if(newRoles[k]===role)delete newRoles[k];});
+        newRoles[asel.value]=role;
+        await updateDoc(doc(db,'calendars',adminCal.id),{roles:newRoles});
+        // Update user doc
+        await updateDoc(doc(db,'users',asel.value),{role});
+        if(currentHolder&&currentHolder!==asel.value)await updateDoc(doc(db,'users',currentHolder),{role:null});
+        toast(`${role} assigned`);renderAdminPage();
+      };
+      wrap.appendChild(asel);
+      rolesEl.appendChild(wrap);
+    });
   }
 }
+
+window.removeRole=async(calId,uid)=>{
+  const cal=calendars.find(c=>c.id===calId)||sharedCalendars.find(c=>c.id===calId);if(!cal)return;
+  const newRoles={...(cal.roles||{})};delete newRoles[uid];
+  await updateDoc(doc(db,'calendars',calId),{roles:newRoles});
+  await updateDoc(doc(db,'users',uid),{role:null});
+  toast('Role removed');renderAdminPage();
+};
 
 window.addSubsection=async()=>{
   const inp=document.getElementById('new-subsection-input');
   const calId=inp.dataset.calId||activeCalId;const name=inp.value.trim();
-  if(!name){toast('Enter a subsection name');return;}
+  if(!name){toast('Enter a name');return;}
   const cal=calendars.find(c=>c.id===calId);if(!cal)return;
   const subs=[...(cal.subsections||[])];if(subs.includes(name)){toast('Already exists');return;}
   subs.push(name);await updateDoc(doc(db,'calendars',calId),{subsections:subs});inp.value='';toast(`"${name}" added`);renderAdminPage();
@@ -1601,30 +1746,23 @@ function renderProfilePage(){
   document.getElementById('profile-name-input').value=name;
   document.getElementById('profile-email-input').value=email;
   document.getElementById('profile-password-input').value='';
+  // Role display
+  const rd=document.getElementById('profile-role-display');
+  if(myRole)rd.innerHTML=`<span class="role-badge">${myRole}</span>`;else rd.innerHTML='';
   const bigEl=document.getElementById('profile-avatar-big');const char=(name||email||'?').charAt(0).toUpperCase();
   if(userPfpUrl)bigEl.innerHTML=`<img src="${userPfpUrl}" alt="pfp"/><input type="file" id="pfp-input" accept="image/*" style="display:none" onchange="handlePfpChange(event)"/>`;
   else bigEl.innerHTML=`<span id="profile-avatar-char">${char}</span><input type="file" id="pfp-input" accept="image/*" style="display:none" onchange="handlePfpChange(event)"/>`;
   const ns=document.getElementById('notif-status');
   if(ns){
-    if(!('Notification' in window))ns.textContent='Not supported on this browser';
+    if(!('Notification' in window))ns.textContent='Not supported';
     else if(Notification.permission==='granted')ns.textContent='Notifications are enabled';
     else if(Notification.permission==='denied')ns.textContent='Blocked — enable in browser settings';
     else ns.textContent='Not enabled yet';
   }
-  getDoc(doc(db,'users',cu.uid)).then(snap=>{
-    const cnt=snap.data()?.unexcusedCount||0;
-    const toolsEl=document.getElementById('profile-admin-tools');
-    const cntEl=document.getElementById('profile-absence-count');
-    if(toolsEl){toolsEl.style.display='block';if(cntEl)cntEl.textContent=cnt;}
-  });
+  // FIX #1: No self-reset of absence count. Removed from profile entirely.
+  // Only leaders/admins can adjust absence counts via the Admin panel.
 }
 
-window.resetMyAbsences=async()=>{
-  if(!confirm('Reset your unexcused absence count to 0?'))return;
-  await updateDoc(doc(db,'users',cu.uid),{unexcusedCount:0});
-  toast('Absence count reset to 0');
-  renderProfilePage();renderHomePage();
-};
 window.handlePfpChange=(e)=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=async ev=>{userPfpUrl=ev.target.result;await updateDoc(doc(db,'users',cu.uid),{pfpUrl:userPfpUrl});renderProfilePage();updateAvatarDisplay();toast('Photo updated!');};r.readAsDataURL(f);};
 window.saveProfile=async()=>{
   const name=document.getElementById('profile-name-input').value.trim(),email=document.getElementById('profile-email-input').value.trim(),pwd=document.getElementById('profile-password-input').value;
@@ -1634,11 +1772,7 @@ window.saveProfile=async()=>{
 };
 
 // ── Utilities ──────────────────────────────────────────────────────────────
-function renderSwatches(id,cur,onChange){
-  const row=document.getElementById(id);if(!row)return;row.innerHTML='';
-  COLORS.forEach(c=>{const sw=document.createElement('div');sw.className=`color-swatch${cur===c.v?' selected':''}`;sw.style.background=c.v;sw.onclick=()=>{onChange(c.v);row.querySelectorAll('.color-swatch').forEach(s=>s.classList.remove('selected'));sw.classList.add('selected');};row.appendChild(sw);});
-}
-window.closeModal=(id)=>document.getElementById(id).classList.remove('open');
+window.closeModal=(id)=>document.getElementById(id)?.classList.remove('open');
 window.switchTab=(tab)=>{document.getElementById('tab-signin').classList.toggle('active',tab==='signin');document.getElementById('tab-signup').classList.toggle('active',tab==='signup');document.getElementById('form-signin').style.display=tab==='signin'?'block':'none';document.getElementById('form-signup').style.display=tab==='signup'?'block':'none';setAuthError('');};
 function setAuthError(msg){const el=document.getElementById('auth-error');el.style.display=msg?'block':'none';el.textContent=msg;}
 function showApp(){document.getElementById('auth-screen').style.display='none';document.getElementById('app-screen').classList.add('visible');showPage('home');}
@@ -1652,93 +1786,45 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')['event-modal','view
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2800);}
 
 // ── Theme ──────────────────────────────────────────────────────────────────
-window.toggleTheme=()=>{
-  const isLight=document.body.classList.toggle('light-mode');
-  localStorage.setItem('theme',isLight?'light':'dark');
-  const lbl=document.getElementById('theme-label');
-  if(lbl)lbl.textContent=isLight?'Light mode':'Dark mode';
-};
-if(localStorage.getItem('theme')==='light'){
-  document.body.classList.add('light-mode');
-  const lbl=document.getElementById('theme-label');if(lbl)lbl.textContent='Light mode';
-}
+window.toggleTheme=()=>{const isLight=document.body.classList.toggle('light-mode');localStorage.setItem('theme',isLight?'light':'dark');document.getElementById('theme-label').textContent=isLight?'Light mode':'Dark mode';};
+if(localStorage.getItem('theme')==='light'){document.body.classList.add('light-mode');const lbl=document.getElementById('theme-label');if(lbl)lbl.textContent='Light mode';}
 
-// ── Push Notifications ─────────────────────────────────────────────────────
+// ── Notifications ──────────────────────────────────────────────────────────
 window.requestNotificationPermission=async()=>{
-  if(!('Notification' in window)){toast('Notifications not supported on this browser');return;}
-  if(Notification.permission==='denied'){
-    toast('Notifications are blocked. Go to browser Settings → Site Settings → Notifications and allow this site.');
-    const ns=document.getElementById('notif-status');
-    if(ns)ns.textContent='Blocked — allow in browser/site settings then refresh';
-    return;
-  }
+  if(!('Notification' in window)){toast('Not supported');return;}
+  if(Notification.permission==='denied'){toast('Blocked — check browser settings');return;}
   const perm=await Notification.requestPermission();
   const ns=document.getElementById('notif-status');
-  if(perm==='granted'){
-    localStorage.setItem('notificationsEnabled','true');
-    if(ns)ns.textContent='Enabled';
-    toast('Notifications enabled!');
-    new Notification('Quixilver Calendar',{body:'You will now be notified of new invitations.',icon:'https://quixilver8404.org/logo_old5.png'});
-  } else {
-    localStorage.setItem('notificationsEnabled','false');
-    if(ns)ns.textContent='Permission denied — check browser settings';
-    toast('Notifications blocked');
-  }
+  if(perm==='granted'){localStorage.setItem('notificationsEnabled','true');if(ns)ns.textContent='Enabled';toast('Notifications enabled!');new Notification('Quixilver Calendar',{body:'You will be notified of new invitations.',icon:'https://quixilver8404.org/logo_old5.png'});}
+  else{localStorage.setItem('notificationsEnabled','false');if(ns)ns.textContent='Permission denied';toast('Notifications blocked');}
 };
 
-function sendNotification(title,body){
-  if(Notification.permission==='granted'&&localStorage.getItem('notificationsEnabled')==='true'){
-    new Notification(title,{body,icon:'https://quixilver8404.org/logo_old5.png'});
-  }
-}
-
-function checkForNewInvites(newEvents){
-  const myUid=cu?.uid;
-  newEvents.forEach(ev=>{
-    const ppl=ev.type==='task'?ev.assignees:ev.invitees;
-    if(!ppl)return;
-    const me=ppl.find(p=>p.uid===myUid);
-    if(!me)return;
-    const rsvp=(ev.rsvp||{})[myUid];
-    if(rsvp)return;
-    const seenKey=`seen_invite_${ev.id}`;
-    if(localStorage.getItem(seenKey))return;
-    localStorage.setItem(seenKey,'1');
-    const isMand=me.attendance==='mandatory';
-    sendNotification(
-      `${isMand?'[Mandatory] ':''}${ev.type==='task'?'Task':'Meeting'}: ${ev.title}`,
-      `You've been invited. Date: ${ev.date}${ev.time?' at '+ev.time:''}`
-    );
-  });
-}
-
-// ── Week schedule presets ──────────────────────────────────────────────────
+// ── FIX #2: Week schedule presets — use current invitees with full RSVP/attendance data
 window.applyWeekSchedule=async(mode)=>{
   const title=document.getElementById('ev-title').value.trim();
   if(!title){toast('Enter a meeting title first');return;}
   const calendarId=document.getElementById('ev-calendar').value;
   if(!calendarId){toast('Select a calendar first');return;}
+  if(!invitees.length){toast('Add invitees first — they will be copied to all created meetings');return;}
   const baseDate=new Date(document.getElementById('ev-date').value+'T12:00:00');
   const ws=weekStart(baseDate);
   const dayOffsets=mode==='crunch'?[1,2,3,4,5]:[2,4,5];
   const hasMandatory=invitees.some(i=>i.attendance==='mandatory');
-  const color=invitees.length>0?(hasMandatory?'#ef4444':'#22c55e'):'#00b4ff';
+  const color=hasMandatory?'#ef4444':'#22c55e';
   const desc=document.getElementById('ev-desc').value.trim()||null;
   let created=0;
   for(const offset of dayOffsets){
     const d=new Date(ws);d.setDate(d.getDate()+offset);
     const dateStr=d.toISOString().split('T')[0];
     await addDoc(collection(db,'events'),{
-      uid:cu.uid, title, type:'meeting', date:dateStr,
-      time:'15:30', timeEnd:'18:00', allDay:false,
-      repeat:'none', repeatEnd:null,
-      invitees: JSON.parse(JSON.stringify(invitees)),
-      assignees:[], inviteeUids:invitees.map(i=>i.uid),
-      taskManagerUid:null,
-      calendarId, color, description:desc,
-      completed:false,
-      rsvp:{}, declineReasons:{}, unexcusedAbsences:{},
-      createdAt:serverTimestamp(), updatedAt:serverTimestamp()
+      uid:cu.uid,title,type:'meeting',date:dateStr,
+      time:'15:30',timeEnd:'18:00',allDay:false,
+      repeat:'none',repeatEnd:null,
+      invitees:JSON.parse(JSON.stringify(invitees)),
+      assignees:[],inviteeUids:invitees.map(i=>i.uid),
+      taskManagerUid:null,calendarId,color,description:desc,
+      completed:false,rsvp:{},declineReasons:{},unexcusedAbsences:{},
+      createdAt:serverTimestamp(),updatedAt:serverTimestamp()
     });
     created++;
   }

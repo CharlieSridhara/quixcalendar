@@ -1330,11 +1330,17 @@ function friendlyErr(c){return({'auth/user-not-found':'No account with that emai
 function getMyRoleForCal(calId){
   const cal=calendars.find(c=>c.id===calId)||sharedCalendars.find(c=>c.id===calId);
   if(!cal)return null;
-  return (cal.roles||{})[cu?.uid]||null;
+  // Check the calendar's roles map first
+  const calRole=(cal.roles||{})[cu?.uid]||null;
+  if(calRole)return calRole;
+  // Fallback: if this is the active/shared calendar and user has a role in their profile
+  // match it to this calendar (only if myRole is set and no other cal claims it)
+  return null;
 }
-function isLeader(calId){return !!getMyRoleForCal(calId);}
+function isLeader(calId){
+  return !!getMyRoleForCal(calId);
+}
 function isCaptain(calId){return getMyRoleForCal(calId)==='Captain';}
-// Any leader can do admin actions
 function isAdmin(calId){return isLeader(calId);}
 
 // ── Page nav ───────────────────────────────────────────────────────────────
@@ -1349,7 +1355,14 @@ window.showPage=(page)=>{
   document.getElementById('share-btn').style.display=page==='calendar'?'inline-flex':'none';
   if(page==='home')renderHomePage();
   if(page==='profile')renderProfilePage();
-  if(page==='admin')renderAdminPage();
+  if(page==='admin'){
+    // Re-fetch user role fresh from Firestore before rendering admin
+    getDoc(doc(db,'users',cu.uid)).then(snap=>{
+      const freshRole=snap.data()?.role||null;
+      if(freshRole!==myRole){myRole=freshRole;}
+      renderAdminPage();
+    }).catch(()=>renderAdminPage());
+  }
   if(page==='dashboard')renderDashboard();
 };
 
@@ -2545,8 +2558,16 @@ function subscribeSharedCal(calId,ownerUid,calName,ownerName,calColor,roles={},s
       sharedCalendars[idx].subsections=d.subsections||[];
       sharedCalendars[idx].name=d.name||sharedCalendars[idx].name;
       sharedCalendars[idx].color=d.color||sharedCalendars[idx].color;
+      // Update user's local role if it's in this calendar
+      const myRoleInCal=(d.roles||{})[cu?.uid]||null;
+      if(myRoleInCal&&myRoleInCal!==myRole){myRole=myRoleInCal;}
     }
     updateAdminUI();
+    renderSidebar();
+    // Re-render active page so subsections/roles show immediately
+    if(currentPage==='admin')renderAdminPage();
+    if(currentPage==='dashboard')renderDashboard();
+    if(currentPage==='calendar')renderAll();
   });
 }
 
@@ -2564,7 +2585,16 @@ async function renderAdminPage(){
   // Show calendars where user is a leader
   const allCals=[...calendars,...sharedCalendars];
   const leadCals=allCals.filter(c=>isLeader(c.id));
-  if(!leadCals.length){document.getElementById('admin-members-list').innerHTML='<div style="font-size:12px;color:var(--muted2)">You have no leadership role.</div>';return;}
+  if(!leadCals.length){
+    document.getElementById('admin-members-list').innerHTML='<div style="font-size:12px;color:var(--muted2)">No leadership role found. If you were just assigned a role, try refreshing the page.</div>';
+    // Try to reload role from Firestore directly as a fallback
+    try{
+      const usnap=await getDoc(doc(db,'users',cu.uid));
+      const freshRole=usnap.data()?.role||null;
+      if(freshRole&&freshRole!==myRole){myRole=freshRole;renderAdminPage();}
+    }catch(e){}
+    return;
+  }
   leadCals.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.name+(sharedCalendars.find(sc=>sc.id===c.id)?' (shared)':'');sel.appendChild(o);});
   const adminCal=allCals.find(c=>c.id===sel.value)||leadCals[0];if(!adminCal)return;
 

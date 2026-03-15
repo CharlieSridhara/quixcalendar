@@ -1,0 +1,26 @@
+{
+  "name": "Quixilver 8404 Calendar",
+  "short_name": "Quixilver",
+  "description": "FTC Team 8404 scheduling and task management",
+  "start_url": "/quixcalendar/",
+  "scope": "/quixcalendar/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0c0f18",
+  "theme_color": "#0c0f18",
+  "categories": ["productivity", "utilities"],
+  "icons": [
+    {
+      "src": "https://quixilver8404.org/logo_old5.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://quixilver8404.org/logo_old5.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

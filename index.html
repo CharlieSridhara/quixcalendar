@@ -1355,14 +1355,7 @@ window.showPage=(page)=>{
   document.getElementById('share-btn').style.display=page==='calendar'?'inline-flex':'none';
   if(page==='home')renderHomePage();
   if(page==='profile')renderProfilePage();
-  if(page==='admin'){
-    // Re-fetch user role fresh from Firestore before rendering admin
-    getDoc(doc(db,'users',cu.uid)).then(snap=>{
-      const freshRole=snap.data()?.role||null;
-      if(freshRole!==myRole){myRole=freshRole;}
-      renderAdminPage();
-    }).catch(()=>renderAdminPage());
-  }
+  if(page==='admin'){renderAdminPage();}
   if(page==='dashboard')renderDashboard();
 };
 
@@ -2090,7 +2083,7 @@ function subColor(sub,calId){
 window.dashNav=(d)=>{dashDate=new Date(dashDate);dashDate.setDate(dashDate.getDate()+d*7);renderDashboard();};
 window.dashNavToday=()=>{dashDate=getNow();renderDashboard();};
 
-function renderDashboard(){
+async function renderDashboard(){
   // Populate calendar selector
   const dcSel=document.getElementById('dash-cal-select');
   if(!dcSel)return;
@@ -2103,7 +2096,20 @@ function renderDashboard(){
   const calId=dcSel.value||allCals[0]?.id;
   if(!calId){document.getElementById('dash-columns').innerHTML='<div style="padding:32px;color:var(--muted2);font-size:13px">No calendars found. Create or join a calendar first.</div>';return;}
   dcSel.value=calId;
-  const cal=allCals.find(c=>c.id===calId);
+  // Always fetch fresh calendar data so subsections/roles are up to date
+  let cal=allCals.find(c=>c.id===calId);
+  try{
+    const freshSnap=await getDoc(doc(db,'calendars',calId));
+    if(freshSnap.exists()){
+      const fd=freshSnap.data();
+      // Update cache
+      const ownIdx=calendars.findIndex(c=>c.id===calId);
+      if(ownIdx>=0){calendars[ownIdx].subsections=fd.subsections||[];calendars[ownIdx].roles=fd.roles||{};}
+      const shIdx=sharedCalendars.findIndex(c=>c.id===calId);
+      if(shIdx>=0){sharedCalendars[shIdx].subsections=fd.subsections||[];sharedCalendars[shIdx].roles=fd.roles||{};}
+      cal={...cal,...fd,id:calId};
+    }
+  }catch(e){console.error('Dashboard cal fetch:',e);}
   const subs=cal?.subsections||[];
 
   // Week range
@@ -2536,9 +2542,20 @@ async function loadJoinedCalendars(){
 }
 
 function subscribeSharedCal(calId,ownerUid,calName,ownerName,calColor,roles={},subsections=[]){
-  if(!sharedCalendars.find(c=>c.id===calId))sharedCalendars.push({id:calId,name:calName,color:calColor,ownerName,roles,uid:ownerUid,subsections});
+  const _existingIdx=sharedCalendars.findIndex(c=>c.id===calId);
+  if(_existingIdx===-1){
+    sharedCalendars.push({id:calId,name:calName,color:calColor,ownerName,roles,uid:ownerUid,subsections});
+  } else {
+    // Always update with latest data — don't skip if already exists
+    sharedCalendars[_existingIdx]={
+      ...sharedCalendars[_existingIdx],
+      name:calName,color:calColor,ownerName,
+      roles:Object.keys(roles).length>0?roles:sharedCalendars[_existingIdx].roles,
+      uid:ownerUid||sharedCalendars[_existingIdx].uid,
+      subsections:subsections.length>0?subsections:sharedCalendars[_existingIdx].subsections
+    };
+  }
   const _sc=sharedCalendars.find(c=>c.id===calId);
-  if(_sc)_sc.uid=ownerUid;
   onSnapshot(query(collection(db,'events'),where('calendarId','==',calId)),snap=>{
     const shared=snap.docs.map(d=>({id:d.id,...d.data(),isShared:true,sharedCalId:calId,sharedCalName:calName,color:d.data().color||calColor}));
     events=events.filter(e=>!(e.isShared&&e.sharedCalId===calId));
@@ -2555,7 +2572,8 @@ function subscribeSharedCal(calId,ownerUid,calName,ownerName,calColor,roles={},s
       const d=snap.data();
       sharedCalendars[idx].roles=d.roles||{};
       sharedCalendars[idx].uid=d.uid||sharedCalendars[idx].uid;
-      sharedCalendars[idx].subsections=d.subsections||[];
+      if(d.subsections&&d.subsections.length>0)sharedCalendars[idx].subsections=d.subsections;
+      else if(!sharedCalendars[idx].subsections?.length)sharedCalendars[idx].subsections=d.subsections||[];
       sharedCalendars[idx].name=d.name||sharedCalendars[idx].name;
       sharedCalendars[idx].color=d.color||sharedCalendars[idx].color;
       // Update user's local role if it's in this calendar
@@ -2582,17 +2600,45 @@ window.leaveCalendar=async(calId)=>{
 // ── Admin / Leadership page ────────────────────────────────────────────────
 async function renderAdminPage(){
   const sel=document.getElementById('admin-cal-select');sel.innerHTML='';
-  // Show calendars where user is a leader
+
+  // Always fetch fresh role from Firestore
+  try{
+    const usnap=await getDoc(doc(db,'users',cu.uid));
+    myRole=usnap.data()?.role||null;
+  }catch(e){console.error(e);}
+
+  // Find all calendars (own + shared) where this user has a role
+  // For shared cals: fetch the calendar doc directly to get fresh roles
   const allCals=[...calendars,...sharedCalendars];
-  const leadCals=allCals.filter(c=>isLeader(c.id));
+  const leadCals=[];
+  for(const cal of allCals){
+    // Check cached roles first
+    let role=(cal.roles||{})[cu?.uid]||null;
+    // If not found in cache, fetch directly from Firestore
+    if(!role){
+      try{
+        const freshCal=await getDoc(doc(db,'calendars',cal.id));
+        if(freshCal.exists()){
+          const freshRoles=freshCal.data().roles||{};
+          const freshSubs=freshCal.data().subsections||[];
+          role=freshRoles[cu.uid]||null;
+          // Update cache
+          if(calendars.find(c=>c.id===cal.id)){
+            const idx=calendars.findIndex(c=>c.id===cal.id);
+            if(idx>=0){calendars[idx].roles=freshRoles;calendars[idx].subsections=freshSubs;}
+          }
+          if(sharedCalendars.find(c=>c.id===cal.id)){
+            const idx=sharedCalendars.findIndex(c=>c.id===cal.id);
+            if(idx>=0){sharedCalendars[idx].roles=freshRoles;sharedCalendars[idx].subsections=freshSubs;}
+          }
+        }
+      }catch(e){console.error(e);}
+    }
+    if(role)leadCals.push(cal);
+  }
+
   if(!leadCals.length){
-    document.getElementById('admin-members-list').innerHTML='<div style="font-size:12px;color:var(--muted2)">No leadership role found. If you were just assigned a role, try refreshing the page.</div>';
-    // Try to reload role from Firestore directly as a fallback
-    try{
-      const usnap=await getDoc(doc(db,'users',cu.uid));
-      const freshRole=usnap.data()?.role||null;
-      if(freshRole&&freshRole!==myRole){myRole=freshRole;renderAdminPage();}
-    }catch(e){}
+    document.getElementById('admin-members-list').innerHTML='<div style="font-size:12px;color:var(--muted2)">You have no leadership role assigned. Ask your Captain to assign you a role in the Admin panel.</div>';
     return;
   }
   leadCals.forEach(c=>{const o=document.createElement('option');o.value=c.id;o.textContent=c.name+(sharedCalendars.find(sc=>sc.id===c.id)?' (shared)':'');sel.appendChild(o);});

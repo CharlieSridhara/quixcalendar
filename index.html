@@ -29,6 +29,8 @@ body.light-mode{
 }
 .theme-toggle{width:36px;height:20px;background:var(--bg4);border:1px solid var(--border2);border-radius:10px;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0}
 .theme-toggle::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:var(--muted);transition:transform .2s,background .2s}
+.theme-toggle.notif-active{background:var(--accent-dim)}
+.theme-toggle.notif-active::after{transform:translateX(16px);background:var(--accent2)}
 body.light-mode .theme-toggle{background:var(--accent-dim)}
 body.light-mode .theme-toggle::after{transform:translateX(16px);background:var(--accent2)}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -513,8 +515,9 @@ textarea.form-input{resize:vertical;min-height:68px}
       <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px">
         <div style="font-size:14px;font-weight:600;margin-bottom:6px">Notifications</div>
         <div style="font-size:11px;color:var(--muted);margin-bottom:14px">Get notified of new invitations. Works on desktop and most mobile browsers.</div>
-        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-          <button class="btn-primary-sm" onclick="requestNotificationPermission()">Enable notifications</button>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span id="notif-label" style="font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.3px;white-space:nowrap">Notifications off</span>
+          <button class="theme-toggle" id="notif-toggle-btn" onclick="toggleNotifications()" title="Toggle notifications"></button>
           <span id="notif-status" style="font-size:11px;color:var(--muted)"></span>
         </div>
       </div>
@@ -937,11 +940,17 @@ function renderCalendar(){
     const evd=document.createElement('div');evd.className='cell-events';
     cev.slice(0,3).forEach(ev=>{
       const cal=calendars.find(c=>c.id===ev.calendarId)||sharedCalendars.find(c=>c.id===ev.sharedCalId);
-      const color=ev.color||cal?.color||'#2979ff';
+      let color=ev.color||cal?.color||'#2979ff';
+      if(ev.completed){color='#6b7280';}
+      else if(ev.type==='task'){
+        const me=(ev.assignees||[]).find(a=>a.uid===cu?.uid);
+        const pri=me?.priority||'important';
+        color=pri==='critical'?'#ef4444':pri==='important'?'#f59e0b':'#22c55e';
+      }
       const pill=document.createElement('div');pill.className=`event-pill${ev.completed?' completed':''}`;
       pill.style.background=ev.completed?'rgba(156,163,175,0.12)':color+'22';
       pill.style.color=ev.completed?'var(--muted2)':color;
-      pill.innerHTML=`<div class="event-pill-dot" style="background:${ev.completed?'var(--muted2)':color}"></div>${ev.type==='task'?'[T] ':''}${ev.allDay?'':(ev.time?ev.time+' · ':'')}${ev.title}`;
+      pill.innerHTML=`<div class="event-pill-dot" style="background:${ev.completed?'var(--muted2)':color}"></div>${ev.allDay?'':(ev.time?ev.time+' · ':'')}${ev.title}`;
       pill.onclick=e=>{e.stopPropagation();openViewEvent(ev);};evd.appendChild(pill);
     });
     if(cev.length>3){const mo=document.createElement('div');mo.className='more-events';mo.textContent=`+${cev.length-3} more`;evd.appendChild(mo);}
@@ -990,9 +999,10 @@ function renderWeekView(){
     const cell=document.createElement('div');cell.className='week-allday-cell';
     exp.filter(e=>e.date===ds&&e.allDay&&(isShCal?e.sharedCalId===activeCalId:((e.calendarId===activeCalId&&!e.isShared)||(e._invited&&e.calendarId===activeCalId)))).forEach(ev=>{
       const cal=calendars.find(c=>c.id===ev.calendarId)||sharedCalendars.find(c=>c.id===ev.sharedCalId);
-      const color=ev.completed?'#6b7280':(ev.color||cal?.color||'#2979ff');
+      let color=ev.color||cal?.color||'#2979ff';
+      if(ev.completed){color='#6b7280';}else if(ev.type==='task'){const me=(ev.assignees||[]).find(a=>a.uid===cu?.uid);const pri=me?.priority||'important';color=pri==='critical'?'#ef4444':pri==='important'?'#f59e0b':'#22c55e';}
       const p=document.createElement('div');p.className='week-allday-pill';
-      p.style.background=color+'22';p.style.color=color;p.textContent=(ev.type==='task'?'[T] ':'')+ev.title;
+      p.style.background=color+'22';p.style.color=color;p.textContent=ev.title;
       p.onclick=()=>openViewEvent(ev);cell.appendChild(p);
     });
     als.appendChild(cell);
@@ -1024,13 +1034,14 @@ function renderWeekView(){
     });
     exp.filter(e=>e.date===ds&&!e.allDay&&e.time&&(isShCal?e.sharedCalId===activeCalId:((e.calendarId===activeCalId&&!e.isShared)||(e._invited&&e.calendarId===activeCalId)))).forEach(ev=>{
       const cal=calendars.find(c=>c.id===ev.calendarId)||sharedCalendars.find(c=>c.id===ev.sharedCalId);
-      const color=ev.completed?'#6b7280':(ev.color||cal?.color||'#2979ff');
+      let color=ev.color||cal?.color||'#2979ff';
+      if(ev.completed){color='#6b7280';}else if(ev.type==='task'){const me=(ev.assignees||[]).find(a=>a.uid===cu?.uid);const pri=me?.priority||'important';color=pri==='critical'?'#ef4444':pri==='important'?'#f59e0b':'#22c55e';}
       const[sh,sm]=ev.time.split(':').map(Number);let sm0=sh*60+sm,em0=sm0+60;
       if(ev.timeEnd){const[eh,em]=ev.timeEnd.split(':').map(Number);em0=eh*60+em;}
       const blk=document.createElement('div');blk.className=`week-event-block${ev.completed?' completed':''}`;
       blk.style.top=`${(sm0/60)*H}px`;blk.style.height=`${Math.max(((em0-sm0)/60)*H,18)}px`;
       blk.style.background=color+'22';blk.style.color=color;blk.style.borderLeftColor=color;
-      blk.innerHTML=`<div class="week-event-title">${ev.type==='task'?'[T] ':''}${ev.title}</div><div class="week-event-time">${ev.time}${ev.timeEnd?'–'+ev.timeEnd:''}</div>`;
+      blk.innerHTML=`<div class="week-event-title">${ev.title}</div><div class="week-event-time">${ev.time}${ev.timeEnd?'–'+ev.timeEnd:''}</div>`;
       blk.onclick=e=>{e.stopPropagation();openViewEvent(ev);};col.appendChild(blk);
     });
     wd.appendChild(col);
@@ -1747,6 +1758,7 @@ function renderProfilePage(){
   document.getElementById('profile-name-input').value=name;
   document.getElementById('profile-email-input').value=email;
   document.getElementById('profile-password-input').value='';
+  updateNotifToggle();
   // Role display
   const rd=document.getElementById('profile-role-display');
   if(myRole)rd.innerHTML=`<span class="role-badge">${myRole}</span>`;else rd.innerHTML='';
@@ -1791,6 +1803,39 @@ window.toggleTheme=()=>{const isLight=document.body.classList.toggle('light-mode
 if(localStorage.getItem('theme')==='light'){document.body.classList.add('light-mode');const lbl=document.getElementById('theme-label');if(lbl)lbl.textContent='Light mode';}
 
 // ── Notifications ──────────────────────────────────────────────────────────
+window.toggleNotifications=async()=>{
+  if(!('Notification' in window)){toast('Not supported on this browser');return;}
+  const enabled=localStorage.getItem('notificationsEnabled')==='true'&&Notification.permission==='granted';
+  if(enabled){
+    localStorage.setItem('notificationsEnabled','false');
+    updateNotifToggle();toast('Notifications disabled');
+  } else {
+    if(Notification.permission==='denied'){toast('Blocked — allow in browser settings then refresh');return;}
+    const perm=await Notification.requestPermission();
+    if(perm==='granted'){
+      localStorage.setItem('notificationsEnabled','true');
+      new Notification('Quixilver Calendar',{body:'Notifications enabled!',icon:'https://quixilver8404.org/logo_old5.png'});
+      toast('Notifications enabled!');
+    } else {
+      localStorage.setItem('notificationsEnabled','false');
+      toast('Permission denied');
+    }
+    updateNotifToggle();
+  }
+};
+function updateNotifToggle(){
+  const on=localStorage.getItem('notificationsEnabled')==='true'&&('Notification' in window)&&Notification.permission==='granted';
+  const lbl=document.getElementById('notif-label');
+  const status=document.getElementById('notif-status');
+  if(on){document.getElementById('notif-toggle-btn')?.classList.add('notif-active');}
+  else{document.getElementById('notif-toggle-btn')?.classList.remove('notif-active');}
+  if(lbl)lbl.textContent=on?'Notifications on':'Notifications off';
+  if(status){
+    if(!('Notification' in window))status.textContent='Not supported';
+    else if(Notification.permission==='denied')status.textContent='Blocked — check browser settings';
+    else status.textContent='';
+  }
+}
 window.requestNotificationPermission=async()=>{
   if(!('Notification' in window)){toast('Not supported');return;}
   if(Notification.permission==='denied'){toast('Blocked — check browser settings');return;}

@@ -8,6 +8,13 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <title>Quixilver 8404 Calendar</title>
 <link rel="icon" type="image/png" href="https://quixilver8404.org/logo_old5.png"/>
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#0c0f18" media="(prefers-color-scheme: dark)"/>
+<meta name="theme-color" content="#f4f6fb" media="(prefers-color-scheme: light)"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Quixilver"/>
+<link rel="apple-touch-icon" href="https://quixilver8404.org/logo_old5.png"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
 :root{
@@ -52,7 +59,7 @@ body.light-mode{
 .theme-toggle.notif-active::after{transform:translateX(16px);background:var(--accent2)}
 body.light-mode .theme-toggle{background:var(--accent-dim)}
 body.light-mode .theme-toggle::after{transform:translateX(16px);background:var(--accent2)}
-body.light-mode .topbar{border-bottom-color:rgba(30,50,100,0.1);box-shadow:0 1px 12px rgba(20,40,80,0.06)}
+body.light-mode .topbar{display:flex;align-items:center;padding:0 20px;height:56px;border-bottom:1px solid var(--border);background:var(--topbar-bg);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);flex-shrink:0;position:sticky;top:0;z-index:50;transition:background .3s;position:relative}
 body.light-mode .sidebar{border-right-color:rgba(30,50,100,0.1)}
 body.light-mode .cal-cell:hover{background:rgba(0,149,232,0.05)}
 body.light-mode .modal{box-shadow:0 16px 64px rgba(20,40,80,0.18)}
@@ -96,13 +103,13 @@ body.light-mode::before{background:radial-gradient(ellipse 60% 40% at 20% -10%,r
 .auth-error{background:var(--red-dim);border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:10px 13px;font-size:13px;color:var(--red);margin-bottom:14px;display:none}
 #app-screen{display:none;height:100vh;flex-direction:column}
 #app-screen.visible{display:flex}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:56px;border-bottom:1px solid var(--border);background:var(--topbar-bg);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);flex-shrink:0;gap:8px;position:sticky;top:0;z-index:50;transition:background .3s}
-.topbar-logo{display:flex;align-items:center;gap:9px;cursor:pointer;flex-shrink:0;min-width:140px}
+.topbar{display:flex;align-items:center;padding:0 20px;height:56px;position:sticky;top:0;z-index:50;border-bottom:1px solid var(--border);background:var(--topbar-bg);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);flex-shrink:0;gap:0;position:sticky;top:0;z-index:50;transition:background .3s;position:sticky}
+.topbar-logo{display:flex;align-items:center;gap:9px;cursor:pointer;flex-shrink:0;width:180px}
 .topbar-logo-text{font-size:15px;font-weight:700;letter-spacing:-.4px;white-space:nowrap}
 .topbar-logo-text span{background:linear-gradient(130deg,var(--accent2) 0%,var(--accent3) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .topbar-team-badge{font-size:9px;font-weight:700;color:var(--muted);letter-spacing:1.2px;text-transform:uppercase;background:var(--bg4);border:1px solid var(--border);border-radius:4px;padding:2px 6px}
-.topbar-center{display:flex;align-items:center;gap:5px;flex:1;justify-content:center;min-width:0;overflow:hidden}
-.topbar-right{display:flex;align-items:center;gap:6px;flex-shrink:0;white-space:nowrap}
+.topbar-center{display:none}
+.topbar-right{display:flex;align-items:center;gap:6px;flex-shrink:0;white-space:nowrap;width:180px;justify-content:flex-end}
 .topbar-nav-btn{background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--muted);cursor:pointer;padding:5px 10px;font-size:14px;transition:all .2s}
 .topbar-nav-btn:hover{border-color:var(--border3);color:var(--text);background:var(--glass2)}
 .topbar-month{font-size:14px;font-weight:600;min-width:120px;text-align:center;white-space:nowrap}
@@ -504,18 +511,8 @@ textarea.form-input{resize:vertical;min-height:68px}
       <div><div class="topbar-logo-text">Quixil<span>ver</span></div></div>
       <span class="topbar-team-badge">8404</span>
     </div>
-    <div class="topbar-center" id="cal-topbar-center" style="display:none">
-      <button class="topbar-nav-btn" onclick="navPrev()">‹</button>
-      <div class="topbar-month" id="month-label"></div>
-      <button class="topbar-nav-btn" onclick="navNext()">›</button>
-      <button class="topbar-nav-btn" onclick="goToday()" style="font-size:11px;padding:5px 10px;font-family:var(--font)">Today</button>
-      <div class="view-toggle">
-        <button class="view-btn active" id="view-month-btn" onclick="setView('month')">Month</button>
-        <button class="view-btn" id="view-week-btn" onclick="setView('week')">Week</button>
-      </div>
-    </div>
-    <div class="topbar-right">
-      <button class="btn-icon" onclick="openSearch()" title="Search (⌘K)" style="font-size:13px;padding:6px 10px">⌘K</button>
+    <!-- NAV centered absolutely so it NEVER shifts -->
+    <div style="position:absolute;left:50%;transform:translateX(-50%)">
       <div class="nav-pill">
         <button class="nav-pill-btn active" id="nav-home" onclick="showPage('home')">Home</button>
         <button class="nav-pill-btn" id="nav-cal" onclick="showPage('calendar')">Calendar</button>
@@ -523,6 +520,9 @@ textarea.form-input{resize:vertical;min-height:68px}
         <button class="nav-pill-btn" id="nav-admin" onclick="showPage('admin')" style="display:none">Admin</button>
         <button class="nav-pill-btn" id="nav-profile" onclick="showPage('profile')">Profile</button>
       </div>
+    </div>
+    <div class="topbar-right">
+      <button class="btn-icon" onclick="openSearch()" title="Search (⌘K)" style="font-size:13px;padding:6px 10px">⌘K</button>
       <button class="btn-icon" id="share-btn" onclick="openShareModal()" title="Share calendar" style="display:none">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
         Share
@@ -539,6 +539,23 @@ textarea.form-input{resize:vertical;min-height:68px}
           <div class="dropdown-item" onclick="signOut()">Sign out</div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- CAL SUB-BAR — shown only on calendar page -->
+  <div id="cal-subbar" style="display:none;align-items:center;gap:8px;padding:8px 20px;border-bottom:1px solid var(--border);background:var(--bg2);flex-shrink:0">
+    <button class="topbar-nav-btn" onclick="navPrev()">‹</button>
+    <button class="topbar-nav-btn" onclick="navNext()">›</button>
+    <div id="month-label" style="font-size:14px;font-weight:600;min-width:190px;color:var(--text)"></div>
+    <button class="topbar-nav-btn" onclick="goToday()" style="font-size:11px;padding:5px 10px;font-family:var(--font);white-space:nowrap">Today</button>
+    <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
+      <div class="view-toggle">
+        <button class="view-btn active" id="view-month-btn" onclick="setView('month')">Month</button>
+        <button class="view-btn" id="view-week-btn" onclick="setView('week')">Week</button>
+      </div>
+      <div class="cal-header-dot" id="cal-header-dot" style="width:8px;height:8px;border-radius:50%;flex-shrink:0"></div>
+      <span class="cal-header-name" id="cal-header-name" style="font-size:13px;font-weight:600;color:var(--text)"></span>
+      <span class="cal-header-hint" id="cal-header-hint" style="font-size:10px;color:var(--muted2)"></span>
     </div>
   </div>
 
@@ -594,11 +611,7 @@ textarea.form-input{resize:vertical;min-height:68px}
         </div>
       </div>
       <div class="cal-area">
-        <div class="cal-header-bar">
-          <div class="cal-header-dot" id="cal-header-dot"></div>
-          <span class="cal-header-name" id="cal-header-name"></span>
-          <span class="cal-header-hint" id="cal-header-hint"></span>
-        </div>
+
         <div id="month-view" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
           <div class="cal-grid-header">
             <div class="cal-day-header">Sun</div><div class="cal-day-header">Mon</div><div class="cal-day-header">Tue</div>
@@ -1102,8 +1115,8 @@ window.showPage=(page)=>{
     const nid=p==='calendar'?'nav-cal':p==='admin'?'nav-admin':p==='dashboard'?'nav-dash':`nav-${p}`;
     document.getElementById(nid)?.classList.toggle('active',p===page);
   });
-  document.getElementById('cal-topbar-center').style.display=page==='calendar'?'flex':'none';
-  document.getElementById('share-btn').style.display=page==='calendar'?'flex':'none';
+  document.getElementById('cal-subbar').style.display=page==='calendar'?'flex':'none';
+  document.getElementById('share-btn').style.display=page==='calendar'?'inline-flex':'none';
   if(page==='home')renderHomePage();
   if(page==='profile')renderProfilePage();
   if(page==='admin')renderAdminPage();
@@ -2641,6 +2654,15 @@ function renderLeadSection(){
     const row=document.createElement('div');row.className='upcoming-row';
     row.innerHTML=`<div class="upcoming-dot" style="background:${pri==='critical'?'var(--red)':pri==='important'?'var(--amber)':'var(--green)'}"></div><div style="flex:1"><div class="upcoming-title">${ev.title}${isOverdue?' <span class="overdue-badge">OVERDUE</span>':''}</div><div class="upcoming-meta">${d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}</div></div><span class="priority-badge priority-${pri}">${PRIORITY_LABELS[pri]}</span>`;
     row.onclick=()=>openViewEvent(ev);el.appendChild(row);
+  });
+}
+
+// ── PWA Service Worker Registration ────────────────────────────────────────
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js')
+      .then(reg=>console.log('SW registered:', reg.scope))
+      .catch(err=>console.log('SW failed:', err));
   });
 }
 

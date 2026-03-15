@@ -254,7 +254,7 @@ body.light-mode::before{background:radial-gradient(ellipse 60% 40% at 20% -10%,r
 .role-badge{font-size:9px;font-weight:700;padding:2px 8px;border-radius:8px;letter-spacing:.4px;text-transform:uppercase;background:linear-gradient(135deg,rgba(168,85,247,.22),rgba(130,60,220,.15));color:#c084fc;border:1px solid rgba(168,85,247,.25)}
 .role-badge.admin-role{background:linear-gradient(135deg,rgba(245,166,35,.22),rgba(220,140,0,.15));color:#fbbf24;border:1px solid rgba(245,166,35,.3)}
 /* PROFILE */
-.profile-page{flex:1;overflow-y:auto;padding:28px 32px;max-width:580px}
+.profile-page{flex:1;overflow-y:auto;padding:28px 32px}
 .profile-avatar-section{display:flex;align-items:center;gap:18px;margin-bottom:24px;padding:20px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg)}
 .profile-avatar-big{width:68px;height:68px;border-radius:50%;background:linear-gradient(135deg,var(--accent-dim2),var(--accent-dim));border:2px solid var(--accent-border);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:var(--accent2);overflow:hidden;cursor:pointer;position:relative;flex-shrink:0;box-shadow:0 4px 16px var(--accent-glow);transition:transform .2s,box-shadow .2s}
 .profile-avatar-big img{width:100%;height:100%;object-fit:cover}
@@ -690,6 +690,8 @@ textarea.form-input{resize:vertical;min-height:68px}
           <div style="font-size:10px;color:var(--muted2);margin-top:3px">Click avatar to change photo</div>
         </div>
       </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:16px;align-items:start">
+      <div><!-- LEFT COL -->
       <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:22px;margin-bottom:16px;box-shadow:var(--shadow)">
         <div style="font-size:14px;font-weight:600;margin-bottom:16px">Edit Profile</div>
         <div class="form-group"><label class="form-label">Display name</label><input class="form-input" id="profile-name-input" type="text"/></div>
@@ -708,6 +710,8 @@ textarea.form-input{resize:vertical;min-height:68px}
         </div>
       </div>
 
+      </div><!-- end left col -->
+      <div><!-- RIGHT COL -->
       <!-- INSTALL GUIDE -->
       <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:26px 28px;box-shadow:var(--shadow)">
         <div style="font-size:20px;font-weight:700;margin-bottom:4px;letter-spacing:-.3px">&#128242; Install as App</div>
@@ -893,7 +897,9 @@ textarea.form-input{resize:vertical;min-height:68px}
         <div class="ig-tip" style="margin-top:24px;font-size:13px">
           &#127881; <strong>Once installed</strong> &#8212; opens full screen, no browser bar, stays logged in, syncs in real time.
         </div>
-      </div>    </div>
+      </div>      </div><!-- end right col -->
+      </div><!-- end grid -->
+    </div>
   </div>
 
   <!-- ADMIN -->
@@ -1169,18 +1175,16 @@ setPersistence(auth,browserLocalPersistence).catch(e=>console.error('Persistence
 // Hardcoded UTC-7 (PDT, March–November) / UTC-8 (PST, Nov–March)
 // Currently PDT (UTC-7) since it is past March 8 2026
 function getNow(){
+  // Always use Intl to get LA time — most reliable cross-browser approach
   const now=new Date();
-  // Detect DST: PDT runs second Sunday in March to first Sunday in November
-  const year=now.getUTCFullYear();
-  // Second Sunday in March
-  const dstStart=new Date(Date.UTC(year,2,1));
-  dstStart.setUTCDate(1+(7-dstStart.getUTCDay()+0)%7+7); // second Sunday
-  // First Sunday in November  
-  const dstEnd=new Date(Date.UTC(year,10,1));
-  dstEnd.setUTCDate(1+(7-dstEnd.getUTCDay())%7); // first Sunday
-  const isPDT=now>=dstStart&&now<dstEnd;
-  const offsetMs=(isPDT?7:8)*3600000;
-  return new Date(now.getTime()-offsetMs);
+  const fmt=new Intl.DateTimeFormat('en-US',{
+    timeZone:'America/Los_Angeles',
+    year:'numeric',month:'2-digit',day:'2-digit',
+    hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false
+  });
+  const parts=fmt.formatToParts(now).reduce((acc,p)=>{acc[p.type]=p.value;return acc;},{});
+  // Build a date from the LA-localized parts
+  return new Date(`${parts.year}-${parts.month}-${parts.day}T${parts.hour==='24'?'00':parts.hour}:${parts.minute}:${parts.second}`);
 }
 function getTodayStr(){
   const n=getNow();
@@ -1677,13 +1681,18 @@ function renderHomePage(){
   const myMtgInvites=events.filter(e=>{
     if(e.type==='task')return false;
     if(e.completed)return false;
+    if(new Date(e.date+'T23:59:59')<getNow())return false;
     if(_seenInvIds.has(e.id))return false;
     const ppl=e.invitees||[];
     const isInvited=ppl.some(p=>p.uid===myUid||p.email===myEmail);
-    if(isInvited)_seenInvIds.add(e.id);
-    return isInvited;
+    if(!isInvited)return false;
+    // Hide if already accepted
+    const rsvpStatus=(e.rsvp||{})[myUid];
+    if(rsvpStatus==='accepted')return false;
+    _seenInvIds.add(e.id);
+    return true;
   });
-  if(!myMtgInvites.length)invEl.innerHTML='<div style="color:var(--muted2);font-size:12px">No meeting invitations</div>';
+  if(!myMtgInvites.length)invEl.innerHTML='<div style="color:var(--muted2);font-size:12px">No pending invitations</div>';
   else myMtgInvites.forEach(ev=>{
     const cal=calendars.find(c=>c.id===ev.calendarId)||sharedCalendars.find(c=>c.id===ev.sharedCalId);
     const color=ev.color||cal?.color||'#2979ff';
@@ -2708,7 +2717,13 @@ async function renderAdminPage(){
     const mRolesList=getRolesForUid(calRoles,m.uid);
     const mRole=getPrimaryRole(calRoles,m.uid);
     const row=document.createElement('div');row.className='admin-member-row';
-    row.innerHTML=`<div style="width:30px;height:30px;border-radius:50%;background:var(--accent-dim);border:1px solid var(--accent-border);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--accent2);font-size:12px;flex-shrink:0">${(m.displayName||'?').charAt(0).toUpperCase()}</div><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:600;color:var(--text)">${m.displayName} ${mRolesList.map(r=>`<span class="role-badge ${r==='Admin'?'admin-role':''}">${r}</span>`).join(' ')}</div><div style="font-size:10px;color:var(--muted)">${m.email}${m.subsection?` · ${m.subsection}`:''}</div></div><div style="display:flex;gap:5px;flex-shrink:0;flex-wrap:wrap">`;
+    row.innerHTML=`
+      <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--accent-dim2),var(--accent-dim));border:1.5px solid var(--accent-border);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--accent2);font-size:13px;flex-shrink:0">${(m.displayName||'?').charAt(0).toUpperCase()}</div>
+      <div style="flex:1;min-width:120px">
+        <div style="font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:5px;flex-wrap:wrap">${m.displayName} ${mRolesList.map(r=>`<span class="role-badge ${r==='Admin'?'admin-role':''}">${r}</span>`).join('')}</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:1px">${m.email}${m.subsection?` · <strong style="color:var(--text)">${m.subsection}</strong>`:''}</div>
+      </div>
+      <div style="display:flex;gap:5px;flex-shrink:0;align-items:center">`;
     // Subsection selector
     if(isCaptain(adminCal.id)){
       const subSel=document.createElement('select');subSel.style.cssText='padding:3px 6px;font-size:10px;background:var(--bg3);border:1px solid var(--border2);border-radius:5px;color:var(--text);font-family:var(--font)';

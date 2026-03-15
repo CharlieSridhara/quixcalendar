@@ -566,8 +566,8 @@ textarea.form-input{resize:vertical;min-height:68px}
     <!-- RIGHT: Controls — flex:1 + justify-end to mirror left side -->
     <div class="topbar-right" style="flex:1;justify-content:flex-end">
       <button class="btn-icon" onclick="openSearch()" title="Search (⌘K)" style="font-size:12px;padding:5px 10px;font-weight:600">⌘K</button>
-      <button class="btn-icon" id="share-btn" onclick="openShareModal()" title="Share calendar" style="display:none">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      <button class="btn-icon" id="share-btn" onclick="openShareModal()" title="Share calendar" style="display:none;align-items:center;gap:5px">
+        <svg style="display:block" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
         Share
       </button>
       <button class="theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle theme"></button>
@@ -634,7 +634,7 @@ textarea.form-input{resize:vertical;min-height:68px}
         </div>
         <div class="sidebar-section">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-            <div class="sidebar-label" style="margin-bottom:0">My Calendars</div>
+            <div class="sidebar-label" style="margin-bottom:0">Calendars</div>
             <button onclick="openNewCalendarModal()" id="new-cal-btn" style="display:none;background:none;border:none;color:var(--muted);cursor:pointer;font-size:17px;padding:0 3px;line-height:1" title="New calendar">＋</button>
           </div>
           <div class="calendar-list" id="cal-list"></div>
@@ -690,7 +690,7 @@ textarea.form-input{resize:vertical;min-height:68px}
           <div style="font-size:10px;color:var(--muted2);margin-top:3px">Click avatar to change photo</div>
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:16px;align-items:start">
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;margin-bottom:16px;align-items:start">
       <div><!-- LEFT COL -->
       <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:22px;margin-bottom:16px;box-shadow:var(--shadow)">
         <div style="font-size:14px;font-weight:600;margin-bottom:16px">Edit Profile</div>
@@ -1175,16 +1175,17 @@ setPersistence(auth,browserLocalPersistence).catch(e=>console.error('Persistence
 // Hardcoded UTC-7 (PDT, March–November) / UTC-8 (PST, Nov–March)
 // Currently PDT (UTC-7) since it is past March 8 2026
 function getNow(){
-  // Always use Intl to get LA time — most reliable cross-browser approach
+  // Get current UTC ms, then apply LA offset (PDT=UTC-7, PST=UTC-8)
   const now=new Date();
-  const fmt=new Intl.DateTimeFormat('en-US',{
-    timeZone:'America/Los_Angeles',
-    year:'numeric',month:'2-digit',day:'2-digit',
-    hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false
-  });
-  const parts=fmt.formatToParts(now).reduce((acc,p)=>{acc[p.type]=p.value;return acc;},{});
-  // Build a date from the LA-localized parts
-  return new Date(`${parts.year}-${parts.month}-${parts.day}T${parts.hour==='24'?'00':parts.hour}:${parts.minute}:${parts.second}`);
+  const utcMs=now.getTime()+(now.getTimezoneOffset()*60000); // convert to UTC
+  // Detect DST for LA: PDT = second Sunday March to first Sunday November
+  const yr=now.getUTCFullYear();
+  const mar=new Date(Date.UTC(yr,2,1));
+  const dstOn=new Date(Date.UTC(yr,2,8+(7-mar.getUTCDay())%7)); // 2nd Sunday March
+  const nov=new Date(Date.UTC(yr,10,1));
+  const dstOff=new Date(Date.UTC(yr,10,(7-nov.getUTCDay())%7||7)); // 1st Sunday Nov
+  const isPDT=now>=dstOn&&now<dstOff;
+  return new Date(utcMs-(isPDT?7:8)*3600000);
 }
 function getTodayStr(){
   const n=getNow();
@@ -1286,6 +1287,28 @@ async function initUserData(user){
     }catch(e){console.error('Admin assign error:',e);}
   }
   updateAvatarDisplay();
+  // Migrate old role names in Firestore
+  migrateRoles();
+}
+async function migrateRoles(){
+  try{
+    const calSnap=await getDocs(query(collection(db,'calendars'),where('uid','==',cu.uid)));
+    for(const calDoc of calSnap.docs){
+      const roles=calDoc.data().roles||{};
+      let changed=false;
+      const newRoles={};
+      for(const [uid,val] of Object.entries(roles)){
+        let arr=Array.isArray(val)?val:[val];
+        // Rename Captain 2 -> Co-Captain
+        arr=arr.map(r=>r==='Captain 2'?'Co-Captain':r);
+        // Remove duplicates
+        arr=[...new Set(arr)];
+        newRoles[uid]=arr.length===1?arr[0]:arr;
+        if(JSON.stringify(roles[uid])!==JSON.stringify(newRoles[uid]))changed=true;
+      }
+      if(changed)await updateDoc(doc(db,'calendars',calDoc.id),{roles:newRoles});
+    }
+  }catch(e){console.error('Migration error:',e);}
 }
 
 function subscribeData(uid){
@@ -1456,6 +1479,8 @@ function updateCalHeader(){
 // ── Sidebar ────────────────────────────────────────────────────────────────
 function renderSidebar(){
   const list=document.getElementById('cal-list');list.innerHTML='';
+  const allSide=[...calendars,...sharedCalendars];
+  if(!allSide.length){list.innerHTML='<div style="font-size:12px;color:var(--muted2);padding:4px">No calendars yet</div>';return;}
   calendars.forEach(cal=>{
     const cnt=events.filter(e=>e.calendarId===cal.id&&!e.isShared).length;
     const isAct=activeCalId===cal.id;
@@ -1465,21 +1490,22 @@ function renderSidebar(){
     div.addEventListener('click',e=>{if(e.target.classList.contains('cal-action-btn'))return;activeCalId=cal.id;renderSidebar();renderAll();updateAdminUI();});
     list.appendChild(div);
   });
-  if(sharedCalendars.length>0){
-    const sep=document.createElement('div');sep.className='sidebar-sub';sep.textContent='Shared with me';list.appendChild(sep);
-    sharedCalendars.forEach(cal=>{
-      const isAct=activeCalId===cal.id;
-      const div=document.createElement('div');div.className=`calendar-item${isAct?' active':''}`;
-      div.innerHTML=`<div class="cal-dot" style="background:${cal.color}"></div><div class="cal-name">${cal.name}</div><button class="cal-action-btn" title="Leave" onclick="leaveCalendar('${cal.id}')">✕</button>`;
-      div.addEventListener('click',e=>{if(e.target.classList.contains('cal-action-btn'))return;activeCalId=cal.id;renderSidebar();renderAll();});
-      list.appendChild(div);
-    });
-  }
+  sharedCalendars.forEach(cal=>{
+    const isAct=activeCalId===cal.id;
+    const div=document.createElement('div');div.className=`calendar-item${isAct?' active':''}`;
+    div.innerHTML=`<div class="cal-dot" style="background:${cal.color}"></div><div class="cal-name">${cal.name}</div><button class="cal-action-btn" title="Leave" onclick="leaveCalendar('${cal.id}')">✕</button>`;
+    div.addEventListener('click',e=>{if(e.target.classList.contains('cal-action-btn'))return;activeCalId=cal.id;renderSidebar();renderAll();});
+    list.appendChild(div);
+  });
 }
 
 // ── Month render ───────────────────────────────────────────────────────────
 function renderCalendar(){
   const grid=document.getElementById('cal-grid');grid.innerHTML='';
+  if(!activeCalId&&[...calendars,...sharedCalendars].length===0){
+    grid.innerHTML='<div style="grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;color:var(--muted2)"><div style="font-size:40px">📅</div><div style="font-size:15px;font-weight:600;color:var(--muted)">No calendar yet</div><div style="font-size:12px">Join a calendar using an invite code, or create one</div></div>';
+    return;
+  }
   const y=currentDate.getFullYear(),m=currentDate.getMonth(),today=getNow();
   const fd=new Date(y,m,1).getDay(),dim=new Date(y,m+1,0).getDate(),dip=new Date(y,m,0).getDate();
   const rs=new Date(y,m,1),re=new Date(y,m+1,0);
@@ -1670,7 +1696,11 @@ function renderHomePage(){
     const color=ev.color||cal?.color||'#2979ff';
     const d=new Date(ev.date+'T12:00:00');
     const row=document.createElement('div');row.className='upcoming-row';
-    row.innerHTML=`<div class="upcoming-dot" style="background:${color}"></div><div><div class="upcoming-title">${ev.title}</div><div class="upcoming-meta">${d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}${ev.time?' · '+ev.time:''}</div></div>`;
+    const myRsvpU=(ev.rsvp||{})[myUid];
+    const daysLeftU=daysUntil(ev.date);
+    const canRsvpU=daysLeftU>=0&&daysLeftU<=3;
+    const isInvitedU=(ev.invitees||[]).some(p=>p.uid===myUid||p.email===myEmail);
+    row.innerHTML=`<div class="upcoming-dot" style="background:${color}"></div><div style="flex:1"><div class="upcoming-title">${ev.title}</div><div class="upcoming-meta">${d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}${ev.time?' · '+ev.time:''}</div></div>${isInvitedU&&canRsvpU?`<div style="display:flex;gap:4px;flex-shrink:0">${myRsvpU==='accepted'?'<span style="font-size:10px;color:var(--green);font-weight:700;padding:3px 6px">✓ Going</span>':`<button class="btn-accept" style="font-size:9px;padding:3px 8px" onclick="event.stopPropagation();rsvpEvent('${ev.id}','accept')">Going</button>`}${myRsvpU!=='declined'?`<button class="btn-decline" style="font-size:9px;padding:3px 8px" onclick="event.stopPropagation();rsvpEvent('${ev.id}','decline')">Can't</button>`:''}</div>`:''}`;
     row.onclick=()=>openViewEvent(ev);upEl.appendChild(row);
   });
 
@@ -2620,11 +2650,18 @@ function subscribeSharedCal(calId,ownerUid,calName,ownerName,calColor,roles={},s
   }
   const _sc=sharedCalendars.find(c=>c.id===calId);
   onSnapshot(query(collection(db,'events'),where('calendarId','==',calId)),snap=>{
+    const prevSharedIds=new Set(events.filter(e=>e.isShared&&e.sharedCalId===calId).map(e=>e.id));
     const shared=snap.docs.map(d=>({id:d.id,...d.data(),isShared:true,sharedCalId:calId,sharedCalName:calName,color:d.data().color||calColor}));
     events=events.filter(e=>!(e.isShared&&e.sharedCalId===calId));
-    // Don't add shared events that already exist as owned OR invited
     const existingEventIds=new Set(events.map(e=>e.id));
-    events=[...events,...shared.filter(e=>!existingEventIds.has(e.id))];
+    const newSharedEvs=shared.filter(e=>!existingEventIds.has(e.id));
+    events=[...events,...newSharedEvs];
+    // In-app notification for new events from others
+    if(prevSharedIds.size>0){
+      newSharedEvs.filter(e=>!prevSharedIds.has(e.id)&&e.uid!==cu?.uid).forEach(e=>{
+        showInAppNotif('📅 New on '+calName+': "'+e.title+'"');
+      });
+    }
     renderAll();if(currentPage==='home')renderHomePage();
   });
   // Also keep roles in sync
@@ -2930,7 +2967,11 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 
 // ── Theme ──────────────────────────────────────────────────────────────────
 window.toggleTheme=()=>{const isLight=document.body.classList.toggle('light-mode');localStorage.setItem('theme',isLight?'light':'dark');document.getElementById('theme-label').textContent=isLight?'Light mode':'Dark mode';};
-if(localStorage.getItem('theme')==='light'){document.body.classList.add('light-mode');const lbl=document.getElementById('theme-label');if(lbl)lbl.textContent='Light mode';}
+// Default dark mode — only apply light if explicitly saved
+const savedTheme=localStorage.getItem('theme');
+if(savedTheme==='light'){document.body.classList.add('light-mode');}
+// If no preference saved, ensure dark mode is active (default)
+if(!savedTheme){localStorage.setItem('theme','dark');}
 
 // ── Notifications ──────────────────────────────────────────────────────────
 window.toggleNotifications=async()=>{
@@ -3000,6 +3041,15 @@ function renderTodayStrip(){
 }
 
 // ── Search ──────────────────────────────────────────────────────────────────
+// ── In-app notification toast ──────────────────────────────────────────────
+function showInAppNotif(msg){
+  const el=document.createElement('div');
+  el.style.cssText='position:fixed;top:70px;right:20px;z-index:700;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:12px 16px;font-size:12px;font-weight:500;color:var(--text);box-shadow:var(--shadow-lg);max-width:300px;animation:fadeUp .3s ease;backdrop-filter:blur(16px)';
+  el.textContent=msg;
+  document.body.appendChild(el);
+  setTimeout(()=>{el.style.opacity='0';el.style.transition='opacity .3s';setTimeout(()=>el.remove(),300);},4000);
+}
+
 window.openSearch=()=>{
   document.getElementById('search-modal').classList.add('open');
   setTimeout(()=>document.getElementById('search-input').focus(),80);

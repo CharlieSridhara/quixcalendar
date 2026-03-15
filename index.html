@@ -293,6 +293,32 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .confirm-modal-warning{font-size:12px;color:var(--red);background:var(--red-dim);border:1px solid rgba(239,68,68,.2);border-radius:7px;padding:9px 12px;margin-top:10px}
 .complete-btn{padding:7px 14px;font-size:11px;font-weight:600;background:var(--green-dim);border:1px solid rgba(34,197,94,.3);border-radius:7px;color:var(--green);cursor:pointer;font-family:var(--font);margin-left:auto}
 @keyframes bellRing{0%,100%{transform:rotate(0)}15%{transform:rotate(18deg)}30%{transform:rotate(-16deg)}45%{transform:rotate(12deg)}60%{transform:rotate(-8deg)}75%{transform:rotate(4deg)}}
+/* Search */
+.search-bar{display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border2);border-radius:9px;padding:7px 12px;margin-bottom:16px}
+.search-bar input{flex:1;background:transparent;border:none;outline:none;font-family:var(--font);font-size:13px;color:var(--text)}
+.search-bar input::placeholder{color:var(--muted2)}
+.search-result-row{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:7px;cursor:pointer;transition:background .15s}
+.search-result-row:hover{background:var(--bg3)}
+/* Overdue badge */
+.overdue-badge{font-size:9px;font-weight:700;padding:2px 6px;border-radius:6px;background:rgba(239,68,68,.2);color:var(--red);letter-spacing:.3px}
+/* Today strip */
+.today-strip{background:var(--bg2);border:1px solid var(--accent-border);border-radius:var(--radius-lg);padding:14px 18px;margin-bottom:18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.today-strip-date{font-size:12px;font-weight:700;color:var(--accent2);flex-shrink:0}
+.today-event-pill{padding:3px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;transition:opacity .15s}
+.today-event-pill:hover{opacity:.8}
+/* Dashboard summary */
+.dash-summary{display:flex;gap:12px;padding:0 28px 14px;flex-wrap:wrap;flex-shrink:0}
+.dash-stat{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 16px;display:flex;flex-direction:column;gap:2px;min-width:100px}
+.dash-stat-num{font-size:22px;font-weight:700;color:var(--text)}
+.dash-stat-label{font-size:10px;font-weight:600;color:var(--muted2);letter-spacing:.4px;text-transform:uppercase}
+/* Progress bar */
+.progress-bar{height:5px;background:var(--bg4);border-radius:3px;overflow:hidden;margin-top:4px}
+.progress-fill{height:100%;border-radius:3px;background:var(--green);transition:width .4s}
+/* Attendance modal */
+.att-row{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg3);border-radius:7px;margin-bottom:4px}
+.att-btn{padding:3px 9px;font-size:10px;font-weight:600;border-radius:5px;cursor:pointer;font-family:var(--font);border:1px solid var(--border2);background:transparent;color:var(--muted);transition:all .15s}
+.att-btn.present{background:var(--green-dim);color:var(--green);border-color:rgba(34,197,94,.3)}
+.att-btn.absent{background:var(--red-dim);color:var(--red);border-color:rgba(239,68,68,.3)}
 .member-card{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg3);border-radius:9px;cursor:pointer;transition:background .15s;border:1px solid var(--border);height:fit-content}
 .member-card:hover{background:var(--bg4);border-color:var(--border2)}
 .member-avatar{width:34px;height:34px;border-radius:50%;background:var(--accent-dim);border:1px solid var(--accent-border);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--accent2);flex-shrink:0;overflow:hidden}
@@ -421,6 +447,7 @@ textarea.form-input{resize:vertical;min-height:68px}
       </div>
     </div>
     <div class="topbar-right">
+      <button class="btn-icon" onclick="openSearch()" title="Search" style="font-size:14px">🔍</button>
       <div class="nav-pill">
         <button class="nav-pill-btn active" id="nav-home" onclick="showPage('home')">Home</button>
         <button class="nav-pill-btn" id="nav-cal" onclick="showPage('calendar')">Calendar</button>
@@ -455,10 +482,12 @@ textarea.form-input{resize:vertical;min-height:68px}
       <div style="color:var(--muted);font-size:13px;margin-bottom:6px" id="home-absence-row">Unexcused absences: <span id="home-absence-count" class="absence-pill"></span></div>
       <div class="home-sub" id="home-role-row" style="margin-bottom:6px"></div>
       <div class="home-sub">Here's what's on your plate.</div>
+      <div id="today-strip-wrap"></div>
       <div class="home-grid">
         <div>
           <div class="home-card" style="margin-bottom:20px"><div class="home-card-title">Meeting Invitations</div><div id="home-invites"></div></div>
           <div class="home-card"><div class="home-card-title">My Tasks</div><div id="home-tasks"></div></div>
+          <div class="home-card" id="home-lead-card" style="display:none;margin-top:20px"><div class="home-card-title">My Section's Tasks</div><div id="home-lead-tasks"></div></div>
         </div>
         <div>
           <div class="home-card" style="margin-bottom:20px"><div class="home-card-title">Upcoming Meetings (14 days)</div><div id="home-upcoming"></div></div>
@@ -593,6 +622,7 @@ textarea.form-input{resize:vertical;min-height:68px}
           <select class="form-select" id="dash-cal-select" onchange="renderDashboard()" style="max-width:160px;font-size:12px;padding:6px 10px"></select>
         </div>
       </div>
+      <div class="dash-summary" id="dash-summary"></div>
       <div class="dash-tab-bar" id="dash-tab-bar"></div>
       <div class="dash-columns" id="dash-columns"></div>
       <!-- Member modal -->
@@ -607,6 +637,27 @@ textarea.form-input{resize:vertical;min-height:68px}
 
 </div>
 
+<!-- SEARCH MODAL -->
+<div class="modal-overlay" id="search-modal">
+  <div class="modal" style="max-width:560px">
+    <button class="modal-close" onclick="closeModal('search-modal')">✕</button>
+    <div class="modal-title" style="margin-bottom:12px">Search</div>
+    <div class="search-bar"><span style="color:var(--muted);font-size:14px">🔍</span><input id="search-input" type="text" placeholder="Search meetings, tasks, people…" oninput="runSearch(this.value)"/></div>
+    <div id="search-results" style="max-height:400px;overflow-y:auto"></div>
+  </div>
+</div>
+
+<!-- ATTENDANCE MODAL -->
+<div class="modal-overlay" id="attendance-modal">
+  <div class="modal" style="max-width:460px">
+    <button class="modal-close" onclick="closeModal('attendance-modal')">✕</button>
+    <div class="modal-title" id="att-modal-title">Mark Attendance</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px" id="att-modal-sub"></div>
+    <div id="att-list"></div>
+    <div class="modal-actions"><button class="btn-secondary" onclick="closeModal('attendance-modal')">Close</button><button class="btn-primary-sm" onclick="saveAttendance()">Save</button></div>
+  </div>
+</div>
+
 <!-- EVENT MODAL -->
 <div class="modal-overlay" id="event-modal">
   <div class="modal">
@@ -617,7 +668,7 @@ textarea.form-input{resize:vertical;min-height:68px}
     </div>
     <div class="form-group"><label class="form-label" id="ev-title-label">Title</label><input class="form-input" id="ev-title" type="text" placeholder="Add title"/></div>
     <div class="modal-row">
-      <div class="form-group"><label class="form-label">Date</label><input class="form-input" id="ev-date" type="date"/></div>
+      <div class="form-group"><label class="form-label">Date</label><input class="form-input" id="ev-date" type="date" onchange="updatePostNotesVisibility(this.value)"/></div>
       <div class="form-group" id="ev-allday-wrap"><label class="form-label">Options</label><div style="padding-top:7px"><label class="form-checkbox"><input type="checkbox" id="ev-allday" onchange="toggleAllDay()"/><span>All-day</span></label></div></div>
     </div>
     <div class="modal-row" id="ev-time-row">
@@ -686,7 +737,8 @@ textarea.form-input{resize:vertical;min-height:68px}
       </div>
     </div>
 
-    <div class="form-group"><label class="form-label">Notes (optional)</label><textarea class="form-input" id="ev-desc" placeholder="Add notes…"></textarea></div>
+    <div class="form-group"><label class="form-label">Notes (optional)</label><textarea class="form-input" id="ev-desc" placeholder="Add notes or agenda…"></textarea></div>
+    <div class="form-group" id="ev-post-notes-wrap" style="display:none"><label class="form-label">Post-meeting notes</label><textarea class="form-input" id="ev-post-notes" placeholder="What was discussed, decisions made…" style="min-height:80px"></textarea><div style="font-size:10px;color:var(--muted2);margin-top:4px">Visible to all invitees after the meeting.</div></div>
     <div class="modal-actions">
       <button class="btn-secondary" id="ev-delete-btn" onclick="deleteCurrentEvent()" style="display:none">Delete</button>
       <button class="btn-secondary" onclick="closeModal('event-modal')">Cancel</button>
@@ -1192,6 +1244,7 @@ function renderHomePage(){
   const h=new Date().getHours();
   document.getElementById('home-greeting').textContent=(h<12?'Good morning':h<17?'Good afternoon':'Good evening')+`, ${cu?.displayName?.split(' ')[0]||'there'}!`;
   loadAbsenceCount();
+  renderTodayStrip();
 
 
   // Role display
@@ -1262,10 +1315,12 @@ function renderHomePage(){
     const pri=ev.priority||'optional';
     const d=new Date(ev.date+'T12:00:00');
     const row=document.createElement('div');row.className='upcoming-row';
-    row.innerHTML=`<div class="upcoming-dot" style="background:${pri==='critical'?'var(--red)':pri==='important'?'var(--amber)':'var(--green)'}"></div><div style="flex:1"><div class="upcoming-title">${ev.title}</div><div class="upcoming-meta">${d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})} · ${cal?.name||'Calendar'}</div></div><span class="priority-badge priority-${pri}">${PRIORITY_LABELS[pri]}</span>`;
+    const isOverdue=!ev.completed&&new Date(ev.date+'T23:59:59')<new Date();
+    row.innerHTML=`<div class="upcoming-dot" style="background:${isOverdue?'var(--red)':pri==='critical'?'var(--red)':pri==='important'?'var(--amber)':'var(--green)'}"></div><div style="flex:1"><div class="upcoming-title">${ev.title}${isOverdue?' <span class="overdue-badge">OVERDUE</span>':''}</div><div class="upcoming-meta">${d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})} · ${cal?.name||'Calendar'}</div></div><span class="priority-badge priority-${pri}">${PRIORITY_LABELS[pri]}</span>`;
     row.onclick=()=>openViewEvent(ev);taskEl.appendChild(row);
   });
 
+  renderLeadSection();
   // Tasks I'm managing
   const mgrCard=document.getElementById('home-managed-tasks-card');
   const mgrEl=document.getElementById('home-managed-tasks');mgrEl.innerHTML='';
@@ -1335,6 +1390,11 @@ function openViewEvent(ev){
   else document.getElementById('view-repeat-row').style.display='none';
   if(ev.description){document.getElementById('view-desc').textContent=ev.description;document.getElementById('view-desc').style.display='block';}
   else document.getElementById('view-desc').style.display='none';
+  // Post-meeting notes
+  let postEl=document.getElementById('view-post-notes');
+  if(!postEl){postEl=document.createElement('div');postEl.id='view-post-notes';postEl.className='event-desc';postEl.style.borderLeft='3px solid var(--accent-border)';document.getElementById('view-desc').after(postEl);}
+  if(ev.postNotes){postEl.innerHTML=`<span style="font-size:9px;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:4px">Post-meeting notes</span>${ev.postNotes}`;postEl.style.display='block';}
+  else postEl.style.display='none';
   const mgrRow=document.getElementById('view-manager-row');
   if(ev.type==='task'&&ev.taskManagerUid){
     const mgr=(ev.assignees||[]).find(a=>a.uid===ev.taskManagerUid);
@@ -1486,6 +1546,8 @@ function openEventModal(ev=null,defDate=null,defType='meeting'){
   document.getElementById('ev-time').value=ev?.time||'';
   document.getElementById('ev-time-end').value=ev?.timeEnd||'';
   document.getElementById('ev-desc').value=ev?.description||'';
+  document.getElementById('ev-post-notes').value=ev?.postNotes||'';
+  updatePostNotesVisibility(ev?.date||document.getElementById('ev-date').value);
   document.getElementById('ev-repeat').value=ev?.repeat||'none';
   document.getElementById('ev-repeat-end').value=ev?.repeatEnd||'';
   document.getElementById('ev-repeat-end-wrap').style.display=(ev?.repeat&&ev.repeat!=='none')?'block':'none';
@@ -1519,6 +1581,11 @@ window.switchType=(type)=>{
   document.getElementById('ev-meeting-section').style.display=type==='meeting'?'block':'none';
   document.getElementById('ev-task-section').style.display=type==='task'?'block':'none';
 };
+function updatePostNotesVisibility(evDate){
+  const wrap=document.getElementById('ev-post-notes-wrap');if(!wrap)return;
+  const isPast=evDate&&new Date(evDate+'T23:59:59')<new Date();
+  wrap.style.display=(currentType==='meeting'&&isPast)?'block':'none';
+}
 
 // ── Calendar members ───────────────────────────────────────────────────────
 async function loadCalMembers(calId){
@@ -1667,6 +1734,25 @@ function renderDashboard(){
     if(e.calendarId!==calId&&e.sharedCalId!==calId)return false;
     return e.date>=wsStr&&e.date<=weStr;
   });
+  const weekMeetings=events.filter(e=>{
+    if(e.type!=='meeting')return false;
+    if(e.calendarId!==calId&&e.sharedCalId!==calId)return false;
+    return e.date>=wsStr&&e.date<=weStr;
+  });
+  // Summary bar
+  const sumEl=document.getElementById('dash-summary');
+  if(sumEl){
+    const totalTasks=weekTasks.length;
+    const doneTasks=weekTasks.filter(t=>t.completed).length;
+    const critTasks=weekTasks.filter(t=>t.priority==='critical'&&!t.completed).length;
+    const pct=totalTasks>0?Math.round((doneTasks/totalTasks)*100):0;
+    sumEl.innerHTML=`
+      <div class="dash-stat"><div class="dash-stat-num">${weekMeetings.length}</div><div class="dash-stat-label">Meetings</div></div>
+      <div class="dash-stat"><div class="dash-stat-num">${totalTasks}</div><div class="dash-stat-label">Tasks</div><div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div></div>
+      <div class="dash-stat"><div class="dash-stat-num" style="color:var(--green)">${doneTasks}</div><div class="dash-stat-label">Completed</div></div>
+      ${critTasks>0?`<div class="dash-stat"><div class="dash-stat-num" style="color:var(--red)">${critTasks}</div><div class="dash-stat-label">Critical Open</div></div>`:''}
+    `;
+  }
 
   // Build tab bar: All + each subsection + Team
   const tabBar=document.getElementById('dash-tab-bar');tabBar.innerHTML='';
@@ -1962,6 +2048,7 @@ window.saveEvent=async()=>{
     taskSubsection:currentType==='task'?(document.getElementById('ev-task-subsection')?.value||null):null,
     calendarId,color:autoColor,
     description:document.getElementById('ev-desc').value.trim()||null,
+    postNotes:currentType==='meeting'?(document.getElementById('ev-post-notes').value.trim()||null):null,
     completed:false,updatedAt:serverTimestamp()
   };
   try{
@@ -2245,9 +2332,12 @@ function showAuth(){document.getElementById('app-screen').classList.remove('visi
 window.toggleUserMenu=()=>document.getElementById('user-dropdown').classList.toggle('open');
 document.addEventListener('click',e=>{
   if(!document.getElementById('user-pill').contains(e.target))document.getElementById('user-dropdown').classList.remove('open');
-  ['event-modal','view-modal','share-modal','newcal-modal','rename-cal-modal','confirm-delete-cal-modal','decline-modal','unexcused-modal'].forEach(id=>{if(e.target===document.querySelector(`#${id}.open`))closeModal(id);});
+  ['event-modal','view-modal','share-modal','newcal-modal','rename-cal-modal','confirm-delete-cal-modal','decline-modal','unexcused-modal','search-modal','attendance-modal'].forEach(id=>{if(e.target===document.querySelector(`#${id}.open`))closeModal(id);});
 });
-document.addEventListener('keydown',e=>{if(e.key==='Escape')['event-modal','view-modal','share-modal','newcal-modal','rename-cal-modal','confirm-delete-cal-modal','decline-modal','unexcused-modal'].forEach(closeModal);});
+document.addEventListener('keydown',e=>{
+  if((e.metaKey||e.ctrlKey)&&e.key==='k'){e.preventDefault();openSearch();return;}
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')['event-modal','view-modal','share-modal','newcal-modal','rename-cal-modal','confirm-delete-cal-modal','decline-modal','unexcused-modal','search-modal','attendance-modal','member-modal'].forEach(closeModal);});
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2800);}
 
 // ── Theme ──────────────────────────────────────────────────────────────────
@@ -2298,6 +2388,136 @@ window.requestNotificationPermission=async()=>{
 };
 
 // ── FIX #2: Week schedule presets — use current invitees with full RSVP/attendance data
+// ── Today Strip ────────────────────────────────────────────────────────────
+function renderTodayStrip(){
+  const wrap=document.getElementById('today-strip-wrap');if(!wrap)return;
+  const todayStr=new Date().toISOString().split('T')[0];
+  const todayEvents=events.filter(e=>e.date===todayStr&&!e.completed&&!e.isShared).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+  if(!todayEvents.length){wrap.innerHTML='';return;}
+  const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const now=new Date();
+  const label=`Today · ${M[now.getMonth()]} ${now.getDate()}`;
+  wrap.innerHTML=`<div class="today-strip"><div class="today-strip-date">${label}</div><div style="display:flex;gap:6px;flex-wrap:wrap" id="today-pills"></div></div>`;
+  const pillsEl=document.getElementById('today-pills');
+  todayEvents.slice(0,6).forEach(ev=>{
+    const cal=calendars.find(c=>c.id===ev.calendarId);
+    const color=ev.type==='task'?(ev.priority==='critical'?'#ef4444':ev.priority==='important'?'#f59e0b':'#22c55e'):(ev.color||cal?.color||'#00b4ff');
+    const pill=document.createElement('span');pill.className='today-event-pill';
+    pill.style.background=color+'22';pill.style.color=color;
+    pill.textContent=(ev.time?ev.time+' ':'')+ev.title;
+    pill.onclick=()=>openViewEvent(ev);
+    pillsEl.appendChild(pill);
+  });
+  if(todayEvents.length>6){const more=document.createElement('span');more.style.cssText='font-size:11px;color:var(--muted);padding:3px 0';more.textContent=`+${todayEvents.length-6} more`;pillsEl.appendChild(more);}
+}
+
+// ── Search ──────────────────────────────────────────────────────────────────
+window.openSearch=()=>{
+  document.getElementById('search-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('search-input').focus(),80);
+  document.getElementById('search-results').innerHTML='<div style="font-size:12px;color:var(--muted2);padding:8px 4px">Start typing to search…</div>';
+  document.getElementById('search-input').value='';
+};
+window.runSearch=(q)=>{
+  const el=document.getElementById('search-results');
+  if(!q.trim()){el.innerHTML='<div style="font-size:12px;color:var(--muted2);padding:8px 4px">Start typing to search…</div>';return;}
+  const lower=q.toLowerCase();
+  const results=events.filter(e=>{
+    if(e.title?.toLowerCase().includes(lower))return true;
+    if(e.description?.toLowerCase().includes(lower))return true;
+    const ppl=[...(e.invitees||[]),...(e.assignees||[])];
+    return ppl.some(p=>(p.name||p.displayName||'').toLowerCase().includes(lower));
+  }).slice(0,12);
+  if(!results.length){el.innerHTML='<div style="font-size:12px;color:var(--muted2);padding:8px 4px">No results found</div>';return;}
+  el.innerHTML='';
+  results.forEach(ev=>{
+    const cal=calendars.find(c=>c.id===ev.calendarId)||sharedCalendars.find(c=>c.id===ev.sharedCalId);
+    const color=ev.type==='task'?(ev.priority==='critical'?'#ef4444':ev.priority==='important'?'#f59e0b':'#22c55e'):(ev.color||cal?.color||'#00b4ff');
+    const d=new Date(ev.date+'T12:00:00');
+    const row=document.createElement('div');row.className='search-result-row';
+    row.innerHTML=`<div style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0"></div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--text)">${ev.title}</div><div style="font-size:10px;color:var(--muted)">${ev.type==='task'?'Task':'Meeting'} · ${d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})} · ${cal?.name||''}</div></div>${ev.completed?'<span style="font-size:9px;color:var(--muted2);background:var(--bg4);padding:2px 6px;border-radius:5px">Done</span>':''}`;
+    row.onclick=()=>{closeModal('search-modal');openViewEvent(ev);};
+    el.appendChild(row);
+  });
+};
+
+// ── Attendance Tracking ─────────────────────────────────────────────────────
+let attendanceState={};
+window.openAttendanceModal=async(ev)=>{
+  if(!ev||ev.type!=='meeting')return;
+  attendanceState={evId:ev.id,records:{...((ev.attendance)||{})}};
+  document.getElementById('att-modal-title').textContent=`Attendance: ${ev.title}`;
+  const d=new Date(ev.date+'T12:00:00');
+  document.getElementById('att-modal-sub').textContent=d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  const listEl=document.getElementById('att-list');listEl.innerHTML='';
+  (ev.invitees||[]).forEach(p=>{
+    const cur=attendanceState.records[p.uid]||'unknown';
+    const row=document.createElement('div');row.className='att-row';
+    row.innerHTML=`<div style="flex:1;font-size:13px;font-weight:600;color:var(--text)">${p.name||p.displayName||''}</div>
+      <button class="att-btn${cur==='present'?' present':''}" onclick="setAtt('${p.uid}','present')">Present</button>
+      <button class="att-btn${cur==='absent'?' absent':''}" onclick="setAtt('${p.uid}','absent')">Absent</button>`;
+    row.id=`att-row-${p.uid}`;
+    listEl.appendChild(row);
+  });
+  document.getElementById('attendance-modal').classList.add('open');
+};
+window.setAtt=(uid,status)=>{
+  attendanceState.records[uid]=status;
+  const row=document.getElementById(`att-row-${uid}`);
+  if(!row)return;
+  row.querySelectorAll('.att-btn').forEach(b=>{b.classList.remove('present','absent');});
+  row.querySelector(`.att-btn:${status==='present'?'first':'last'}-of-type`).classList.add(status);
+};
+window.saveAttendance=async()=>{
+  if(!attendanceState.evId)return;
+  await updateDoc(doc(db,'events',attendanceState.evId),{attendance:attendanceState.records});
+  toast('Attendance saved');closeModal('attendance-modal');
+};
+
+// ── Subsection lead home dashboard injection ────────────────────────────────
+// Called at end of renderHomePage — subsection leads see their section's tasks
+function renderLeadSection(){
+  const myUid=cu?.uid;
+  // Find calendars where user is a lead (not captain)
+  const allCals=[...calendars,...sharedCalendars];
+  let leadSub=null,leadCalId=null;
+  for(const cal of allCals){
+    const role=(cal.roles||{})[myUid];
+    if(role&&role!=='Captain'){
+      // Map role to subsection name
+      const roleToSub={'Outreach Lead':'Outreach','Programming Lead':'Programming','Mechanical Lead':'Mechanical'};
+      leadSub=roleToSub[role]||null;
+      leadCalId=cal.id;
+      break;
+    }
+  }
+  const el=document.getElementById('home-lead-tasks');
+  if(!el)return;
+  if(!leadSub){document.getElementById('home-lead-card').style.display='none';return;}
+  document.getElementById('home-lead-card').style.display='block';
+  document.querySelector('#home-lead-card .home-card-title').textContent=`${leadSub} Tasks (Your Section)`;
+  el.innerHTML='';
+  const now=new Date(),soon=new Date(now);soon.setDate(soon.getDate()+14);
+  const secTasks=events.filter(e=>{
+    if(e.type!=='task'||e.completed)return false;
+    if(e.calendarId!==leadCalId&&e.sharedCalId!==leadCalId)return false;
+    return e.taskSubsection===leadSub;
+  }).sort((a,b)=>{
+    const pa={critical:0,important:1,optional:2}[a.priority||'optional'];
+    const pb={critical:0,important:1,optional:2}[b.priority||'optional'];
+    return pa!==pb?pa-pb:a.date.localeCompare(b.date);
+  }).slice(0,6);
+  if(!secTasks.length){el.innerHTML='<div style="color:var(--muted2);font-size:12px">No open tasks in your section</div>';return;}
+  secTasks.forEach(ev=>{
+    const pri=ev.priority||'optional';
+    const d=new Date(ev.date+'T12:00:00');
+    const isOverdue=d<now;
+    const row=document.createElement('div');row.className='upcoming-row';
+    row.innerHTML=`<div class="upcoming-dot" style="background:${pri==='critical'?'var(--red)':pri==='important'?'var(--amber)':'var(--green)'}"></div><div style="flex:1"><div class="upcoming-title">${ev.title}${isOverdue?' <span class="overdue-badge">OVERDUE</span>':''}</div><div class="upcoming-meta">${d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}</div></div><span class="priority-badge priority-${pri}">${PRIORITY_LABELS[pri]}</span>`;
+    row.onclick=()=>openViewEvent(ev);el.appendChild(row);
+  });
+}
+
 window.applyWeekSchedule=async(mode)=>{
   const title=document.getElementById('ev-title').value.trim();
   if(!title){toast('Enter a meeting title first');return;}

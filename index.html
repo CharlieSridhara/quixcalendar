@@ -1171,19 +1171,15 @@ const db=getFirestore(app);
 // Keep user logged in across sessions
 setPersistence(auth,browserLocalPersistence).catch(e=>console.error('Persistence error:',e));
 
-// ── PST/PDT Time Helper ─────────────────────────────────────────────────────
-// Hardcoded UTC-7 (PDT, March–November) / UTC-8 (PST, Nov–March)
-// Currently PDT (UTC-7) since it is past March 8 2026
+// ── Time Helper — uses user's local system time ─────────────────────────────
 function getNow(){
-  // Simple: subtract 7 hours from UTC (PDT, valid March-November)
-  // new Date().getTime() is ALWAYS UTC regardless of system timezone
-  return new Date(Date.now() - 9 * 60 * 60 * 1000);
+  return new Date();
 }
 function getTodayStr(){
   const n=getNow();
-  const y=n.getUTCFullYear();
-  const m=String(n.getUTCMonth()+1).padStart(2,'0');
-  const d=String(n.getUTCDate()).padStart(2,'0');
+  const y=n.getFullYear();
+  const m=String(n.getMonth()+1).padStart(2,'0');
+  const d=String(n.getDate()).padStart(2,'0');
   return `${y}-${m}-${d}`;
 }
 function fmt12(t){
@@ -1447,8 +1443,6 @@ function updateAdminUI(){
   document.getElementById('nav-admin').style.display=isAnyLeader?'block':'none';
   document.getElementById('create-btns').style.display=isAdm?'flex':'none';
   // Also show new-cal-btn only to Captain of own cals
-  const newCalBtn=document.getElementById('new-cal-btn');
-  if(newCalBtn)newCalBtn.style.display=(calendars.some(c=>c.id===activeCalId&&isCaptain(c.id)))?'inline':'none';
   document.getElementById('new-cal-btn').style.display=isCaptain(activeCalId)?'inline':'none';
   const hn=document.getElementById('cal-header-name');
   if(hn){hn.className='cal-header-name'+(isAdm?' editable':'');hn.ondblclick=isAdm?startRenameCalendar:null;}
@@ -1620,7 +1614,7 @@ function renderWeekView(){
       const half=document.createElement('div');half.className='week-half-line';half.style.top=`${h*H+30}px`;col.appendChild(half);
     }
     if(d.toDateString()===today.toDateString()){
-      const nl=document.createElement('div');nl.className='week-now-line';nl.style.top=(()=>{const _t=getNow();return `${((_t.getUTCHours()*60+_t.getUTCMinutes())/60)*H}px`})();col.appendChild(nl);
+      const nl=document.createElement('div');nl.className='week-now-line';nl.style.top=(()=>{const _t=getNow();return `${((_t.getHours()*60+_t.getMinutes())/60)*H}px`})();col.appendChild(nl);
     }
     col.addEventListener('click',e=>{
       if(e.target!==col)return;
@@ -1680,7 +1674,7 @@ function daysUntil(ds){return(new Date(ds+'T12:00:00')-getNow())/(864e5);}
 const priOrder={critical:0,important:1,optional:2};
 
 function renderHomePage(){
-  const h=getNow().getUTCHours();
+  const h=getNow().getHours();
   document.getElementById('home-greeting').textContent=(h<12?'Good morning':h<17?'Good afternoon':'Good evening')+`, ${cu?.displayName?.split(' ')[0]||'there'}!`;
   loadAbsenceCount();
   renderTodayStrip();
@@ -2391,6 +2385,7 @@ async function renderTeamRoster(calId){
 async function openMemberModal(m,calId,calRoles){
   const el=document.getElementById('member-modal-content');
   const char=(m.displayName||'?').charAt(0).toUpperCase();
+  const allRoles=getRolesForUid(calRoles,m.uid);
   const role=calRoles[m.uid]||null;
   const sub=m[`subsection_${calId}`]||'';
   const isAdm=isAdmin(calId);
@@ -2985,7 +2980,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')['event-modal','view
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2800);}
 
 // ── Theme ──────────────────────────────────────────────────────────────────
-window.toggleTheme=()=>{const isLight=document.body.classList.toggle('light-mode');localStorage.setItem('theme',isLight?'light':'dark');document.getElementById('theme-label').textContent=isLight?'Light mode':'Dark mode';};
+window.toggleTheme=()=>{const isLight=document.body.classList.toggle('light-mode');localStorage.setItem('theme',isLight?'light':'dark');};
 // Default dark mode — only apply light if explicitly saved
 const savedTheme=localStorage.getItem('theme');
 if(savedTheme==='light'){document.body.classList.add('light-mode');}
@@ -3079,13 +3074,9 @@ async function autoDeclineStaleInvites(){
   for(const ev of stale){
     try{
       const newRsvp={...(ev.rsvp||{}),[myUid]:'declined'};
-      const newDeclineReasons={...(ev.declineReasons||{}),[myUid]:'Auto-declined: invitation not checked within 3 days (unexcused absence)'};
+      const newDeclineReasons={...(ev.declineReasons||{}),[myUid]:'Auto-declined: invitation not responded to within 3 days'};
       await updateDoc(doc(db,'events',ev.id),{rsvp:newRsvp,declineReasons:newDeclineReasons});
-      // Add unexcused absence
-      const uref=doc(db,'users',myUid);
-      const usnap=await getDoc(uref);
-      const cur=usnap.data()?.unexcusedCount||0;
-      await updateDoc(uref,{unexcusedCount:cur+1});
+      // Note: unexcused absences are only assigned explicitly by an admin — not auto-applied here
     }catch(e){console.error('Auto-decline error:',e);}
   }
 }
@@ -3169,11 +3160,12 @@ function renderLeadSection(){
   const allCals=[...calendars,...sharedCalendars];
   let leadSub=null,leadCalId=null;
   for(const cal of allCals){
-    const role=(cal.roles||{})[myUid];
-    if(role&&role!=='Captain'){
+    const myRolesInCal=getRolesForUid(cal.roles||{},myUid);
+    const primaryRole=getPrimaryRole(cal.roles||{},myUid);
+    if(primaryRole&&primaryRole!=='Captain'&&primaryRole!=='Co-Captain'&&primaryRole!=='Admin'){
       // Map role to subsection name
       const roleToSub={'Outreach Lead':'Outreach','Programming Lead':'Programming','Mechanical Lead':'Mechanical'};
-      leadSub=roleToSub[role]||null;
+      leadSub=roleToSub[primaryRole]||null;
       leadCalId=cal.id;
       break;
     }

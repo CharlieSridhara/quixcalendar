@@ -16,11 +16,8 @@
 <meta name="apple-mobile-web-app-title" content="Quixilver"/>
 <link rel="apple-touch-icon" href="icon.svg"/>
 
-<style>
-:root{
-  /* Dark mode - slightly lighter, warmer dark */
-  --bg:#0c0f18;--bg2:#12151f;--bg3:#181c28;--bg4:#1e2333;--bg5:#252b3d;
-  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);--bo<link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <style>
 /* ═══════════════════════════════════════════════════════════════════
    QUIXILVER 8404 — COMPLETE REDESIGN
@@ -1870,7 +1867,16 @@ body.light-mode #toast { box-shadow: 0 8px 32px rgba(10,30,80,0.16); }
 body.light-mode .nav-pill { background: #f0f4fa; }
 body.light-mode .auth-bg-grid { background-image: linear-gradient(rgba(0,168,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(0,168,255,0.06) 1px, transparent 1px); }
 
-</style>></div>
+</style>
+</head>
+<body>
+<div id="loading-screen" class="loader">
+  <div class="loader-logo-wrap">
+    <div class="loader-ring"></div>
+    <div class="loader-inner-ring"></div>
+    <img src="https://quixilver8404.org/logo_old5.png" alt="Quixilver" style="width:36px;height:36px;object-fit:contain;filter:drop-shadow(0 0 8px rgba(0,168,255,0.5))"/>
+  </div>
+  <div class="loader-text">Loading · Quixilver 8404</div>
 </div>
 
 <!-- AUTH -->
@@ -1905,7 +1911,7 @@ body.light-mode .auth-bg-grid { background-image: linear-gradient(rgba(0,168,255
 <div id="app-screen">
   <div class="topbar">
     <!-- LEFT: Logo — fixed width so center never shifts -->
-    <div class="topbar-wordmark" onclick="showPage('home')" style="flex:1;cursor:pointer">
+    <div class="topbar-wordmark" onclick="showPage('home')" style="cursor:pointer">
       <img src="https://quixilver8404.org/logo_old5.png" alt="Quixilver" class="topbar-logo"/>
       <span class="topbar-name">Quixilver</span>
       <span class="topbar-badge">8404</span>
@@ -1957,15 +1963,11 @@ body.light-mode .auth-bg-grid { background-image: linear-gradient(rgba(0,168,255
   <!-- HOME -->
   <div class="page active" id="page-home">
     <div class="home-page">
-      <div id="home-probation-banner" class="probation-banner">⚠️ You are on <strong>probation</strong> — you have 3 or more unexcused absences. Talk to your captain.</div>
-      <div class="home-hero">
-        <div class="home-greeting" id="home-greeting">Welcome back!</div>
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:6px">
-          <div id="home-role-row"></div>
-          <div id="home-absence-row" style="display:none;align-items:center;gap:6px;font-size:12px;color:var(--q-muted);font-family:var(--font-mono)">Absences: <span id="home-absence-count" class="absence-pill"></span></div>
-        </div>
-        <div class="home-sub" style="margin-top:4px">Here's what's on your plate for today.</div>
-      </div>
+      <div id="home-probation-banner" class="probation-banner">You are on <strong>probation</strong> — you have 3 or more unexcused absences.</div>
+      <div class="home-greeting" id="home-greeting">Welcome back!</div>
+      <div style="color:var(--q-muted);font-size:13px;margin-bottom:6px" id="home-absence-row">Unexcused absences: <span id="home-absence-count" class="absence-pill"></span></div>
+      <div class="home-sub" id="home-role-row" style="margin-bottom:6px"></div>
+      <div class="home-sub">Here's what's on your plate.</div>
       <div id="today-strip-wrap"></div>
       <div class="home-grid">
         <div>
@@ -2129,7 +2131,7 @@ body.light-mode .auth-bg-grid { background-image: linear-gradient(rgba(0,168,255
             <div class="ig-step"><div class="ig-num">2</div><div class="ig-body">
               <div class="ig-text">In the <strong>menu bar at the very top</strong> of your screen, click <strong>File</strong></div>
               <div class="ig-mock">
-                <div style="background:var(--q-dark3);padding:5px 14px;display:flex;gap:18px;font-size:11px;color:var(--q-muted);border-bottom:1px solid var(--border)">
+                <div style="background:var(--q-dark3);padding:5px 14px;display:flex;gap:18px;font-size:11px;color:var(--q-muted);border-bottom:1px solid var(--q-border)">
                   <span style="color:var(--q-text)">Safari</span>
                   <span style="position:relative;color:var(--q-text);background:var(--q-blue-dim);padding:1px 6px;border-radius:4px">File
                     <div class="ig-circle" style="width:38px;height:24px;top:-3px;left:-3px;border-radius:5px"></div>
@@ -2522,12 +2524,9 @@ body.light-mode .auth-bg-grid { background-image: linear-gradient(rgba(0,168,255
     <div class="onboarding-progress">
       <div class="onboarding-progress-fill" id="onboarding-progress-fill" style="width:16.6%"></div>
     </div>
-    <div class="onboarding-body" id="onboarding-body">
-      <!-- populated by JS -->
-    </div>
+    <div class="onboarding-body" id="onboarding-body"></div>
   </div>
 </div>
-
 
 <div id="toast"></div>
 
@@ -4340,7 +4339,7 @@ window.saveProfile=async()=>{
 window.closeModal=(id)=>document.getElementById(id)?.classList.remove('open');
 window.switchTab=(tab)=>{document.getElementById('tab-signin').classList.toggle('active',tab==='signin');document.getElementById('tab-signup').classList.toggle('active',tab==='signup');document.getElementById('form-signin').style.display=tab==='signin'?'block':'none';document.getElementById('form-signup').style.display=tab==='signup'?'block':'none';setAuthError('');};
 function setAuthError(msg){const el=document.getElementById('auth-error');el.style.display=msg?'block':'none';el.textContent=msg;}
-function showApp(){document.getElementById('auth-screen').style.display='none';document.getElementById('app-screen').classList.add('visible');showPage('home');setTimeout(maybeShowOnboarding, 600);}
+function showApp(){document.getElementById('auth-screen').style.display='none';document.getElementById('app-screen').classList.add('visible');showPage('home');setTimeout(maybeShowOnboarding,600);}
 function showAuth(){document.getElementById('app-screen').classList.remove('visible');document.getElementById('auth-screen').style.display='flex';}
 window.toggleUserMenu=()=>document.getElementById('user-dropdown').classList.toggle('open');
 document.addEventListener('click',e=>{
@@ -4612,159 +4611,28 @@ window.applyWeekSchedule=async(mode)=>{
   closeModal('event-modal');
 };
 
-// ══════════════════════════════════════════════════════════════
-// ONBOARDING TUTORIAL
-// ══════════════════════════════════════════════════════════════
-
-const ONBOARDING_STEPS = [
-  {
-    tag: 'Welcome to Quixilver',
-    visual: '🤖',
-    title: 'Your team's <span>command center</span>',
-    desc: 'Quixilver Calendar keeps FTC Team 8404 organized — meetings, tasks, attendance, and roles in one place. Let's walk you through the basics.',
-    features: [
-      { icon: '📅', text: 'Team Calendar', sub: 'Monthly & week views, recurring events' },
-      { icon: '✅', text: 'Task Dashboard', sub: 'Priority-based task tracking' },
-      { icon: '🏆', text: 'Attendance', sub: 'RSVP, track absences, roles' },
-      { icon: '🔔', text: 'Notifications', sub: 'Never miss an invite again' },
-    ]
-  },
-  {
-    tag: 'Step 1 — Calendar',
-    visual: '📅',
-    title: 'Schedule <span>meetings & events</span>',
-    desc: 'Navigate with the sidebar mini-calendar or the month/week toggle. Click any day to create an event. Events color-code automatically — red for mandatory, green for optional.',
-    features: [
-      { icon: '📌', text: 'Click any date', sub: 'Instantly creates a new event' },
-      { icon: '🔄', text: 'Recurring events', sub: 'Daily, weekly, or monthly repeats' },
-      { icon: '⚡', text: 'Quick schedule', sub: 'Normal week or Crunch week presets' },
-      { icon: '🗂', text: 'Multiple calendars', sub: 'Join with a 6-char invite code' },
-    ]
-  },
-  {
-    tag: 'Step 2 — Tasks',
-    visual: '✅',
-    title: 'Track work with <span>priority tasks</span>',
-    desc: 'Create tasks and assign them to teammates. Tasks have three priority levels: Critical, Important, and Optional. Leaders can see their section's tasks on the home screen.',
-    features: [
-      { icon: '🔴', text: 'Critical', sub: 'Must be done — high urgency' },
-      { icon: '🟡', text: 'Important', sub: 'Core work — default priority' },
-      { icon: '🟢', text: 'Optional', sub: 'Nice to have — low urgency' },
-      { icon: '👤', text: 'Task manager', sub: 'One person owns each task' },
-    ]
-  },
-  {
-    tag: 'Step 3 — Team',
-    visual: '👥',
-    title: 'Meet your <span>team dashboard</span>',
-    desc: 'The Dashboard shows all tasks for the current week, organized by subsection. The Team tab shows every member, their role, subsection, and attendance record.',
-    features: [
-      { icon: '📊', text: 'Weekly overview', sub: 'Tasks grouped by subsection' },
-      { icon: '🏷', text: 'Subsections', sub: 'Mechanical, Programming, Outreach…' },
-      { icon: '⚠️', text: 'Absences', sub: 'Leaders track unexcused absences' },
-      { icon: '🎖', text: 'Roles', sub: 'Captain, leads, and more' },
-    ]
-  },
-  {
-    tag: 'Step 4 — RSVP',
-    visual: '✉️',
-    title: 'Respond to <span>invitations</span>',
-    desc: 'When you're invited to a meeting, it shows up on your Home screen. Accept or decline — and give a reason if you can't make it. RSVPs lock 3 days before the event.',
-    features: [
-      { icon: '✅', text: 'Accept', sub: 'Confirm your attendance' },
-      { icon: '❌', text: 'Decline with reason', sub: 'Transparency for the team' },
-      { icon: '🔒', text: 'RSVP lock', sub: 'Locks 3 days before the event' },
-      { icon: '📲', text: 'Push notifications', sub: 'Enable in Profile settings' },
-    ]
-  },
-  {
-    tag: 'You're ready!',
-    visual: '🚀',
-    title: 'Let's build <span>something great</span>',
-    desc: 'You're all set. Join your team's calendar using a 6-character invite code (ask your captain), or create your own. Good luck at competition!',
-    features: [
-      { icon: '🔑', text: 'Join a calendar', sub: 'Calendar → Share button → Enter code' },
-      { icon: '📱', text: 'Install the app', sub: 'Profile → Install as App guide' },
-      { icon: '🌙', text: 'Dark / Light', sub: 'Toggle in the top-right corner' },
-      { icon: '🆘', text: 'Need help?', sub: 'Ask your team captain' },
-    ]
-  },
+// ══ ONBOARDING ══════════════════════════════════════════════════
+const ONBOARDING_STEPS=[
+  {tag:'Welcome to Quixilver',visual:'🤖',title:'Your team's <span>command center</span>',desc:'Quixilver Calendar keeps FTC Team 8404 organized — meetings, tasks, attendance, and roles in one place.',features:[{icon:'📅',text:'Team Calendar',sub:'Monthly & week views, recurring events'},{icon:'✅',text:'Task Dashboard',sub:'Priority-based task tracking'},{icon:'🏆',text:'Attendance',sub:'RSVP, track absences, roles'},{icon:'🔔',text:'Notifications',sub:'Never miss an invite again'}]},
+  {tag:'Step 1 — Calendar',visual:'📅',title:'Schedule <span>meetings & events</span>',desc:'Navigate with the sidebar mini-calendar or month/week toggle. Click any day to create an event. Events color-code by priority.',features:[{icon:'📌',text:'Click any date',sub:'Instantly creates a new event'},{icon:'🔄',text:'Recurring events',sub:'Daily, weekly, or monthly repeats'},{icon:'⚡',text:'Quick schedule',sub:'Normal week or Crunch week presets'},{icon:'🗂',text:'Multiple calendars',sub:'Join with a 6-char invite code'}]},
+  {tag:'Step 2 — Tasks',visual:'✅',title:'Track work with <span>priority tasks</span>',desc:'Create tasks and assign them to teammates. Three priority levels: Critical, Important, and Optional.',features:[{icon:'🔴',text:'Critical',sub:'Must be done — high urgency'},{icon:'🟡',text:'Important',sub:'Core work — default priority'},{icon:'🟢',text:'Optional',sub:'Nice to have — low urgency'},{icon:'👤',text:'Task owner',sub:'One person owns each task'}]},
+  {tag:'Step 3 — Team',visual:'👥',title:'Meet your <span>team dashboard</span>',desc:'The Dashboard shows all tasks for the current week by subsection. The Team tab shows every member with role and attendance.',features:[{icon:'📊',text:'Weekly overview',sub:'Tasks grouped by subsection'},{icon:'🏷',text:'Subsections',sub:'Mechanical, Programming, Outreach…'},{icon:'⚠️',text:'Absences',sub:'Leaders track unexcused absences'},{icon:'🎖',text:'Roles',sub:'Captain, leads, and more'}]},
+  {tag:'Step 4 — RSVP',visual:'✉️',title:'Respond to <span>invitations</span>',desc:'When invited to a meeting, it appears on your Home screen. Accept or decline — give a reason if you can't make it. RSVPs lock 3 days before.',features:[{icon:'✅',text:'Accept',sub:'Confirm your attendance'},{icon:'❌',text:'Decline with reason',sub:'Transparency for the team'},{icon:'🔒',text:'RSVP lock',sub:'Locks 3 days before the event'},{icon:'📲',text:'Notifications',sub:'Enable in Profile settings'}]},
+  {tag:'You're ready!',visual:'🚀',title:'Let's build <span>something great</span>',desc:'All set! Join your team's calendar using a 6-character invite code from your captain, or create your own. Good luck at competition!',features:[{icon:'🔑',text:'Join a calendar',sub:'Calendar → Share → Enter code'},{icon:'📱',text:'Install the app',sub:'Profile → Install as App guide'},{icon:'🌙',text:'Dark / Light',sub:'Toggle in the top-right corner'},{icon:'🆘',text:'Need help?',sub:'Ask your team captain'}]},
 ];
-
-let onboardingStep = 0;
-
-function renderOnboardingStep(step) {
-  const data = ONBOARDING_STEPS[step];
-  const total = ONBOARDING_STEPS.length;
-  const pct = ((step + 1) / total * 100).toFixed(1);
-  document.getElementById('onboarding-progress-fill').style.width = pct + '%';
-
-  const featuresHtml = data.features.map(f => `
-    <div class="onboarding-feature">
-      <div class="onboarding-feature-icon">${f.icon}</div>
-      <div>
-        <div class="onboarding-feature-text">${f.text}</div>
-        <div class="onboarding-feature-sub">${f.sub}</div>
-      </div>
-    </div>
-  `).join('');
-
-  const dotsHtml = ONBOARDING_STEPS.map((_,i) =>
-    `<div class="onboarding-dot${i===step?' active':''}" onclick="goToOnboardingStep(${i})"></div>`
-  ).join('');
-
-  const isLast = step === total - 1;
-  const btnText = isLast ? 'Get Started →' : 'Next →';
-
-  document.getElementById('onboarding-body').innerHTML = `
-    <div class="onboarding-visual">${data.visual}</div>
-    <span class="onboarding-step-tag">${data.tag} · ${step+1} of ${total}</span>
-    <div class="onboarding-title">${data.title}</div>
-    <p class="onboarding-desc">${data.desc}</p>
-    <div class="onboarding-features">${featuresHtml}</div>
-    <div class="onboarding-nav">
-      <button class="onboarding-btn-skip" onclick="skipOnboarding()">${isLast ? '' : 'Skip tour'}</button>
-      <div class="onboarding-dots">${dotsHtml}</div>
-      <button class="onboarding-btn-next" onclick="nextOnboardingStep()">${btnText}</button>
-    </div>
-  `;
+let _obStep=0;
+function _renderOB(step){
+  const d=ONBOARDING_STEPS[step],tot=ONBOARDING_STEPS.length;
+  document.getElementById('onboarding-progress-fill').style.width=((step+1)/tot*100)+'%';
+  const feat=d.features.map(f=>`<div class="onboarding-feature"><div class="onboarding-feature-icon">${f.icon}</div><div><div class="onboarding-feature-text">${f.text}</div><div class="onboarding-feature-sub">${f.sub}</div></div></div>`).join('');
+  const dots=ONBOARDING_STEPS.map((_,i)=>`<div class="onboarding-dot${i===step?' active':''}" onclick="_goOB(${i})"></div>`).join('');
+  const isLast=step===tot-1;
+  document.getElementById('onboarding-body').innerHTML=`<div class="onboarding-visual">${d.visual}</div><span class="onboarding-step-tag">${d.tag} · ${step+1} of ${tot}</span><div class="onboarding-title">${d.title}</div><p class="onboarding-desc">${d.desc}</p><div class="onboarding-features">${feat}</div><div class="onboarding-nav"><button class="onboarding-btn-skip" onclick="_skipOB()">${isLast?'':'Skip tour'}</button><div class="onboarding-dots">${dots}</div><button class="onboarding-btn-next" onclick="_nextOB()">${isLast?'Get Started →':'Next →'}</button></div>`;
 }
-
-window.goToOnboardingStep = (n) => {
-  onboardingStep = n;
-  renderOnboardingStep(n);
-};
-
-window.nextOnboardingStep = () => {
-  if (onboardingStep < ONBOARDING_STEPS.length - 1) {
-    onboardingStep++;
-    renderOnboardingStep(onboardingStep);
-  } else {
-    skipOnboarding();
-  }
-};
-
-window.skipOnboarding = () => {
-  document.getElementById('onboarding-modal').classList.remove('open');
-  localStorage.setItem('onboarding_done', '1');
-};
-
-function maybeShowOnboarding() {
-  if (!localStorage.getItem('onboarding_done')) {
-    onboardingStep = 0;
-    renderOnboardingStep(0);
-    document.getElementById('onboarding-modal').classList.add('open');
-  }
-}
-
-// ══ FTC TEAM STATS WIDGET on home page (fun addition) ══════════
-function renderFTCStatsStrip() {
-  const wrap = document.getElementById('today-strip-wrap');
-  if (!wrap) return;
-  // Already handled by renderTodayStrip — just make sure home-absence-row has nice styling
-  const absRow = document.getElementById('home-absence-row');
-  if (absRow) absRow.style.fontFamily = 'var(--font-mono)';
-}
+window._goOB=(n)=>{_obStep=n;_renderOB(n);};
+window._nextOB=()=>{if(_obStep<ONBOARDING_STEPS.length-1){_obStep++;_renderOB(_obStep);}else{_skipOB();}};
+window._skipOB=()=>{document.getElementById('onboarding-modal').classList.remove('open');localStorage.setItem('ob_done','1');};
+function maybeShowOnboarding(){if(!localStorage.getItem('ob_done')){_obStep=0;_renderOB(0);document.getElementById('onboarding-modal').classList.add('open');}}
 
 </script>
 </body>

@@ -1865,6 +1865,590 @@ body.light-mode #toast { box-shadow: 0 8px 32px rgba(10,30,80,0.16); }
 body.light-mode .nav-pill { background: #f0f4fa; }
 body.light-mode .auth-bg-grid { background-image: linear-gradient(rgba(0,168,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(0,168,255,0.06) 1px, transparent 1px); }
 
+
+/* ═══════════════════════════════════════════════════════════════
+   ENHANCED VISUAL POLISH — Phase 2
+   Refined micro-details, glow effects, gradient accents
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Topbar Enhancements ─────────────────────────────────────── */
+.topbar {
+  box-shadow: 0 1px 0 var(--q-border), 0 4px 24px rgba(0,0,0,0.35);
+  position: relative;
+}
+.topbar::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--q-blue) 30%, var(--q-blue3) 60%, transparent 100%);
+  opacity: 0.28;
+}
+
+/* ── Nav Pill Enhancements ───────────────────────────────────── */
+.nav-pill {
+  background: rgba(255,255,255,0.03);
+  border-color: rgba(255,255,255,0.07);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.3), 0 1px 0 rgba(255,255,255,0.04);
+}
+.nav-pill-btn.active {
+  background: linear-gradient(135deg, rgba(0,168,255,0.28), rgba(0,168,255,0.14));
+  box-shadow: 0 2px 16px rgba(0,168,255,0.22), inset 0 1px 0 rgba(255,255,255,0.1);
+  text-shadow: 0 0 12px rgba(0,168,255,0.5);
+}
+.nav-pill-btn {
+  letter-spacing: 0.01em;
+  font-weight: 600;
+}
+
+/* ── Home Page Improvements ─────────────────────────────────── */
+.home-page {
+  background: linear-gradient(180deg, rgba(0,168,255,0.015) 0%, transparent 120px);
+}
+.home-hero {
+  padding-bottom: 8px;
+}
+.home-greeting {
+  font-size: 30px;
+  background: linear-gradient(130deg, var(--q-text) 0%, var(--q-silver2) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.home-greeting em {
+  background: linear-gradient(135deg, var(--q-blue2) 0%, var(--q-blue3) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 8px rgba(0,168,255,0.3));
+}
+.home-sub {
+  font-size: 14px;
+  opacity: 0.85;
+}
+
+/* ── Enhanced Home Cards ─────────────────────────────────────── */
+.home-card {
+  background: linear-gradient(145deg, var(--q-dark3) 0%, var(--q-dark2) 100%);
+  border: 1px solid var(--q-border);
+  border-radius: 14px;
+  padding: 22px 24px;
+  box-shadow: 0 4px 28px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04);
+  transition: all 0.25s cubic-bezier(0.22,0.68,0,1.2);
+  position: relative;
+  overflow: hidden;
+}
+.home-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+}
+.home-card:hover {
+  border-color: var(--q-blue-border);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(0,168,255,0.1), inset 0 1px 0 rgba(255,255,255,0.06);
+  transform: translateY(-2px);
+}
+
+/* ── Card Title Enhancement ─────────────────────────────────── */
+.home-card-title {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--q-blue);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--q-border);
+}
+.home-card-title::before {
+  content: '';
+  width: 3px; height: 14px;
+  background: linear-gradient(180deg, var(--q-blue) 0%, var(--q-blue3) 100%);
+  border-radius: 2px;
+  box-shadow: 0 0 8px rgba(0,168,255,0.5);
+}
+
+/* ── Dashboard Stat Cards ────────────────────────────────────── */
+.dash-stat-card {
+  background: linear-gradient(145deg, var(--q-dark3) 0%, var(--q-dark2) 100%);
+  border: 1px solid var(--q-border);
+  border-radius: 14px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.04);
+  transition: all 0.22s;
+  position: relative;
+  overflow: hidden;
+}
+.dash-stat-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(0,168,255,0.2);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(0,168,255,0.08);
+}
+.dash-stat-icon {
+  font-size: 20px;
+  margin-bottom: 8px;
+  display: block;
+}
+.dash-stat-value {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  background: linear-gradient(135deg, var(--q-text) 0%, var(--q-silver2) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.dash-stat-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--q-muted);
+  margin-top: 4px;
+}
+
+/* ── Dashboard Column Cards ──────────────────────────────────── */
+.dash-col {
+  background: linear-gradient(145deg, var(--q-dark3) 0%, rgba(15,18,25,0.8) 100%);
+  border-radius: 14px;
+  border: 1px solid var(--q-border);
+  box-shadow: 0 2px 16px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.03);
+  overflow: hidden;
+  transition: box-shadow 0.22s;
+}
+.dash-col:hover {
+  box-shadow: 0 4px 24px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04);
+}
+.dash-col-header {
+  background: linear-gradient(135deg, rgba(0,168,255,0.06) 0%, transparent 100%);
+  border-bottom: 1px solid var(--q-border);
+  padding: 14px 16px;
+}
+.dash-col-title {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+/* ── Calendar Month Grid ─────────────────────────────────────── */
+.month-grid-day {
+  border-radius: 10px;
+  transition: all 0.18s;
+}
+.month-grid-day:hover {
+  background: rgba(0,168,255,0.06);
+}
+.month-day-num.today {
+  background: linear-gradient(135deg, var(--q-blue) 0%, var(--q-blue2) 100%);
+  box-shadow: 0 0 16px rgba(0,168,255,0.5), 0 2px 8px rgba(0,168,255,0.3);
+  color: #fff;
+}
+.month-day-num {
+  transition: all 0.18s;
+}
+
+/* ── Calendar Day Cell Today Glow ────────────────────────────── */
+.month-grid-day.today-col {
+  background: rgba(0,168,255,0.04);
+  border-color: rgba(0,168,255,0.15) !important;
+}
+
+/* ── Profile Page ─────────────────────────────────────────────── */
+.profile-card {
+  background: linear-gradient(145deg, var(--q-dark3) 0%, var(--q-dark2) 100%);
+  border-radius: 16px;
+  border: 1px solid var(--q-border);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+/* ── Admin/Team Page ─────────────────────────────────────────── */
+.member-row {
+  transition: all 0.18s;
+  border-radius: 10px;
+}
+.member-row:hover {
+  background: rgba(0,168,255,0.04);
+  border-color: rgba(0,168,255,0.12) !important;
+  transform: translateX(2px);
+}
+
+/* ── Invite Cards ─────────────────────────────────────────────── */
+.invite-card {
+  background: linear-gradient(145deg, rgba(25,29,40,0.9) 0%, rgba(20,23,32,0.9) 100%);
+  border-left: 3px solid var(--q-blue2);
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.03);
+  transition: all 0.2s cubic-bezier(0.22,0.68,0,1.2);
+}
+.invite-card:hover {
+  transform: translateX(4px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3), -2px 0 0 var(--q-blue);
+}
+.invite-card.task-invite {
+  border-left-color: var(--q-amber);
+}
+.invite-card.task-invite:hover {
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3), -2px 0 0 var(--q-amber);
+}
+
+/* ── Scrollbar Styling ───────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--q-dark6); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--q-muted2); }
+
+/* ── Empty State Improvements ───────────────────────────────── */
+.home-card .empty-text {
+  color: var(--q-muted);
+  font-size: 13px;
+  text-align: center;
+  padding: 16px 0;
+  opacity: 0.8;
+}
+
+/* ── Button Enhancements ─────────────────────────────────────── */
+.btn-accept {
+  box-shadow: 0 2px 12px rgba(0,232,122,0.2);
+}
+.btn-accept:hover {
+  box-shadow: 0 4px 20px rgba(0,232,122,0.3);
+}
+
+/* ── Modal Enhancements ──────────────────────────────────────── */
+.modal-box {
+  box-shadow: 0 24px 80px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+/* ── Priority Badge ──────────────────────────────────────────── */
+.priority-badge {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+/* ── Today strip ─────────────────────────────────────────────── */
+.today-strip {
+  background: linear-gradient(135deg, rgba(0,168,255,0.08), rgba(0,168,255,0.04));
+  border: 1px solid rgba(0,168,255,0.15);
+  border-radius: 10px;
+}
+
+/* ── Sidebar enhancements ────────────────────────────────────── */
+.sidebar {
+  background: linear-gradient(180deg, var(--q-dark2) 0%, var(--q-dark) 100%);
+}
+.sidebar-section + .sidebar-section {
+  border-top: 1px solid var(--q-border);
+}
+
+/* ── Topbar name refined ─────────────────────────────────────── */
+.topbar-name {
+  font-size: 17px;
+  letter-spacing: -0.04em;
+}
+
+/* ── Section label enhancement ───────────────────────────────── */
+.sidebar-label {
+  color: var(--q-blue);
+  opacity: 0.7;
+  letter-spacing: 0.15em;
+}
+
+/* ── Admin member cards ──────────────────────────────────────── */
+.admin-member-card {
+  background: linear-gradient(145deg, var(--q-dark3) 0%, var(--q-dark2) 100%);
+  border: 1px solid var(--q-border);
+  border-radius: 12px;
+  transition: all 0.2s;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+}
+.admin-member-card:hover {
+  border-color: rgba(0,168,255,0.18);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+/* ── Avatar enhancement ──────────────────────────────────────── */
+.avatar {
+  box-shadow: 0 0 0 2px rgba(0,168,255,0.2), 0 2px 12px rgba(0,0,0,0.3);
+}
+
+/* ── Animated glow for active tab ───────────────────────────── */
+@keyframes navGlow {
+  0%, 100% { box-shadow: 0 2px 12px rgba(0,168,255,0.15), inset 0 1px 0 rgba(255,255,255,0.1); }
+  50% { box-shadow: 0 2px 20px rgba(0,168,255,0.28), inset 0 1px 0 rgba(255,255,255,0.12); }
+}
+.nav-pill-btn.active {
+  animation: navGlow 3s ease-in-out infinite;
+}
+
+/* ── Light mode overrides ────────────────────────────────────── */
+body.light-mode .home-card {
+  background: linear-gradient(145deg, #ffffff 0%, #f8fafd 100%);
+  box-shadow: 0 4px 20px rgba(10,30,80,0.08), inset 0 1px 0 rgba(255,255,255,0.9);
+}
+body.light-mode .topbar::after {
+  opacity: 0.15;
+}
+body.light-mode .nav-pill {
+  background: rgba(0,0,0,0.04);
+}
+body.light-mode .dash-col {
+  background: linear-gradient(145deg, #ffffff 0%, #f8fafd 100%);
+}
+
+/* ── Correct class name overrides ───────────────────────────── */
+
+/* Dash stat cards - the real class name */
+.dash-stat {
+  background: linear-gradient(145deg, var(--q-dark3) 0%, var(--q-dark2) 100%);
+  border-radius: 14px !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.04) !important;
+}
+.dash-stat:hover {
+  border-color: rgba(0,168,255,0.2) !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(0,168,255,0.08) !important;
+}
+.dash-stat-num {
+  background: linear-gradient(135deg, var(--q-text) 0%, var(--q-silver2) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Admin card improvements */
+.admin-card {
+  background: linear-gradient(145deg, var(--q-dark3) 0%, var(--q-dark2) 100%) !important;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.04) !important;
+  border-radius: 16px !important;
+}
+.admin-card-title {
+  color: var(--q-blue) !important;
+  opacity: 0.9;
+  font-size: 10px !important;
+  letter-spacing: 0.16em !important;
+}
+
+/* Admin member rows */
+.admin-member-row {
+  background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 100%);
+  border: 1px solid var(--q-border);
+  border-radius: 10px;
+  transition: all 0.18s;
+}
+.admin-member-row:hover {
+  background: rgba(0,168,255,0.04);
+  border-color: rgba(0,168,255,0.12);
+  transform: translateX(2px);
+}
+
+/* Profile page improvements */
+.profile-page {
+  flex: 1; overflow-y: auto; padding: 28px 32px;
+}
+
+/* Form inputs enhancement */
+.form-input, .form-select {
+  border: 1px solid var(--q-border2);
+  border-radius: 9px;
+  background: rgba(255,255,255,0.03);
+  transition: all 0.18s;
+}
+.form-input:focus, .form-select:focus {
+  outline: none;
+  border-color: var(--q-blue-border);
+  box-shadow: 0 0 0 3px rgba(0,168,255,0.1);
+  background: rgba(0,168,255,0.04);
+}
+
+/* Buttons enhancement */
+.btn-primary {
+  background: linear-gradient(135deg, var(--q-blue) 0%, #0082cc 100%) !important;
+  box-shadow: 0 4px 16px rgba(0,168,255,0.3) !important;
+  transition: all 0.2s !important;
+}
+.btn-primary:hover {
+  box-shadow: 0 6px 24px rgba(0,168,255,0.45) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Month calendar improvements */
+.month-grid {
+  border-radius: 12px;
+  overflow: hidden;
+}
+.month-header-cell {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--q-muted);
+  font-weight: 600;
+}
+
+/* Sidebar mini-calendar improvements */
+.mini-cal {
+  background: transparent;
+}
+.mini-cal-day.today {
+  background: linear-gradient(135deg, var(--q-blue) 0%, var(--q-blue2) 100%) !important;
+  box-shadow: 0 0 12px rgba(0,168,255,0.4) !important;
+}
+.mini-cal-day.selected {
+  background: rgba(0,168,255,0.18) !important;
+  color: var(--q-blue2) !important;
+}
+
+/* Home page content area */
+.home-page::-webkit-scrollbar { width: 4px; }
+.home-page::-webkit-scrollbar-thumb { background: var(--q-dark5); border-radius: 4px; }
+
+/* Dash tab bar */
+.dash-tab-bar {
+  border-bottom: 1px solid var(--q-border);
+  padding: 0 28px;
+}
+.dash-tab {
+  position: relative;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.dash-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--q-blue), var(--q-blue3));
+  border-radius: 2px 2px 0 0;
+  box-shadow: 0 0 8px rgba(0,168,255,0.4);
+}
+
+/* Member avatar glow improvement */
+.member-avatar {
+  box-shadow: 0 0 0 2px rgba(0,168,255,0.18), 0 2px 12px rgba(0,0,0,0.3);
+  transition: all 0.2s;
+}
+.member-card:hover .member-avatar {
+  box-shadow: 0 0 0 2px rgba(0,168,255,0.35), 0 4px 16px rgba(0,0,0,0.4);
+}
+
+/* Page title enhancements */
+.dash-title, .admin-header, .profile-title {
+  background: linear-gradient(130deg, var(--q-text) 0%, var(--q-silver2) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Section headers for home page */
+.home-card-title {
+  color: var(--q-blue) !important;
+}
+
+/* Enhance the "today" strip if present */
+#today-strip-wrap {
+  margin: 12px 0;
+}
+
+/* Calendar view content area */
+.cal-content {
+  background: var(--q-black);
+}
+
+/* Month grid border improvements */
+.month-grid-day {
+  border-color: rgba(255,255,255,0.04) !important;
+  transition: all 0.18s;
+}
+.month-grid-day:hover {
+  background: rgba(0,168,255,0.06) !important;
+  border-color: rgba(0,168,255,0.15) !important;
+}
+
+/* Notification badge */
+.notif-badge {
+  background: linear-gradient(135deg, var(--q-red) 0%, #ff6080 100%);
+  box-shadow: 0 2px 8px rgba(255,59,92,0.4);
+}
+
+/* Topbar logo animation */
+.topbar-logo {
+  transition: all 0.3s;
+}
+.topbar-wordmark:hover .topbar-logo {
+  filter: drop-shadow(0 0 14px rgba(0,168,255,0.7)) !important;
+  transform: rotate(-5deg) scale(1.05);
+}
+
+/* Role badges */
+.role-badge {
+  border-radius: 8px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
+}
+
+/* Onboarding modal polish */
+.onboarding-modal {
+  backdrop-filter: blur(20px);
+}
+.onboarding-visual {
+  font-size: 52px;
+  filter: drop-shadow(0 4px 16px rgba(0,0,0,0.4));
+}
+.onboarding-title span {
+  background: linear-gradient(135deg, var(--q-blue) 0%, var(--q-blue3) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.onboarding-btn-next {
+  background: linear-gradient(135deg, var(--q-blue) 0%, #0099ee 100%) !important;
+  box-shadow: 0 4px 20px rgba(0,168,255,0.35) !important;
+  border-radius: 10px !important;
+  font-weight: 700 !important;
+}
+.onboarding-btn-next:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 28px rgba(0,168,255,0.5) !important;
+}
+.onboarding-feature {
+  background: linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+  transition: all 0.2s;
+}
+.onboarding-feature:hover {
+  background: rgba(0,168,255,0.06);
+  border-color: rgba(0,168,255,0.15);
+}
+
+/* Progress bar for onboarding */
+.onboarding-progress {
+  background: rgba(255,255,255,0.06);
+  height: 3px;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.onboarding-progress-fill {
+  background: linear-gradient(90deg, var(--q-blue), var(--q-blue3));
+  box-shadow: 0 0 8px rgba(0,168,255,0.5);
+  transition: width 0.4s cubic-bezier(0.22,0.68,0,1.2);
+}
+
+/* Light mode enhancements */
+body.light-mode .home-greeting {
+  background: linear-gradient(130deg, var(--q-text) 0%, #3a4a5c 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+body.light-mode .admin-card {
+  background: linear-gradient(145deg, #ffffff 0%, #f8fafd 100%) !important;
+}
+body.light-mode .dash-stat {
+  background: linear-gradient(145deg, #ffffff 0%, #f8fafd 100%) !important;
+}
 </style>
 </head>
 <body>

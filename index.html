@@ -59,6 +59,9 @@
   --q-amber:   #ffb830;
   --q-amber-dim:rgba(255,184,48,0.12);
   --q-purple:  #b06cf0;
+  --q-violet:  #8b5cf6;
+  --q-violet-dim: rgba(139,92,246,0.13);
+  --q-violet-border: rgba(139,92,246,0.28);
   --q-purple-dim:rgba(176,108,240,0.12);
 
   /* Text */
@@ -744,6 +747,24 @@ body.light-mode .theme-toggle::after { transform: translateX(17px); background: 
 }
 .cal-action-btn:hover { color: var(--q-red); background: var(--q-red-dim); }
 
+/* Location autocomplete */
+.loc-wrap { position: relative; }
+.loc-suggestions {
+  position: absolute; top: calc(100% + 3px); left: 0; right: 0; z-index: 500;
+  background: var(--q-dark3); border: 1px solid var(--q-border2);
+  border-radius: var(--r); max-height: 200px; overflow-y: auto;
+  box-shadow: 0 10px 32px rgba(0,0,0,0.5);
+}
+.loc-suggestion { padding: 8px 12px; font-size: 12px; color: var(--q-muted); cursor: pointer; border-bottom: 1px solid var(--q-border); transition: all .1s; }
+.loc-suggestion:hover { background: var(--q-dark4); color: var(--q-text); }
+.loc-suggestion:last-child { border-bottom: none; }
+.loc-drive-time { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: var(--q-violet); background: var(--q-violet-dim); border: 1px solid var(--q-violet-border); border-radius: 6px; padding: 3px 8px; margin-top: 5px; }
+/* Month stats in subbar */
+#month-stats { font-family: var(--font-mono); font-size: 9.5px; color: var(--q-muted2); letter-spacing: .04em; display: flex; gap: 10px; align-items: center; margin-left: 8px; }
+.mstat { display: flex; align-items: center; gap: 4px; }
+.mstat-dot { width: 5px; height: 5px; border-radius: 50%; }
+/* Event type badge */
+.event-type-badge-event { background: var(--q-violet-dim); color: var(--q-violet); }
 /* Help page */
 .help-section { margin-bottom: 40px; }
 .help-section-title {
@@ -1424,6 +1445,7 @@ body.light-mode .theme-toggle::after { transform: translateX(17px); background: 
 }
 .type-btn.active-meeting { background: var(--q-blue-dim); color: var(--q-blue2); }
 .type-btn.active-task { background: var(--q-amber-dim); color: var(--q-amber); }
+.type-btn.active-event { background: var(--q-violet-dim); color: var(--q-violet); }
 .type-btn + .type-btn { border-left: 1px solid var(--q-border2); }
 
 /* Member checklist */
@@ -3194,14 +3216,14 @@ kbd{font-family:var(--font-mono);font-size:11px;background:var(--q-dark5);border
       <button class="nav-pill-btn" id="nav-dash" onclick="showPage('dashboard')">Dashboard</button>
       <button class="nav-pill-btn" id="nav-admin" onclick="showPage('admin')" style="display:none">Admin</button>
       <button class="nav-pill-btn" id="nav-profile" onclick="showPage('profile')">Profile</button>
-      <button class="nav-pill-btn" id="nav-help" onclick="showPage('help')" title="Help guide">?</button>
+      <button class="nav-pill-btn" id="nav-help" onclick="showPage('help')" title="Help guide">Help</button>
     </div>
     <!-- RIGHT: Controls — flex:1 + justify-end to mirror left side -->
     <div class="topbar-right" style="flex:1;justify-content:flex-end">
       <button class="btn-icon" onclick="openSearch()" title="Search (⌘K)" style="font-size:12px;padding:5px 10px;font-weight:600">⌘K</button>
       <button class="btn-icon" id="share-btn" onclick="openShareModal()" title="Share calendar" style="display:none;align-items:center;gap:5px">
         <svg style="display:block" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-        Share
+        Share Calendar
       </button>
       <button class="theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle theme"></button>
       <div class="user-pill" id="user-pill" onclick="toggleUserMenu()">
@@ -3221,6 +3243,7 @@ kbd{font-family:var(--font-mono);font-size:11px;background:var(--q-dark5);border
     <button class="topbar-nav-btn" onclick="navNext()">›</button>
     <div id="month-label" style="font-size:14px;font-weight:600;min-width:190px;color:var(--q-text);cursor:pointer" title="Double-click to go to today" ondblclick="goToday()"></div>
     <button class="topbar-nav-btn" onclick="goToday()" style="font-size:11px;padding:5px 10px;font-family:var(--font-body);white-space:nowrap" title="Go to today (T)">Today</button>
+    <div id="month-stats" style="display:none"></div>
     <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
       <div class="view-toggle">
         <button class="view-btn active" id="view-month-btn" onclick="setView('month')">Month</button>
@@ -3263,11 +3286,13 @@ kbd{font-family:var(--font-mono);font-size:11px;background:var(--q-dark5);border
           <div class="btn-new-group" id="create-btns" style="display:none">
             <button class="btn-new-meeting" style="letter-spacing:.02em" onclick="openNewEvent('meeting')">Meeting</button>
             <button class="btn-new-task" onclick="openNewEvent('task')">Task</button>
+            <button class="btn-new-task" style="border-color:var(--q-violet-border);color:var(--q-violet);background:var(--q-violet-dim)" onclick="openNewEvent('event')">Event</button>
           </div>
           <div id="cal-type-filter" style="display:none;margin-top:8px;gap:4px">
             <button class="type-filter-btn active" id="filter-all" onclick="setCalFilter('all')">All</button>
             <button class="type-filter-btn" id="filter-meetings" onclick="setCalFilter('meetings')">Meetings</button>
             <button class="type-filter-btn" id="filter-tasks" onclick="setCalFilter('tasks')">Tasks</button>
+            <button class="type-filter-btn" id="filter-events" onclick="setCalFilter('events')">Events</button>
           </div>
         </div>
         <div class="sidebar-section">
@@ -3730,6 +3755,18 @@ kbd{font-family:var(--font-mono);font-size:11px;background:var(--q-dark5);border
           </div>
         </div>
       </div>
+
+      <!-- Contact -->
+      <div class="help-section">
+        <div class="help-section-title">Contact &amp; Feedback</div>
+        <div class="help-feature" style="background:var(--q-blue-dim);border-color:var(--q-blue-border)">
+          <div class="help-feature-name" style="color:var(--q-blue2)">Get help or share feedback</div>
+          <div class="help-feature-body">Found a bug? Have a recommendation or feature request? Reach out — we read every message.<br><br>
+            <a href="mailto:ftc8404@gmail.com" style="color:var(--q-blue2);font-weight:700;font-size:13px;text-decoration:none">ftc8404@gmail.com</a>
+            <span style="color:var(--q-muted2);font-size:11px;margin-left:8px">— Team FTC 8404</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -3763,6 +3800,7 @@ kbd{font-family:var(--font-mono);font-size:11px;background:var(--q-dark5);border
     <div class="type-toggle">
       <button class="type-btn active-meeting" id="type-meeting-btn" onclick="switchType('meeting')">Meeting</button>
       <button class="type-btn" id="type-task-btn" onclick="switchType('task')">Task</button>
+      <button class="type-btn" id="type-event-btn" onclick="switchType('event')">Event</button>
     </div>
     <div class="form-group"><label class="form-label" id="ev-title-label">Title</label><input class="form-input" id="ev-title" type="text" placeholder="Add title"/></div>
     <div class="modal-row">
@@ -3835,7 +3873,20 @@ kbd{font-family:var(--font-mono);font-size:11px;background:var(--q-dark5);border
       </div>
     </div>
 
-    <div class="form-group"><label class="form-label">Notes (optional)</label><textarea class="form-input" id="ev-desc" placeholder="Add notes or agenda…"></textarea></div>
+    <!-- EVENT SECTION (general events like concerts, games, etc.) -->
+    <div id="ev-event-section" style="display:none">
+      <div class="section-divider"></div>
+      <div style="font-size:11px;color:var(--q-muted2);padding:4px 0 8px">General event — concerts, competitions, outings, etc. No invitees or task tracking required.</div>
+    </div>
+    <!-- LOCATION (shared by all types) -->
+    <div class="form-group">
+      <label class="form-label">Location <span style="color:var(--q-muted2);font-weight:400">(optional)</span></label>
+      <div class="loc-wrap">
+        <input class="form-input" id="ev-location" type="text" placeholder="Add a location or address…" autocomplete="off" oninput="onLocationInput(this.value)"/>
+        <div class="loc-suggestions" id="loc-suggestions" style="display:none"></div>
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Notes <span style="color:var(--q-muted2);font-weight:400">(optional)</span></label><textarea class="form-input" id="ev-desc" placeholder="Add notes or agenda…"></textarea></div>
     <div class="form-group" id="ev-post-notes-wrap" style="display:none"><label class="form-label">Post-meeting notes</label><textarea class="form-input" id="ev-post-notes" placeholder="What was discussed, decisions made…" style="min-height:80px"></textarea><div style="font-size:10px;color:var(--q-muted2);margin-top:4px">Visible to all invitees after the meeting.</div></div>
     <div class="modal-actions">
       <button class="btn-secondary" id="ev-delete-btn" onclick="deleteCurrentEvent()" style="display:none">Delete</button>
@@ -3853,6 +3904,7 @@ kbd{font-family:var(--font-mono);font-size:11px;background:var(--q-dark5);border
     <div class="event-meta"><span id="view-date"></span></div>
     <div class="event-meta" id="view-time-row" style="display:none"><span id="view-time"></span></div>
     <div class="event-meta"><span id="view-cal"></span></div>
+    <div class="event-meta" id="view-location-row" style="display:none"><span id="view-location"></span></div>
     <div class="event-meta" id="view-repeat-row" style="display:none"><span id="view-repeat"></span></div>
     <div class="event-meta" id="view-manager-row" style="display:none"><span id="view-manager"></span></div>
     <div class="event-desc" id="view-desc" style="display:none"></div>
@@ -4281,7 +4333,7 @@ function updateAdminUI(){
 // ── Render all ─────────────────────────────────────────────────────────────
 function renderAll(){
   if(currentView==='month')renderCalendar();else renderWeekView();
-  renderMiniCal();updateTopbar();updateCalHeader();
+  renderMiniCal();updateTopbar();updateCalHeader();updateMonthStats();
 }
 
 function updateTopbar(){
@@ -4376,7 +4428,7 @@ function renderCalendar(container,forDate){
       if(enabledCalIds.has(e.calendarId))return true;
       if(e._invited&&enabledCalIds.has(e.calendarId))return true;
       return false;
-    }).filter(e=>calTypeFilter==='all'||(calTypeFilter==='meetings'&&e.type!=='task')||(calTypeFilter==='tasks'&&e.type==='task')).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+    }).filter(e=>calTypeFilter==='all'||(calTypeFilter==='meetings'&&e.type==='meeting')||(calTypeFilter==='tasks'&&e.type==='task')||(calTypeFilter==='events'&&e.type==='event')).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
     const todayStr=today.toISOString().split('T')[0];
     const hasOverdue=isCur&&ds<todayStr&&cev.some(e=>e.type==='task'&&!e.completed);
     const cell=document.createElement('div');
@@ -4389,10 +4441,8 @@ function renderCalendar(container,forDate){
       let color=ev.color||cal?.color||'#2979ff';
       const isOverdue=ev.type==='task'&&!ev.completed&&ev.date<todayStr;
       if(ev.completed){color='#94a3b8';}
-      else if(ev.type==='task'){
-        const pri=ev.priority||'important';
-        color=pri==='critical'?'#ef4444':pri==='important'?'#f59e0b':'#22c55e';
-      }
+      else if(ev.type==='task'){const pri=ev.priority||'important';color=pri==='critical'?'#ef4444':pri==='important'?'#f59e0b':'#22c55e';}
+      else if(ev.type==='event'){color=ev.color||'#8b5cf6';}
       const pill=document.createElement('div');
       pill.className=`event-pill${ev.completed?' completed':''}`;
       pill.style.background=ev.completed?'rgba(148,163,184,0.22)':color+'22';
@@ -4467,7 +4517,7 @@ function renderWeekView(){
     exp.filter(e=>e.date===ds&&e.allDay&&(e.isShared?enabledCalIds.has(e.sharedCalId):(enabledCalIds.has(e.calendarId)||(e._invited&&enabledCalIds.has(e.calendarId))))).forEach(ev=>{
       const cal=calendars.find(c=>c.id===ev.calendarId)||sharedCalendars.find(c=>c.id===ev.sharedCalId);
       let color=ev.color||cal?.color||'#2979ff';
-      if(ev.completed){color='#94a3b8';}else if(ev.type==='task'){const pri=ev.priority||'important';color=pri==='critical'?'#ef4444':pri==='important'?'#f59e0b':'#22c55e';}
+      if(ev.completed){color='#94a3b8';}else if(ev.type==='task'){const pri=ev.priority||'important';color=pri==='critical'?'#ef4444':pri==='important'?'#f59e0b':'#22c55e';}else if(ev.type==='event'){color=ev.color||'#8b5cf6';}
       const p=document.createElement('div');p.className='week-allday-pill';
       p.style.background=color+'2a';p.style.color=color;p.textContent=ev.title;
       p.onclick=()=>openViewEvent(ev);cell.appendChild(p);
@@ -4502,7 +4552,7 @@ function renderWeekView(){
     exp.filter(e=>e.date===ds&&!e.allDay&&e.time&&(e.isShared?enabledCalIds.has(e.sharedCalId):(enabledCalIds.has(e.calendarId)||(e._invited&&enabledCalIds.has(e.calendarId))))).forEach(ev=>{
       const cal=calendars.find(c=>c.id===ev.calendarId)||sharedCalendars.find(c=>c.id===ev.sharedCalId);
       let color=ev.color||cal?.color||'#2979ff';
-      if(ev.completed){color='#94a3b8';}else if(ev.type==='task'){const pri=ev.priority||'important';color=pri==='critical'?'#ef4444':pri==='important'?'#f59e0b':'#22c55e';}
+      if(ev.completed){color='#94a3b8';}else if(ev.type==='task'){const pri=ev.priority||'important';color=pri==='critical'?'#ef4444':pri==='important'?'#f59e0b':'#22c55e';}else if(ev.type==='event'){color=ev.color||'#8b5cf6';}
       const[sh,sm]=ev.time.split(':').map(Number);let sm0=sh*60+sm,em0=sm0+60;
       if(ev.timeEnd){const[eh,em]=ev.timeEnd.split(':').map(Number);em0=eh*60+em;}
       const blk=document.createElement('div');blk.className=`week-event-block${ev.completed?' completed':''}`;
@@ -4514,7 +4564,7 @@ function renderWeekView(){
     wd.appendChild(col);
   });
   const scroll=document.getElementById('week-scroll');
-  if(scroll){const nowH=getNow().getHours();scroll.scrollTop=Math.max(0,nowH*H-80);scroll.dataset.scrolled='1';}
+  if(scroll){const _n=getNow();const nowMins=_n.getHours()*60+_n.getMinutes();scroll.scrollTop=Math.max(0,(nowMins/60)*H-120);}
   // Auto-update time indicator every minute
   clearInterval(window._nowLineTimer);
   window._nowLineTimer=setInterval(()=>{if(currentView==='week')renderWeekView();},60000);
@@ -4602,7 +4652,7 @@ function _fluidScroll(deltaY){
   _fluid.progress=Math.max(0,Math.min(1,_fluid.progress+Math.abs(deltaY)/(H*0.55)));
   _fluidApply();
   clearTimeout(_fluid.timeout);
-  _fluid.timeout=setTimeout(()=>_fluidCommit(_fluid.progress>0.28),180);
+  _fluid.timeout=setTimeout(()=>_fluidCommit(_fluid.progress>0.50),550);
 }
 
 window.navPrev=()=>{
@@ -4616,7 +4666,7 @@ window.navNext=()=>{
 window.miniNavMonth=(d)=>{miniDate=new Date(miniDate.getFullYear(),miniDate.getMonth()+d,1);renderMiniCal();};
 window.setCalFilter=(f)=>{
   calTypeFilter=f;
-  ['all','meetings','tasks'].forEach(x=>document.getElementById('filter-'+x)?.classList.toggle('active',x===f));
+  ['all','meetings','tasks','events'].forEach(x=>document.getElementById('filter-'+x)?.classList.toggle('active',x===f));
   renderCalendar();renderMiniCal();
 };
 window.goToday=()=>{currentDate=getNow();miniDate=getNow();renderAll();};
@@ -4628,6 +4678,51 @@ window.toggleAllCals=()=>{
   if(allEnabled)enabledCalIds.clear();else allCals.forEach(c=>enabledCalIds.add(c.id));
   renderSidebar();renderAll();
 };
+
+// ── Month stats (shown in subbar) ─────────────────────────────────────────
+function updateMonthStats(){
+  const el=document.getElementById('month-stats');if(!el||currentView!=='month')return;
+  const y=currentDate.getFullYear(),m=currentDate.getMonth();
+  const rs=new Date(y,m,1),re=new Date(y,m+1,0);
+  const exp=expandRec(events,rs,re);
+  const visible=exp.filter(e=>e.isShared?enabledCalIds.has(e.sharedCalId):enabledCalIds.has(e.calendarId));
+  const meetings=visible.filter(e=>e.type==='meeting').length;
+  const tasks=visible.filter(e=>e.type==='task').length;
+  const evts=visible.filter(e=>e.type==='event').length;
+  const parts=[];
+  if(meetings)parts.push(`<span class="mstat"><span class="mstat-dot" style="background:#00a8ff"></span>${meetings} meeting${meetings!==1?'s':''}</span>`);
+  if(tasks)parts.push(`<span class="mstat"><span class="mstat-dot" style="background:#f59e0b"></span>${tasks} task${tasks!==1?'s':''}</span>`);
+  if(evts)parts.push(`<span class="mstat"><span class="mstat-dot" style="background:#8b5cf6"></span>${evts} event${evts!==1?'s':''}</span>`);
+  el.innerHTML=parts.join('<span style="color:var(--q-border2);font-size:10px">·</span>');
+  el.style.display=parts.length?'flex':'none';
+}
+
+// ── Location autocomplete (Nominatim) ──────────────────────────────────────
+let _locTimer=null;
+window.onLocationInput=(val)=>{
+  const suggestEl=document.getElementById('loc-suggestions');
+  clearTimeout(_locTimer);suggestEl.innerHTML='';
+  if(!val.trim()||val.length<3){suggestEl.style.display='none';return;}
+  _locTimer=setTimeout(async()=>{
+    try{
+      const res=await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(val)}&format=json&limit=5&addressdetails=0`,{headers:{'Accept-Language':'en','User-Agent':'QuixCalendar/1.0 (ftc8404@gmail.com)'}});
+      const data=await res.json();
+      suggestEl.innerHTML='';
+      if(!data.length){suggestEl.style.display='none';return;}
+      data.forEach(p=>{
+        const d=document.createElement('div');d.className='loc-suggestion';
+        d.textContent=p.display_name;
+        d.onclick=()=>{document.getElementById('ev-location').value=p.display_name;suggestEl.style.display='none';};
+        suggestEl.appendChild(d);
+      });
+      suggestEl.style.display='block';
+    }catch(e){suggestEl.style.display='none';}
+  },400);
+};
+document.addEventListener('click',e=>{
+  const sug=document.getElementById('loc-suggestions');
+  if(sug&&!sug.contains(e.target)&&e.target.id!=='ev-location')sug.style.display='none';
+});
 
 // ── Hover card ─────────────────────────────────────────────────────────────
 let _hoverCard=null,_hoverTimer=null;
@@ -4844,9 +4939,7 @@ function openViewEvent(ev){
   viewingEv=ev;
   const cal=calendars.find(c=>c.id===ev.calendarId)||sharedCalendars.find(c=>c.id===ev.sharedCalId);
   const color=ev.completed?'#6b7280':(ev.color||cal?.color||'#2979ff');
-  const typeBadge=ev.type==='task'
-    ?`<span class="event-type-badge" style="background:var(--q-amber-dim);color:var(--q-amber)">TASK</span>`
-    :`<span class="event-type-badge" style="background:var(--q-blue-dim);color:var(--q-blue2)">MEETING</span>`;
+  const typeBadge=ev.type==='task'?`<span class="event-type-badge" style="background:var(--q-amber-dim);color:var(--q-amber)">TASK</span>`:ev.type==='event'?`<span class="event-type-badge" style="background:var(--q-violet-dim);color:var(--q-violet)">EVENT</span>`:`<span class="event-type-badge" style="background:var(--q-blue-dim);color:var(--q-blue2)">MEETING</span>`;
   const completedBadge=ev.completed?`<span class="event-type-badge" style="background:rgba(156,163,175,.15);color:var(--q-muted)">COMPLETED</span>`:'';
   document.getElementById('view-title').innerHTML=`<span class="event-view-color" style="background:${color}"></span>${ev.title}${typeBadge}${completedBadge}`;
   const dateObj=new Date(ev.date+'T12:00:00');
@@ -4855,6 +4948,35 @@ function openViewEvent(ev){
   else if(ev.time){let t=fmt12(ev.time);if(ev.timeEnd)t+=` → ${fmt12(ev.timeEnd)}`;document.getElementById('view-time').textContent=t;document.getElementById('view-time-row').style.display='flex';}
   else document.getElementById('view-time-row').style.display='none';
   document.getElementById('view-cal').textContent=cal?.name||'Calendar';
+  // Location row
+  const locRow=document.getElementById('view-location-row');
+  const locEl=document.getElementById('view-location');
+  if(ev.location&&locRow&&locEl){
+    const mapsUrl=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ev.location)}`;
+    locEl.innerHTML=`<span style="margin-right:6px">📍</span><a href="${mapsUrl}" target="_blank" rel="noopener" style="color:var(--q-blue2);text-decoration:none;font-weight:600">${ev.location}</a><span id="view-drive-time" style="margin-left:8px"></span>`;
+    locRow.style.display='flex';
+    // Try to get driving time
+    if(navigator.geolocation){
+      navigator.geolocation.getCurrentPosition(async pos=>{
+        try{
+          const {latitude:lat,longitude:lng}=pos.coords;
+          const enc=encodeURIComponent(ev.location);
+          const geoRes=await fetch(`https://nominatim.openstreetmap.org/search?q=${enc}&format=json&limit=1`,{headers:{'User-Agent':'QuixCalendar/1.0'}});
+          const geoData=await geoRes.json();
+          if(!geoData[0])return;
+          const dLat=geoData[0].lat,dLon=geoData[0].lon;
+          const routeRes=await fetch(`https://router.project-osrm.org/route/v1/driving/${lng},${lat};${dLon},${dLat}?overview=false`);
+          const routeData=await routeRes.json();
+          const secs=routeData.routes?.[0]?.duration;
+          if(!secs)return;
+          const mins=Math.round(secs/60);
+          const timeStr=mins<60?`${mins} min`:`${Math.floor(mins/60)}h ${mins%60}m`;
+          const dtEl=document.getElementById('view-drive-time');
+          if(dtEl)dtEl.innerHTML=`<span class="loc-drive-time">🚗 ${timeStr} drive</span>`;
+        }catch(e){}
+      },()=>{},{timeout:5000});
+    }
+  } else if(locRow) locRow.style.display='none';
   if(ev.repeat&&ev.repeat!=='none'){document.getElementById('view-repeat').textContent=REPEAT_LABELS[ev.repeat]+(ev.repeatEnd?' until '+ev.repeatEnd:'');document.getElementById('view-repeat-row').style.display='flex';}
   else document.getElementById('view-repeat-row').style.display='none';
   if(ev.description){document.getElementById('view-desc').textContent=ev.description;document.getElementById('view-desc').style.display='block';}
@@ -5023,6 +5145,8 @@ function openEventModal(ev=null,defDate=null,defType='meeting'){
   document.getElementById('ev-date').value=ev?.date||defDate||getTodayStr();
   document.getElementById('ev-time').value=ev?.time||'';
   document.getElementById('ev-time-end').value=ev?.timeEnd||'';
+  document.getElementById('ev-location').value=ev?.location||'';
+  document.getElementById('loc-suggestions').style.display='none';
   document.getElementById('ev-desc').value=ev?.description||'';
   document.getElementById('ev-post-notes').value=ev?.postNotes||'';
   updatePostNotesVisibility(ev?.date||document.getElementById('ev-date').value);
@@ -5062,11 +5186,13 @@ window.switchType=(type)=>{
   currentType=type;
   document.getElementById('type-meeting-btn').className='type-btn'+(type==='meeting'?' active-meeting':'');
   document.getElementById('type-task-btn').className='type-btn'+(type==='task'?' active-task':'');
-  document.getElementById('ev-title-label').textContent=type==='meeting'?'Meeting title':'Task title';
-  document.getElementById('ev-time-row').style.display=type==='meeting'?'grid':'none';
-  document.getElementById('ev-allday-wrap').style.display=type==='meeting'?'block':'none';
+  document.getElementById('type-event-btn').className='type-btn'+(type==='event'?' active-event':'');
+  document.getElementById('ev-title-label').textContent=type==='meeting'?'Meeting title':type==='task'?'Task title':'Event title';
+  document.getElementById('ev-time-row').style.display=(type==='meeting'||type==='event')?'grid':'none';
+  document.getElementById('ev-allday-wrap').style.display=(type==='meeting'||type==='event')?'block':'none';
   document.getElementById('ev-meeting-section').style.display=type==='meeting'?'block':'none';
   document.getElementById('ev-task-section').style.display=type==='task'?'block':'none';
+  document.getElementById('ev-event-section').style.display=type==='event'?'block':'none';
 };
 function updatePostNotesVisibility(evDate){
   const wrap=document.getElementById('ev-post-notes-wrap');if(!wrap)return;
@@ -5551,17 +5677,21 @@ window.saveEvent=async()=>{
   if(currentType==='meeting'){
     const hasMandatory=invitees.some(i=>i.attendance==='mandatory');
     autoColor=invitees.length>0?(hasMandatory?'#ef4444':'#22c55e'):'#00b4ff';
+  } else if(currentType==='event'){
+    autoColor='#8b5cf6';
   } else {
     autoColor=taskPriority==='critical'?'#ef4444':taskPriority==='important'?'#f59e0b':'#22c55e';
   }
+  const hasTimed=(currentType==='meeting'||currentType==='event')&&!allDay;
   // inviteeUids for both meetings and tasks so snapshot subscriptions work
   const inviteeUids=currentType==='meeting'?invitees.map(i=>i.uid):assignees.map(a=>a.uid);
   const data={
     uid:cu.uid,title,type:currentType,
     date:document.getElementById('ev-date').value,
-    time:currentType==='meeting'&&!allDay?(document.getElementById('ev-time').value||null):null,
-    timeEnd:currentType==='meeting'&&!allDay?(document.getElementById('ev-time-end').value||null):null,
-    allDay:currentType==='meeting'?allDay:false,
+    time:hasTimed?(document.getElementById('ev-time').value||null):null,
+    timeEnd:hasTimed?(document.getElementById('ev-time-end').value||null):null,
+    allDay:(currentType==='meeting'||currentType==='event')?allDay:false,
+    location:document.getElementById('ev-location').value.trim()||null,
     repeat,repeatEnd:repeat!=='none'?(document.getElementById('ev-repeat-end').value||null):null,
     invitees:currentType==='meeting'?invitees:[],
     assignees:currentType==='task'?assignees:[],
@@ -6140,13 +6270,17 @@ window.runSearch=(q)=>{
   const allResults=events.filter(e=>{
     if(e.title?.toLowerCase().includes(lower))return true;
     if(e.description?.toLowerCase().includes(lower))return true;
+    if(e.location?.toLowerCase().includes(lower))return true;
+    const cal=calendars.find(c=>c.id===e.calendarId)||sharedCalendars.find(c=>c.id===e.calendarId||c.id===e.sharedCalId);
+    if(cal?.name?.toLowerCase().includes(lower))return true;
     const ppl=[...(e.invitees||[]),...(e.assignees||[])];
     return ppl.some(p=>(p.name||p.displayName||'').toLowerCase().includes(lower));
   });
   if(!allResults.length){el.innerHTML='<div style="font-size:12px;color:var(--q-muted2);padding:20px 4px;text-align:center">No results for "<strong style="color:var(--q-text)">'+q+'</strong>"</div>';return;}
   el.innerHTML='';
-  const meetings=allResults.filter(e=>e.type!=='task').slice(0,6);
+  const meetings=allResults.filter(e=>e.type==='meeting').slice(0,6);
   const tasks=allResults.filter(e=>e.type==='task').slice(0,6);
+  const evts=allResults.filter(e=>e.type==='event').slice(0,6);
   const renderGroup=(label,items)=>{
     if(!items.length)return;
     const hdr=document.createElement('div');
@@ -6157,7 +6291,7 @@ window.runSearch=(q)=>{
       const color=ev.type==='task'?(ev.priority==='critical'?'#ef4444':ev.priority==='important'?'#f59e0b':'#22c55e'):(ev.color||cal?.color||'#00b4ff');
       const d=new Date(ev.date+'T12:00:00');
       const row=document.createElement('div');row.className='search-result-row';
-      row.innerHTML=`<div style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0;margin-top:2px"></div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;color:var(--q-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${ev.title}</div><div style="font-size:10px;color:var(--q-muted)">${d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}${cal?' · '+cal.name:''}</div></div>${ev.completed?'<span style="font-size:9px;color:var(--q-muted2);background:var(--q-dark4);padding:2px 6px;border-radius:5px;flex-shrink:0">Done</span>':''}`;
+      row.innerHTML=`<div style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0;margin-top:2px"></div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;color:var(--q-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${ev.title}</div><div style="font-size:10px;color:var(--q-muted)">${d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}${cal?' · '+cal.name:''}${ev.location?' · 📍'+ev.location.slice(0,30):''}</div></div>${ev.completed?'<span style="font-size:9px;color:var(--q-muted2);background:var(--q-dark4);padding:2px 6px;border-radius:5px;flex-shrink:0">Done</span>':''}`;
       row.onclick=()=>{
         closeModal('search-modal');
         const evD=new Date(ev.date+'T12:00:00');
@@ -6173,6 +6307,7 @@ window.runSearch=(q)=>{
   };
   renderGroup('Meetings',meetings);
   renderGroup('Tasks',tasks);
+  renderGroup('Events',evts);
 };
 
 // ── Attendance Tracking ─────────────────────────────────────────────────────
